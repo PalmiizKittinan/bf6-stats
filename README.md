@@ -1,4 +1,4 @@
-# BF6 Stats Dashboard
+# Palmiiz BF6 Stats Dashboard
 
 A web application for viewing your **Battlefield 6** multiplayer statistics, built with [Next.js](https://nextjs.org) and [Bootstrap 5.3](https://getbootstrap.com/).
 
@@ -63,7 +63,7 @@ npm start
 
 ## Project Structure
 
-```
+```text
 src/
 ├── app/
 │   ├── globals.css              # Global styles, Bootstrap import, custom dark theme
@@ -89,7 +89,7 @@ src/
 
 The application fetches data from:
 
-```
+```text
 https://api.gametools.network/bf6/stats/?categories=multiplayer&raw=false&format_values=true&seperation=false&name={playerName}&platform={platform}&skip_battlelog=true&lang=en-us
 ```
 
@@ -101,7 +101,8 @@ https://api.gametools.network/bf6/stats/?categories=multiplayer&raw=false&format
 
 ## Screenshots
 
-The dashboard features a dark gaming-themed UI with:
+### The dashboard features a dark gaming-themed UI with
+
 - Gradient header with player avatar and info
 - Color-coded stat cards organized in responsive grids
 - Sortable & searchable data tables for weapons, vehicles, maps, and gadgets
