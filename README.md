@@ -34,7 +34,7 @@ Data is powered by the [GameTools Network API](https://gametools.network).
 ### Installation
 
 ```bash
-git clone https://github.com/your-username/bf6-stats.git
+git clone https://github.com/PalmiizKittinan/bf6-stats.git
 cd bf6-stats
 npm install
 ```
