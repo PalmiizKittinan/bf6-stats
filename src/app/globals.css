@@ -1,42 +1,106 @@
 @import "bootstrap/dist/css/bootstrap.min.css";
 
-:root {
+/* ===== CSS Variables ===== */
+
+/* Dark theme (default) */
+:root,
+[data-bs-theme="dark"] {
   --bf6-primary: #0d6efd;
+  --bf6-bg: #0a0a1a;
   --bf6-dark: #1a1a2e;
   --bf6-darker: #16213e;
   --bf6-accent: #e94560;
   --bf6-card-bg: #0f3460;
   --bf6-text: #e0e0e0;
   --bf6-text-muted: #a0a0a0;
+  --bf6-text-strong: #ffffff;
   --bf6-success: #28a745;
   --bf6-warning: #ffc107;
   --bf6-info: #17a2b8;
+  --bf6-border: rgba(255, 255, 255, 0.1);
+  --bf6-border-hover: rgba(255, 255, 255, 0.2);
+  --bf6-card-shadow: rgba(0, 0, 0, 0.3);
+  --bf6-header-bg: linear-gradient(135deg, var(--bf6-darker) 0%, var(--bf6-dark) 50%, var(--bf6-card-bg) 100%);
+  --bf6-card-gradient: linear-gradient(135deg, var(--bf6-darker) 0%, var(--bf6-dark) 100%);
+  --bf6-search-bg: rgba(255, 255, 255, 0.1);
+  --bf6-search-focus-bg: rgba(255, 255, 255, 0.15);
+  --bf6-bar-bg: rgba(255, 255, 255, 0.1);
+  --bf6-season-bg: linear-gradient(135deg, var(--bf6-card-bg), var(--bf6-darker));
+  --bf6-scrollbar-track: #1a1a2e;
+  --bf6-scrollbar-thumb: #0f3460;
+  --bf6-table-bg: transparent;
+  --bf6-table-stripe: rgba(255, 255, 255, 0.02);
+  --bf6-table-hover: rgba(255, 255, 255, 0.05);
 }
 
+/* Light theme */
+[data-bs-theme="light"] {
+  --bf6-bg: #f0f2f5;
+  --bf6-dark: #ffffff;
+  --bf6-darker: #f8f9fa;
+  --bf6-accent: #d63854;
+  --bf6-card-bg: #e8edf5;
+  --bf6-text: #212529;
+  --bf6-text-muted: #6c757d;
+  --bf6-text-strong: #000000;
+  --bf6-border: rgba(0, 0, 0, 0.1);
+  --bf6-border-hover: rgba(0, 0, 0, 0.2);
+  --bf6-card-shadow: rgba(0, 0, 0, 0.08);
+  --bf6-header-bg: linear-gradient(135deg, #e3e8f0 0%, #dde3ed 50%, #d0d8e8 100%);
+  --bf6-card-gradient: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  --bf6-search-bg: rgba(0, 0, 0, 0.05);
+  --bf6-search-focus-bg: rgba(0, 0, 0, 0.08);
+  --bf6-bar-bg: rgba(0, 0, 0, 0.08);
+  --bf6-season-bg: linear-gradient(135deg, #e8edf5, #f8f9fa);
+  --bf6-scrollbar-track: #e9ecef;
+  --bf6-scrollbar-thumb: #ced4da;
+  --bf6-table-stripe: rgba(0, 0, 0, 0.02);
+  --bf6-table-hover: rgba(0, 0, 0, 0.04);
+}
+
+/* ===== Base Styles ===== */
+
 body {
-  background-color: #0a0a1a;
+  background-color: var(--bf6-bg);
   color: var(--bf6-text);
   font-family: Arial, Helvetica, sans-serif;
   min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Custom card styling */
+/* ===== Header ===== */
+
+.header-section {
+  background: var(--bf6-header-bg);
+  border-bottom: 2px solid var(--bf6-accent);
+  transition: background 0.3s ease;
+}
+
+.player-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid var(--bf6-accent);
+}
+
+/* ===== Stats Card ===== */
+
 .stats-card {
-  background: linear-gradient(135deg, var(--bf6-darker) 0%, var(--bf6-dark) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bf6-card-gradient);
+  border: 1px solid var(--bf6-border);
   border-radius: 12px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
 }
 
 .stats-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 25px var(--bf6-card-shadow);
 }
 
 .stat-value {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--bf6-text-strong);
 }
 
 .stat-label {
@@ -50,58 +114,8 @@ body {
   color: var(--bf6-accent);
 }
 
-/* Header styling */
-.header-section {
-  background: linear-gradient(135deg, var(--bf6-darker) 0%, var(--bf6-dark) 50%, var(--bf6-card-bg) 100%);
-  border-bottom: 2px solid var(--bf6-accent);
-}
+/* ===== Section Title ===== */
 
-/* Player info section */
-.player-avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  border: 3px solid var(--bf6-accent);
-}
-
-/* Weapon bar */
-.weapon-bar {
-  height: 8px;
-  border-radius: 4px;
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.weapon-bar-fill {
-  height: 100%;
-  border-radius: 4px;
-  background: linear-gradient(90deg, var(--bf6-accent), #ff6b6b);
-}
-
-/* Search input */
-.search-input {
-  background-color: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-}
-
-.search-input:focus {
-  background-color: rgba(255, 255, 255, 0.15);
-  border-color: var(--bf6-accent);
-  color: #ffffff;
-  box-shadow: 0 0 0 0.2rem rgba(233, 69, 96, 0.25);
-}
-
-.search-input::placeholder {
-  color: var(--bf6-text-muted);
-}
-
-/* Loading spinner */
-.spinner-grow {
-  width: 3rem;
-  height: 3rem;
-}
-
-/* Section headers */
 .section-title {
   font-size: 1.1rem;
   font-weight: 600;
@@ -110,42 +124,174 @@ body {
   letter-spacing: 1px;
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--bf6-border);
+  transition: color 0.3s ease, border-color 0.3s ease;
 }
 
-/* Season badge */
+/* ===== Season Badge ===== */
+
 .season-badge {
-  background: linear-gradient(135deg, var(--bf6-card-bg), var(--bf6-darker));
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: var(--bf6-season-bg);
+  border: 1px solid var(--bf6-border);
   border-radius: 8px;
+  transition: background 0.3s ease;
 }
 
-/* Vehicle card */
+/* ===== Vehicle Card ===== */
+
 .vehicle-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bf6-search-bg);
+  border: 1px solid var(--bf6-border);
   border-radius: 8px;
 }
 
-/* Progress bars */
+/* ===== Progress Bars ===== */
+
+.weapon-bar {
+  height: 8px;
+  border-radius: 4px;
+  background-color: var(--bf6-bar-bg);
+  transition: background-color 0.3s ease;
+}
+
+.weapon-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--bf6-accent), #ff6b6b);
+}
+
 .bg-bf6-accent {
   background-color: var(--bf6-accent) !important;
 }
 
-/* Scrollbar styling */
+/* ===== Search Input ===== */
+
+.search-input {
+  background-color: var(--bf6-search-bg) !important;
+  border: 1px solid var(--bf6-border-hover) !important;
+  color: var(--bf6-text-strong) !important;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.search-input:focus {
+  background-color: var(--bf6-search-focus-bg) !important;
+  border-color: var(--bf6-accent) !important;
+  color: var(--bf6-text-strong) !important;
+  box-shadow: 0 0 0 0.2rem rgba(233, 69, 96, 0.25) !important;
+}
+
+.search-input::placeholder {
+  color: var(--bf6-text-muted) !important;
+}
+
+/* ===== Data Table Overrides ===== */
+
+/* Light theme: fix table-dark to be light */
+[data-bs-theme="light"] .table-dark {
+  --bs-table-bg: transparent;
+  --bs-table-striped-bg: var(--bf6-table-stripe);
+  --bs-table-hover-bg: var(--bf6-table-hover);
+  color: var(--bf6-text);
+}
+
+[data-bs-theme="light"] .table-dark thead th {
+  background-color: #e9ecef;
+  color: var(--bf6-text);
+  border-bottom: 2px solid #dee2e6;
+}
+
+[data-bs-theme="light"] .table-dark tbody td {
+  color: var(--bf6-text);
+  border-color: #dee2e6;
+}
+
+[data-bs-theme="light"] .table-dark tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+[data-bs-theme="light"] .stats-card .fw-bold,
+[data-bs-theme="light"] .stats-card .fw-semibold {
+  color: var(--bf6-text-strong) !important;
+}
+
+/* ===== Spinner ===== */
+
+.spinner-grow {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* ===== Navbar ===== */
+
+.bf6-navbar {
+  background: linear-gradient(135deg, #0f3460, #16213e) !important;
+  transition: background 0.3s ease;
+}
+
+[data-bs-theme="light"] .bf6-navbar {
+  background: linear-gradient(135deg, #c8d0dc, #b8c4d4) !important;
+}
+
+[data-bs-theme="light"] .bf6-navbar .navbar-brand,
+[data-bs-theme="light"] .bf6-navbar .text-white {
+  color: #212529 !important;
+}
+
+/* ===== Theme Toggle ===== */
+
+.theme-toggle-btn {
+  border: 1px solid var(--bf6-border-hover);
+  color: var(--bf6-text);
+  background: var(--bf6-search-bg);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.theme-toggle-btn:hover {
+  border-color: var(--bf6-accent);
+  color: var(--bf6-accent);
+}
+
+.theme-toggle-btn.active {
+  border-color: var(--bf6-accent);
+  background: var(--bf6-accent);
+  color: #fff;
+}
+
+.theme-toggle-group {
+  display: flex;
+  gap: 4px;
+}
+
+/* ===== Scrollbar ===== */
+
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bf6-dark);
+  background: var(--bf6-scrollbar-track);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--bf6-card-bg);
+  background: var(--bf6-scrollbar-thumb);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--bf6-accent);
+}
+
+/* ===== Misc ===== */
+
+.form-select.search-input option {
+  background-color: var(--bf6-dark);
+  color: var(--bf6-text);
 }

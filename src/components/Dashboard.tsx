@@ -11,6 +11,7 @@ import ClassesTable from "./ClassesTable";
 import MapsTable from "./MapsTable";
 import GameModesTable from "./GameModesTable";
 import GadgetsTable from "./GadgetsTable";
+import ThemeToggle from "./ThemeToggle";
 
 const DEFAULT_NAME = "AiZ3Nnuazz";
 const DEFAULT_PLATFORM = "ea";
@@ -71,17 +72,14 @@ export default function Dashboard() {
   return (
     <div className="min-vh-100">
       {/* Navbar */}
-      <nav
-        className="navbar navbar-expand-lg navbar-dark"
-        style={{
-          background: "linear-gradient(135deg, #0f3460, #16213e)",
-        }}
-      >
+      <nav className="navbar navbar-expand-lg navbar-dark bf6-navbar">
         <div className="container">
           <span className="navbar-brand fw-bold">
             <span className="stat-highlight">BF6</span> Stats Dashboard
           </span>
-          <form className="d-flex gap-2 ms-auto" onSubmit={handleSearch}>
+          <div className="d-flex align-items-center gap-2 ms-auto flex-wrap">
+            <ThemeToggle />
+            <form className="d-flex gap-2" onSubmit={handleSearch}>
             <select
               className="form-select form-select-sm search-input"
               style={{ width: "100px" }}
@@ -101,18 +99,19 @@ export default function Dashboard() {
               onChange={(e) => setSearchInput(e.target.value)}
               style={{ minWidth: "180px" }}
             />
-            <button
-              className="btn btn-sm"
-              type="submit"
-              style={{
-                backgroundColor: "#e94560",
-                color: "white",
-                borderColor: "#e94560",
-              }}
-            >
-              Search
-            </button>
-          </form>
+              <button
+                className="btn btn-sm"
+                type="submit"
+                style={{
+                  backgroundColor: "#e94560",
+                  color: "white",
+                  borderColor: "#e94560",
+                }}
+              >
+                Search
+              </button>
+            </form>
+          </div>
         </div>
       </nav>
 
