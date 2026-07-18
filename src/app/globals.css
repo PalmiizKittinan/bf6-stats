@@ -1,26 +1,151 @@
-@import "tailwindcss";
+@import "bootstrap/dist/css/bootstrap.min.css";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --bf6-primary: #0d6efd;
+  --bf6-dark: #1a1a2e;
+  --bf6-darker: #16213e;
+  --bf6-accent: #e94560;
+  --bf6-card-bg: #0f3460;
+  --bf6-text: #e0e0e0;
+  --bf6-text-muted: #a0a0a0;
+  --bf6-success: #28a745;
+  --bf6-warning: #ffc107;
+  --bf6-info: #17a2b8;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background-color: #0a0a1a;
+  color: var(--bf6-text);
   font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+}
+
+/* Custom card styling */
+.stats-card {
+  background: linear-gradient(135deg, var(--bf6-darker) 0%, var(--bf6-dark) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stats-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--bf6-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-highlight {
+  color: var(--bf6-accent);
+}
+
+/* Header styling */
+.header-section {
+  background: linear-gradient(135deg, var(--bf6-darker) 0%, var(--bf6-dark) 50%, var(--bf6-card-bg) 100%);
+  border-bottom: 2px solid var(--bf6-accent);
+}
+
+/* Player info section */
+.player-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid var(--bf6-accent);
+}
+
+/* Weapon bar */
+.weapon-bar {
+  height: 8px;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.weapon-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--bf6-accent), #ff6b6b);
+}
+
+/* Search input */
+.search-input {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.search-input:focus {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-color: var(--bf6-accent);
+  color: #ffffff;
+  box-shadow: 0 0 0 0.2rem rgba(233, 69, 96, 0.25);
+}
+
+.search-input::placeholder {
+  color: var(--bf6-text-muted);
+}
+
+/* Loading spinner */
+.spinner-grow {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* Section headers */
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--bf6-accent);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Season badge */
+.season-badge {
+  background: linear-gradient(135deg, var(--bf6-card-bg), var(--bf6-darker));
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+}
+
+/* Vehicle card */
+.vehicle-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+}
+
+/* Progress bars */
+.bg-bf6-accent {
+  background-color: var(--bf6-accent) !important;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bf6-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bf6-card-bg);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--bf6-accent);
 }
