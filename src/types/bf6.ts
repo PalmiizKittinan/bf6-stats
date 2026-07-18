@@ -99,14 +99,68 @@ export interface BF6Stats {
       asVehicle: number;
     };
   };
+  devidedAssists: {
+    human: number;
+    driver: number;
+    passenger: number;
+    spot: number;
+    pilot: number;
+    inRound: {
+      total: number;
+    };
+  };
+  distanceTraveled: {
+    foot: number;
+    passenger: number;
+    vehicle: number;
+  };
+  sector: {
+    captured: number;
+  };
+  objective: {
+    time: {
+      total: number;
+      attacked: number;
+      defended: number;
+    };
+    armed: number;
+    captured: number;
+    neutralized: number;
+    defused: number;
+    destroyed: number;
+    inRound: {
+      armed: number;
+      captured: number;
+      neutralized: number;
+      defused: number;
+      destroyed: number;
+    };
+  };
+  XP: {
+    total: number;
+    performance: number;
+    accolades: number;
+  }[];
   bestClass: string;
   hasResults: boolean;
   platform: string;
   platformId: number;
   seasons: Season[];
   redsec: Season[];
-  weapons?: Weapon[];
-  vehicles?: Vehicle[];
+  weapons?: WeaponDetail[];
+  vehicles?: VehicleDetail[];
+  weaponGroups?: WeaponGroup[];
+  vehicleGroups?: VehicleGroup[];
+  classes?: ClassDetail[];
+  maps?: MapDetail[];
+  gameModes?: GameModeDetail[];
+  gameModeGroups?: GameModeGroup[];
+  gadgets?: GadgetDetail[];
+  gadgetGroups?: GadgetGroup[];
+  melee?: MeleeDetail[];
+  meleeGroups?: MeleeGroup[];
+  battlePickups?: unknown[];
+  vehicleArchetypes?: VehicleArchetype[];
 }
 
 export interface Season {
@@ -132,22 +186,289 @@ export interface GameMode {
   extractions: number;
 }
 
-export interface Weapon {
+export interface WeaponDetail {
+  type: string;
   weaponName: string;
+  image: string;
+  altImage: string;
+  translationId: string;
+  name: string;
+  id: string;
+  kills: number;
+  damage: number;
+  assistsDamage: number;
+  bodyKills: number;
+  headshotKills: number;
+  hipfireKills: number;
+  multiKills: number;
+  accuracy: string;
+  killsPerMinute: number;
+  damagePerMinute: number;
+  headshots: string;
+  hitVKills: number;
+  shotsHit: number;
+  shotsFired: number;
+  scopedKills: number;
+  spawns: number;
+  timeEquipped: number;
+}
+
+export interface VehicleDetail {
+  type: string;
+  vehicleName: string;
+  image: string;
+  altImage: string;
+  translationId: string | null;
+  name: string;
   id: string;
   kills: number;
   killsPerMinute: number;
-  headshots: number;
-  headshotAccuracy: string;
-  shotsFired: number;
-  shotsHit: number;
-  accuracy: string;
   damage: number;
-  timeUsed: number;
-  weaponType: string;
+  spawns: number;
+  roadKills: number;
+  passengerAssists: number;
+  multiKills: number;
+  distanceTraveled: number;
+  driverAssists: number;
+  vehiclesDestroyedWith: number;
+  assists: number;
+  damageTo: number;
+  destroyed: number;
+  airtime: number;
+  timeIn: number;
 }
 
-export interface Vehicle {
+export interface WeaponGroup {
+  groupName: string;
+  translationId: string;
+  name: string;
+  id: string;
+  kills: number;
+  damage: number;
+  assistsDamage: number;
+  bodyKills: number;
+  headshotKills: number;
+  hipfireKills: number;
+  multiKills: number;
+  accuracy: string;
+  killsPerMinute: number;
+  damagePerMinute: number;
+  headshots: string;
+  hitVKills: number;
+  shotsHit: number;
+  shotsFired: number;
+  scopedKills: number;
+  spawns: number;
+  timeEquipped: number;
+}
+
+export interface VehicleGroup {
+  groupName: string;
+  name: string;
+  id: string;
+  kills: number;
+  killsPerMinute: number;
+  damage: number;
+  spawns: number;
+  roadKills: number;
+  passengerAssists: number;
+  multiKills: number;
+  distanceTraveled: number;
+  driverAssists: number;
+  vehiclesDestroyedWith: number;
+  assists: number;
+  damageTo: number;
+  destroyed: number;
+  airtime: number;
+  timeIn: number;
+}
+
+export interface ClassDetail {
+  className: string;
+  image: string;
+  altImage: string;
+  translationId: string;
+  name: string;
+  id: string;
+  kills: number;
+  deaths: number;
+  kpm: number;
+  killDeath: number;
+  spawns: number;
+  score: number;
+  assists: number;
+  revives: number;
+  secondsPlayed: number;
+}
+
+export interface MapDetail {
+  mapName: string;
+  image: string;
+  translationId: string;
+  name: string;
+  id: string;
+  wins: number;
+  losses: number;
+  matches: number;
+  winPercent: string;
+  secondsPlayed: number;
+}
+
+export interface GameModeDetail {
+  gamemodeName: string;
+  image: string;
+  altImage: string;
+  id: string;
+  kills: number;
+  deaths: number;
+  wins: number;
+  losses: number;
+  killDeath: number;
+  winPercent: string;
+  killAssists: number;
+  matches: number;
+  repairs: number;
+  revives: number;
+  spots: number;
+  respawns: number;
+  objectiveTime: number;
+  objectivesCaptured: number;
+  objectivesDefended: number;
+  objectivesDestroyed: number;
+  objectivesArmed: number;
+  objectivesDisarmed: number;
+  vehiclesDestroyedWith: number;
+  sectorsDefended: number;
+  intelPickups: number;
+  scoreIn: number;
+  health: number;
+  killsWith: number;
+  headshotKills: number;
+  headshots: string;
+  kpm: number;
+  dpm: number;
+  secondsPlayed: number;
+  topOfLeaderboard: {
+    topTwo: number;
+    topThree: number;
+    topFour: number;
+    topFive: number;
+    topTen: number;
+  };
+}
+
+export interface GameModeGroup {
+  gamemodeName: string;
+  image: string;
+  altImage: string;
+  id: string;
+  kills: number;
+  deaths: number;
+  wins: number;
+  losses: number;
+  killDeath: number;
+  winPercent: string;
+  killAssists: number;
+  matches: number;
+  repairs: number;
+  revives: number;
+  spots: number;
+  respawns: number;
+  objectiveTime: number;
+  objectivesCaptured: number;
+  objectivesDefended: number;
+  objectivesDestroyed: number;
+  objectivesArmed: number;
+  objectivesDisarmed: number;
+  vehiclesDestroyedWith: number;
+  sectorsDefended: number;
+  intelPickups: number;
+  scoreIn: number;
+  health: number;
+  killsWith: number;
+  headshotKills: number;
+  headshots: string;
+  kpm: number;
+  dpm: number;
+  secondsPlayed: number;
+}
+
+export interface GadgetDetail {
+  type: string;
+  gadgetName: string;
+  image: string;
+  translationId: string | null;
+  name: string;
+  id: string;
+  kills: number;
+  assistsDamage: number;
+  assists: number;
+  explosiveDamageWith: number;
+  spotAssists: number;
+  spots: number;
+  spawns: number;
+  damage: number;
+  repairs: number;
+  uses: number;
+  multiKills: number;
+  vehiclesDestroyedWith: number;
+  kpm: number;
+  dpm: number;
+  secondsPlayed: number;
+}
+
+export interface GadgetGroup {
+  groupName: string;
+  translationId: string | null;
+  name: string;
+  id: string;
+  kills: number;
+  assistsDamage: number;
+  assists: number;
+  explosiveDamageWith: number;
+  spotAssists: number;
+  spots: number;
+  spawns: number;
+  damage: number;
+  repairs: number;
+  uses: number;
+  multiKills: number;
+  vehiclesDestroyedWith: number;
+  kpm: number;
+  dpm: number;
+  secondsPlayed: number;
+}
+
+export interface MeleeDetail {
+  type: string;
+  meleeName: string;
+  image: string;
+  translationId: string;
+  id: string;
+  name: string;
+  kills: number;
+  damage: number;
+  takedowns: number;
+  uses: number;
+  killsPerMinute: number;
+  damagePerMinute: number;
+  timeEquipped: number;
+}
+
+export interface MeleeGroup {
+  groupName: string;
+  id: string;
+  name: string;
+  kills: number;
+  damage: number;
+  takedowns: number;
+  uses: number;
+  killsPerMinute: number;
+  damagePerMinute: number;
+  timeEquipped: number;
+}
+
+export interface VehicleArchetype {
   archetypeName: string;
   name: string | null;
   id: string;

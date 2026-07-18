@@ -8,6 +8,7 @@ interface PlayerHeaderProps {
 
 export default function PlayerHeader({ stats }: PlayerHeaderProps) {
   const platformIcon = stats.platform === "pc" ? "🖥️" : "🎮";
+  const xp = stats.XP && stats.XP.length > 0 ? stats.XP[0] : null;
 
   return (
     <div className="header-section py-4 mb-4">
@@ -38,6 +39,11 @@ export default function PlayerHeader({ stats }: PlayerHeaderProps) {
               <span className="text-light">
                 Time Played: <span className="fw-semibold">{stats.timePlayed}</span>
               </span>
+              {xp && (
+                <span className="text-light">
+                  Total XP: <span className="fw-semibold">{xp.total.toLocaleString()}</span>
+                </span>
+              )}
             </div>
           </div>
           <div className="col-auto">

@@ -74,6 +74,19 @@ export default function StatCards({ stats }: StatCardsProps) {
         </div>
       </div>
 
+      {/* Objective Stats */}
+      <div className="mb-4">
+        <h5 className="section-title">🏴 Objective Stats</h5>
+        <div className="row g-3">
+          <StatCard label="Objectives Captured" value={stats.objective.captured.toLocaleString()} icon="🚩" />
+          <StatCard label="Objectives Neutralized" value={stats.objective.neutralized.toLocaleString()} icon="⚔️" />
+          <StatCard label="Objective Time" value={`${Math.floor(stats.objective.time.total / 60)}m`} icon="⏰" />
+          <StatCard label="Attacked" value={Math.floor(stats.objective.time.attacked / 60) + "m"} icon="🗡️" />
+          <StatCard label="Defended" value={Math.floor(stats.objective.time.defended / 60) + "m"} icon="🛡️" />
+          <StatCard label="Throwables" value={stats.thrownThrowables.toLocaleString()} icon="⚾" />
+        </div>
+      </div>
+
       {/* Additional Stats */}
       <div className="mb-4">
         <h5 className="section-title">📋 Additional Stats</h5>
@@ -82,7 +95,7 @@ export default function StatCards({ stats }: StatCardsProps) {
           <StatCard label="Shots Hit" value={stats.shotsHit.toLocaleString()} icon="✅" />
           <StatCard label="Vehicles Destroyed" value={stats.vehiclesDestroyed.toLocaleString()} icon="💥" />
           <StatCard label="Gadgets Destroyed" value={stats.gadgetsDestoyed.toLocaleString()} icon="📡" />
-          <StatCard label="Throwables" value={stats.thrownThrowables.toLocaleString()} icon="⚾" />
+          <StatCard label="Foot Distance" value={stats.distanceTraveled.foot.toLocaleString()} icon="🚶" />
           <StatCard label="Dmg Per Match" value={stats.damagePerMatch.toLocaleString()} icon="📈" />
         </div>
       </div>

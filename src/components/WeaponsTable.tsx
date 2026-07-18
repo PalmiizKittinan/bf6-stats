@@ -1,60 +1,67 @@
 "use client";
 
-import { Weapon } from "@/types/bf6";
+import DataTable from "./DataTable";
+import { WeaponDetail } from "@/types/bf6";
 
 interface WeaponsTableProps {
-  weapons: Weapon[];
+  weapons: WeaponDetail[];
 }
 
 export default function WeaponsTable({ weapons }: WeaponsTableProps) {
   if (!weapons || weapons.length === 0) return null;
 
-  const maxKills = Math.max(...weapons.map((w) => w.kills));
+  const columns = [
+    {
+      key: "image",
+      label: "",
+      width: "48px",
+      render: (item: WeaponDetail) => (
+        <img
+          src={item.image}
+          alt={item.weaponName}
+          style={{ width: 40, height: 24, objectFit: "contain" }}
+          onError={(e) => {
+            (e.target as HTMLImageElement).style.display = "none";
+          }}
+        />
+      ),
+    },
+    {
+      key: "weaponName",
+      label: "Weapon",
+      sortable: true,
+      render: (item: WeaponDetail) => (
+        <div>
+          <span className="fw-semibold text-white">{item.weaponName}</span>
+          <br />
+          <small className="text-muted">{item.type}</small>
+        </div>
+      ),
+    },
+    { key: "kills", label: "Kills", sortable: true, align: "end" as const, render: (item: WeaponDetail) => <span className="fw-bold text-white">{item.kills.toLocaleString()}</span> },
+    { key: "killsPerMinute", label: "K/M", sortable: true, align: "end" as const, render: (item: WeaponDetail) => item.killsPerMinute.toFixed(2) },
+    { key: "damage", label: "Damage", sortable: true, align: "end" as const, render: (item: WeaponDetail) => item.damage.toLocaleString() },
+    { key: "headshotKills", label: "HS Kills", sortable: true, align: "end" as const },
+    { key: "headshots", label: "HS %", align: "end" as const },
+    { key: "accuracy", label: "Accuracy", align: "end" as const },
+    { key: "shotsHit", label: "Hits", sortable: true, align: "end" as const, render: (item: WeaponDetail) => item.shotsHit.toLocaleString() },
+    { key: "shotsFired", label: "Fired", sortable: true, align: "end" as const, render: (item: WeaponDetail) => item.shotsFired.toLocaleString() },
+    { key: "scopedKills", label: "Scoped", sortable: true, align: "end" as const },
+    { key: "hipfireKills", label: "Hipfire", sortable: true, align: "end" as const },
+    { key: "multiKills", label: "Multi", sortable: true, align: "end" as const },
+    { key: "spawns", label: "Spawns", sortable: true, align: "end" as const },
+  ];
 
   return (
-    <div className="mb-4">
-      <h5 className="section-title">🔫 Top Weapons</h5>
-      <div className="table-responsive">
-        <table className="table table-dark table-hover align-middle mb-0">
-          <thead>
-            <tr>
-              <th style={{ width: "30px" }}>#</th>
-              <th>Weapon</th>
-              <th>Type</th>
-              <th className="text-end">Kills</th>
-              <th className="text-end">K/M</th>
-              <th className="text-end">Headshots</th>
-              <th className="text-end">Accuracy</th>
-              <th className="text-end">Damage</th>
-              <th style={{ width: "150px" }}>Progress</th>
-            </tr>
-          </thead>
-          <tbody>
-            {weapons.slice(0, 15).map((weapon, index) => (
-              <tr key={weapon.id}>
-                <td className="text-muted">{index + 1}</td>
-                <td className="fw-semibold text-white">{weapon.weaponName}</td>
-                <td>
-                  <span className="badge bg-secondary">{weapon.weaponType}</span>
-                </td>
-                <td className="text-end fw-bold text-white">{weapon.kills.toLocaleString()}</td>
-                <td className="text-end">{weapon.killsPerMinute.toFixed(1)}</td>
-                <td className="text-end">{weapon.headshots}</td>
-                <td className="text-end">{weapon.accuracy}</td>
-                <td className="text-end">{weapon.damage.toLocaleString()}</td>
-                <td>
-                  <div className="weapon-bar">
-                    <div
-                      className="weapon-bar-fill"
-                      style={{ width: `${(weapon.kills / maxKills) * 100}%` }}
-                    />
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <DataTable
+      columns={columns}
+      data={weapons}
+      pageSize={10}
+      searchable
+      searchKeys={["weaponName", "type"]}
+      searchPlaceholder="Search weapons..."
+      title="Weapons"
+      icon="🔫"
+    />
   );
 }

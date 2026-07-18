@@ -6,9 +6,11 @@ import PlayerHeader from "./PlayerHeader";
 import StatCards from "./StatCards";
 import WeaponsTable from "./WeaponsTable";
 import VehiclesTable from "./VehiclesTable";
-import SeasonStats from "./SeasonStats";
 import DamageBreakdown from "./DamageBreakdown";
-import WeaponTypesChart from "./WeaponTypesChart";
+import ClassesTable from "./ClassesTable";
+import MapsTable from "./MapsTable";
+import GameModesTable from "./GameModesTable";
+import GadgetsTable from "./GadgetsTable";
 
 const DEFAULT_NAME = "AiZ3Nnuazz";
 const DEFAULT_PLATFORM = "ea";
@@ -69,7 +71,12 @@ export default function Dashboard() {
   return (
     <div className="min-vh-100">
       {/* Navbar */}
-      <nav className="navbar navbar-expand-lg navbar-dark" style={{ background: "linear-gradient(135deg, #0f3460, #16213e)" }}>
+      <nav
+        className="navbar navbar-expand-lg navbar-dark"
+        style={{
+          background: "linear-gradient(135deg, #0f3460, #16213e)",
+        }}
+      >
         <div className="container">
           <span className="navbar-brand fw-bold">
             <span className="stat-highlight">BF6</span> Stats Dashboard
@@ -97,7 +104,11 @@ export default function Dashboard() {
             <button
               className="btn btn-sm"
               type="submit"
-              style={{ backgroundColor: "#e94560", color: "white", borderColor: "#e94560" }}
+              style={{
+                backgroundColor: "#e94560",
+                color: "white",
+                borderColor: "#e94560",
+              }}
             >
               Search
             </button>
@@ -118,13 +129,20 @@ export default function Dashboard() {
 
         {error && !loading && (
           <div className="text-center py-5">
-            <div className="stats-card p-5 mx-auto" style={{ maxWidth: "500px" }}>
+            <div
+              className="stats-card p-5 mx-auto"
+              style={{ maxWidth: "500px" }}
+            >
               <div className="fs-1 mb-3">⚠️</div>
               <h4 className="text-white mb-3">Error</h4>
               <p className="text-muted">{error}</p>
               <button
                 className="btn btn-sm mt-2"
-                style={{ backgroundColor: "#e94560", color: "white", borderColor: "#e94560" }}
+                style={{
+                  backgroundColor: "#e94560",
+                  color: "white",
+                  borderColor: "#e94560",
+                }}
                 onClick={() => fetchStats(DEFAULT_NAME, DEFAULT_PLATFORM)}
               >
                 Load Default Player
@@ -138,13 +156,30 @@ export default function Dashboard() {
             <PlayerHeader stats={stats} />
             <StatCards stats={stats} />
             <DamageBreakdown stats={stats} />
-            <WeaponTypesChart stats={stats} />
-            <SeasonStats seasons={stats.seasons} />
+
+            {stats.classes && <ClassesTable classes={stats.classes} />}
+
+            {stats.gameModes && (
+              <GameModesTable gameModes={stats.gameModes} />
+            )}
+
+            {stats.seasons && (
+              <SeasonStatsSection seasons={stats.seasons} />
+            )}
+
             {stats.weapons && <WeaponsTable weapons={stats.weapons} />}
+
             {stats.vehicles && <VehiclesTable vehicles={stats.vehicles} />}
 
+            {stats.maps && <MapsTable maps={stats.maps} />}
+
+            {stats.gadgets && <GadgetsTable gadgets={stats.gadgets} />}
+
             {/* Footer */}
-            <footer className="text-center py-4 mt-4" style={{ borderTop: "1px solid rgba(255,255,255,0.1)" }}>
+            <footer
+              className="text-center py-4 mt-4"
+              style={{ borderTop: "1px solid rgba(255,255,255,0.1)" }}
+            >
               <p className="text-muted small mb-0">
                 Data provided by{" "}
                 <a
@@ -162,6 +197,77 @@ export default function Dashboard() {
             </footer>
           </>
         )}
+      </div>
+    </div>
+  );
+}
+
+// Inline simple season stats component
+function SeasonStatsSection({ seasons }: { seasons: BF6Stats["seasons"] }) {
+  const activeSeasons = seasons.filter((s) => s.modes.length > 0);
+  if (activeSeasons.length === 0) return null;
+
+  return (
+    <div className="mb-4">
+      <h5 className="section-title">📅 Season Stats</h5>
+      <div className="row g-3">
+        {activeSeasons.map((season) => (
+          <div key={season.seasonId} className="col-12 col-md-6 col-lg-4">
+            <div className="season-badge p-3 h-100">
+              <h6 className="text-white fw-bold mb-3">{season.season}</h6>
+              {season.modes.map((mode) => (
+                <div key={mode.modeId}>
+                  <div className="mb-2">
+                    <span className="badge bg-primary me-2">{mode.mode}</span>
+                    <span className="badge bg-success me-2">
+                      {mode.wins}W
+                    </span>
+                    <span className="badge bg-danger">{mode.losses}L</span>
+                  </div>
+                  <div className="row g-2 mt-1">
+                    <div className="col-6">
+                      <div className="text-muted small">Matches</div>
+                      <div className="fw-bold text-white">{mode.matches}</div>
+                    </div>
+                    <div className="col-6">
+                      <div className="text-muted small">Win Rate</div>
+                      <div className="fw-bold text-success">
+                        {mode.matches > 0
+                          ? ((mode.wins / mode.matches) * 100).toFixed(1)
+                          : 0}
+                        %
+                      </div>
+                    </div>
+                    <div className="col-6">
+                      <div className="text-muted small">Kills</div>
+                      <div className="fw-bold text-white">
+                        {mode.kills.toLocaleString()}
+                      </div>
+                    </div>
+                    <div className="col-6">
+                      <div className="text-muted small">K/D</div>
+                      <div className="fw-bold stat-highlight">
+                        {mode.killDeath.toFixed(2)}
+                      </div>
+                    </div>
+                    <div className="col-6">
+                      <div className="text-muted small">Score</div>
+                      <div className="fw-bold text-white">
+                        {mode.score.toLocaleString()}
+                      </div>
+                    </div>
+                    <div className="col-6">
+                      <div className="text-muted small">Time</div>
+                      <div className="fw-bold text-white">
+                        {mode.timePlayed}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
