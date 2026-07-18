@@ -63,6 +63,8 @@ export default function GadgetsTable({ gadgets }: GadgetsTableProps) {
       searchPlaceholder="Search gadgets..."
       title="Gadgets"
       icon="🧰"
+      defaultSortKey="kills"
+      defaultSortDir="desc"
     />
   );
 }

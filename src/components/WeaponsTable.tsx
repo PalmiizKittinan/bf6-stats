@@ -62,6 +62,8 @@ export default function WeaponsTable({ weapons }: WeaponsTableProps) {
       searchPlaceholder="Search weapons..."
       title="Weapons"
       icon="🔫"
+      defaultSortKey="kills"
+      defaultSortDir="desc"
     />
   );
 }

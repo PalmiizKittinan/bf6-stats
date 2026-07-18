@@ -60,6 +60,8 @@ export default function VehiclesTable({ vehicles }: VehiclesTableProps) {
       searchPlaceholder="Search vehicles..."
       title="Vehicles"
       icon="🚗"
+      defaultSortKey="kills"
+      defaultSortDir="desc"
     />
   );
 }

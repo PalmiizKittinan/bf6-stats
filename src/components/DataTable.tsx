@@ -20,6 +20,8 @@ interface DataTableProps<T> {
   searchKeys?: string[];
   title?: string;
   icon?: string;
+  defaultSortKey?: string;
+  defaultSortDir?: "asc" | "desc";
 }
 
 export default function DataTable<T extends { id: string }>({
@@ -31,10 +33,12 @@ export default function DataTable<T extends { id: string }>({
   searchKeys,
   title,
   icon,
+  defaultSortKey,
+  defaultSortDir = "desc",
 }: DataTableProps<T>) {
   const [search, setSearch] = useState("");
-  const [sortKey, setSortKey] = useState<string | null>(null);
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const [sortKey, setSortKey] = useState<string | null>(defaultSortKey || null);
+  const [sortDir, setSortDir] = useState<"asc" | "desc">(defaultSortDir);
   const [page, setPage] = useState(0);
 
   const filtered = useMemo(() => {
