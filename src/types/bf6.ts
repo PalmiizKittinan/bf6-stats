@@ -468,6 +468,40 @@ export interface MeleeGroup {
   timeEquipped: number;
 }
 
+export interface ProfileStat {
+  name: string;
+  value?: number;
+}
+
+export interface PlayerCard {
+  rank: number;
+  badges: number;
+  rankImage: {
+    small: string;
+    large: string;
+  };
+}
+
+export interface CompetitiveRank {
+  type: string;
+  mode: string;
+  modeName: string;
+  translationId: string;
+  rankName: string;
+}
+
+export interface BF6Profile {
+  playerProfiles: {
+    stats: ProfileStat[];
+    playerCard: PlayerCard;
+    totalDogTags: {
+      intValue: number;
+    };
+    competitiveRanks: CompetitiveRank[];
+    rankName: string;
+  }[];
+}
+
 export interface VehicleArchetype {
   archetypeName: string;
   name: string | null;

@@ -12,6 +12,7 @@ import MapsTable from "./MapsTable";
 import GameModesTable from "./GameModesTable";
 import GadgetsTable from "./GadgetsTable";
 import ThemeToggle from "./ThemeToggle";
+import Profile from "./Profile";
 
 const DEFAULT_NAME = "AiZ3Nnuazz";
 const DEFAULT_PLATFORM = "ea";
@@ -25,6 +26,7 @@ export default function Dashboard() {
   const [playerName, setPlayerName] = useState(DEFAULT_NAME);
   const [platform, setPlatform] = useState(DEFAULT_PLATFORM);
   const [searchInput, setSearchInput] = useState(DEFAULT_NAME);
+  const [activeTab, setActiveTab] = useState<"stats" | "profile">("stats");
 
   const controllerRef = useRef<AbortController | null>(null);
 
@@ -91,7 +93,23 @@ export default function Dashboard() {
           </span>
           <div className="d-flex align-items-center gap-2 ms-auto flex-wrap">
             <ThemeToggle />
-            <form className="d-flex gap-2" onSubmit={handleSearch}>
+            <form className="d-flex gap-2 align-items-center" onSubmit={handleSearch}>
+            <div className="btn-group btn-group-sm me-2">
+              <button
+                type="button"
+                className={`btn ${activeTab === "stats" ? "btn-outline-danger" : "btn-outline-secondary"}`}
+                onClick={() => setActiveTab("stats")}
+              >
+                📊 Stats
+              </button>
+              <button
+                type="button"
+                className={`btn ${activeTab === "profile" ? "btn-outline-danger" : "btn-outline-secondary"}`}
+                onClick={() => setActiveTab("profile")}
+              >
+                👤 Profile
+              </button>
+            </div>
             <select
               className="form-select form-select-sm search-input"
               style={{ width: "100px" }}
@@ -165,7 +183,11 @@ export default function Dashboard() {
           </div>
         )}
 
-        {stats && !loading && (
+        {activeTab === "profile" && playerName && (
+          <Profile playerName={playerName} platform={platform} />
+        )}
+
+        {stats && !loading && activeTab === "stats" && (
           <>
             <PlayerHeader stats={stats} />
             <StatCards stats={stats} />
