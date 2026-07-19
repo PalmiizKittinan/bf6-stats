@@ -105,26 +105,6 @@ export default function StatsPage() {
           {stats.vehicles && <VehiclesTable vehicles={stats.vehicles} />}
           {stats.maps && <MapsTable maps={stats.maps} />}
           {stats.gadgets && <GadgetsTable gadgets={stats.gadgets} />}
-
-          <footer
-            className="text-center py-4 mt-4"
-            style={{ borderTop: "1px solid rgba(255,255,255,0.1)" }}
-          >
-            <p className="text-muted small mb-0">
-              Data provided by{" "}
-              <a
-                href="https://gametools.network"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-decoration-none"
-                style={{ color: "#e94560" }}
-              >
-                GameTools Network
-              </a>
-              {" • "}
-              Battlefield 6 Stats Dashboard
-            </p>
-          </footer>
         </>
       )}
     </div>

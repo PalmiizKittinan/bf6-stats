@@ -3,6 +3,7 @@ import "./globals.css";
 import ThemeProvider from "@/components/ThemeProvider";
 import SearchProvider from "@/components/SearchProvider";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "BF6 Stats Dashboard",
@@ -26,6 +27,7 @@ export default function RootLayout({
           <SearchProvider>
             <Navbar />
             <main>{children}</main>
+            <Footer />
           </SearchProvider>
         </ThemeProvider>
       </body>
