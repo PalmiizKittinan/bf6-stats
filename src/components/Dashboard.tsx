@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { BF6Stats } from "@/types/bf6";
 import PlayerHeader from "./PlayerHeader";
 import StatCards from "./StatCards";
@@ -26,9 +26,13 @@ export default function Dashboard() {
   const [platform, setPlatform] = useState(DEFAULT_PLATFORM);
   const [searchInput, setSearchInput] = useState(DEFAULT_NAME);
 
-  const fetchStats = useCallback(async (name: string, plat: string) => {
-    setLoading(true);
-    setError(null);
+  const controllerRef = useRef<AbortController | null>(null);
+
+  const doFetch = useCallback(async (name: string, plat: string) => {
+    controllerRef.current?.abort();
+    const controller = new AbortController();
+    controllerRef.current = controller;
+
     try {
       const params = new URLSearchParams({
         categories: "multiplayer",
@@ -40,7 +44,9 @@ export default function Dashboard() {
         skip_battlelog: "true",
         lang: "en-us",
       });
-      const res = await fetch(`${API_BASE}?${params.toString()}`);
+      const res = await fetch(`${API_BASE}?${params.toString()}`, {
+        signal: controller.signal,
+      });
       if (!res.ok) {
         throw new Error(`API error: ${res.status}`);
       }
@@ -49,25 +55,31 @@ export default function Dashboard() {
         throw new Error("Player not found. Please check the username and platform.");
       }
       setStats(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch stats");
-      setStats(null);
-    } finally {
+      setError(null);
       setLoading(false);
+    } catch (err) {
+      if (!controller.signal.aborted) {
+        setError(err instanceof Error ? err.message : "Failed to fetch stats");
+        setStats(null);
+        setLoading(false);
+      }
     }
   }, []);
 
   useEffect(() => {
-    fetchStats(playerName, platform);
-  }, [playerName, platform, fetchStats]);
+    doFetch(playerName, platform);
+  }, [playerName, platform, doFetch]);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    const trimmed = searchInput.trim();
-    if (trimmed) {
-      setPlayerName(trimmed);
-    }
-  };
+  const handleSearch = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      const trimmed = searchInput.trim();
+      if (trimmed) {
+        setPlayerName(trimmed);
+      }
+    },
+    [searchInput]
+  );
 
   return (
     <div className="min-vh-100">
@@ -142,7 +154,10 @@ export default function Dashboard() {
                   color: "white",
                   borderColor: "#e94560",
                 }}
-                onClick={() => fetchStats(DEFAULT_NAME, DEFAULT_PLATFORM)}
+                onClick={() => {
+                  setPlayerName(DEFAULT_NAME);
+                  setPlatform(DEFAULT_PLATFORM);
+                }}
               >
                 Load Default Player
               </button>
