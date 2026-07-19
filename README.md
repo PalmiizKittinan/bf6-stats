@@ -1,5 +1,11 @@
 # Palmiiz BF6 Stats Dashboard
 
+[![CI/CD](https://github.com/PalmiizKittinan/bf6-stats/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/PalmiizKittinan/bf6-stats/actions/workflows/ci.yml)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org)
+[![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)](https://getbootstrap.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
+
 A web application for viewing your **Battlefield 6** multiplayer statistics, built with [Next.js](https://nextjs.org) and [Bootstrap 5.3](https://getbootstrap.com/).
 
 Data is powered by the [GameTools Network API](https://gametools.network).
