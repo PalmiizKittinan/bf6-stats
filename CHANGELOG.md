@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/PalmiizKittinan/bf6-stats/compare/v1.0.0...v1.1.0) (2026-07-19)
+
+
+### Features
+
+* Update feature BF6 Profile ([85b18ab](https://github.com/PalmiizKittinan/bf6-stats/commit/85b18ab194e64954d67cbd72e8a516db255a192c))
+
 # 1.0.0 (2026-07-19)
 
 
