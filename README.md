@@ -85,6 +85,20 @@ src/
     └── bf6.ts                   # TypeScript interfaces for all API response types
 ```
 
+## 🐳 Docker
+
+```bash
+# 1. Build Docker
+docker compose --build
+
+
+# 2. Docker compose up
+docker compose up -d
+
+# 3. Go to Web UI
+http://localhost:3022
+```
+
 ## API Reference
 
 The application fetches data from:
