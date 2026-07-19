@@ -10,39 +10,68 @@ A web application for viewing your **Battlefield 6** multiplayer statistics, bui
 
 Data is powered by the [GameTools Network API](https://gametools.network).
 
+---
+
 ## Features
 
-- 🎮 **Player Search** — Search any BF6 player by username across EA, PC, Xbox, and PlayStation platforms
-- 📊 **Core Combat Stats** — Kills, Deaths, K/D Ratio, Score, Assists, and more
+### 👤 Profile Page (`/profile`)
+
+- 🏅 **Rank & Title** — Rank image, rank number, title, badges, dog tags
+- 🏆 **Competitive Ranks** — Redsec modes with rank names
+- 📊 **Profile Overview** — Score, Kills, Deaths, K/D, Matches, Wins, Win %
+- 🔫 **Combat Stats** — Assists, Damage, Headshots, Human Kills, Multi Kills, Accuracy
+- 🩹 **Support & Teamplay** — Revives, Squad Revives, Heals, Repairs, Spotted
+- 🏴 **Objective Stats** — Captured, Neutralized, Objective Time, Vehicles Destroyed
+- 🎖️ **Class Stats** — Assault, Engineer, Support, Recon with kills, deaths, K/D, score, time
+- 🔫 **Weapon Type Kills** — AR, Carbine, DMR, MG, SMG, Sniper, Pistol, Shotgun
+- 🚶 **Distance & Travel** — On Foot, Vehicle, Passenger, Driving/Flying Time
+
+### 📊 Stats Page (`/stats`)
+
+- 📊 **Core Combat Stats** — Kills, Deaths, K/D Ratio, Score, Assists
 - 📈 **Performance Metrics** — Kills/Min, Kills/Match, Damage, DPM, Headshot %, Accuracy
-- 🏆 **Match Stats** — Matches Played, Wins, Losses, Win Rate, Multi Kills, Savior Kills
-- 🩹 **Support & Teamplay** — Revives, Heals, Resupplies, Repairs, Squad Revives, Spots
+- 🏆 **Match Stats** — Matches Played, Wins, Losses, Win Rate, Multi Kills
+- 🩹 **Support & Teamplay** — Revives, Heals, Resupplies, Repairs, Squad Revives
 - 🔫 **Kill Breakdown** — ADS, Hipfire, Long Distance, Grenades, Vehicle, Human Kills
-- 🏴 **Objective Stats** — Captured, Neutralized, Objective Time, Attacked/Defended
-- 💥 **Damage Breakdown** — Human, Explosive, Passenger, Vehicle Driver, To/With Vehicle (with % bars)
-- 🤝 **Assists Breakdown** — Human, Passenger, Spot, Driver, Pilot assists
-- 🎖️ **Classes** — Assault, Engineer, Support, Recon with detailed per-class stats
-- 🎮 **Game Modes** — Conquest, Breakthrough with mode-specific K/D, objectives, headshots
+- 🏴 **Objective Stats** — Captured, Neutralized, Objective Time
+- 💥 **Damage Breakdown** — Human, Explosive, Passenger, Vehicle (with % bars)
+- 🤝 **Assists Breakdown** — Human, Passenger, Spot, Driver, Pilot
+- 🎖️ **Classes** — Assault, Engineer, Support, Recon
+- 🎮 **Game Modes** — Conquest, Breakthrough with mode-specific stats
 - 📅 **Season Stats** — Per-season and per-mode statistics
-- 🔫 **Weapons Table** — All weapons with images, sortable/searchable DataTable (kills, damage, accuracy, headshots, etc.)
-- 🚗 **Vehicles Table** — All vehicles with images, sortable/searchable DataTable (kills, damage, distance, etc.)
-- 🗺️ **Maps Table** — All maps with thumbnail images, sortable/searchable DataTable (matches, wins, win %, time)
-- 🧰 **Gadgets Table** — All gadgets with images, sortable/searchable DataTable (kills, damage, uses, repairs)
-- 🔍 **DataTable Component** — Generic reusable table with search, column sorting, and pagination
+- 🔫 **Weapons Table** — All weapons with images, sortable/searchable DataTable
+- 🚗 **Vehicles Table** — All vehicles with images, sortable/searchable DataTable
+- 🗺️ **Maps Table** — All maps with thumbnails, sortable/searchable DataTable
+- 🧰 **Gadgets Table** — All gadgets with images, sortable/searchable DataTable
+
+### 🎨 UI Features
+
+- 🌙 **Dark/Light/System Theme** — Toggle with `useSyncExternalStore` for OS sync
+- 🔍 **Player Search** — Search any BF6 player by username across EA, PC, Xbox, PlayStation
+- 📊 **DataTable Component** — Generic reusable table with search, column sorting, pagination
+
+---
 
 ## Tech Stack
 
-- **Framework:** [Next.js 16](https://nextjs.org/) (App Router, Turbopack)
-- **Language:** TypeScript
-- **UI:** [Bootstrap 5.3](https://getbootstrap.com/) (dark theme with custom gaming styles)
-- **API:** [GameTools Network](https://api.gametools.network/)
+| Layer        | Technology                              |
+| ------------ | --------------------------------------- |
+| Framework    | [Next.js 16](https://nextjs.org/) (App Router, Turbopack) |
+| Language     | TypeScript                              |
+| UI Library   | [Bootstrap 5.3](https://getbootstrap.com/) |
+| Font         | Google Sans (Google Fonts)              |
+| API          | [GameTools Network](https://api.gametools.network/) REST API |
+| CI/CD        | GitHub Actions + semantic-release       |
+| Container    | Docker + Docker Compose                 |
+
+---
 
 ## Getting Started
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) 18 or later
-- npm, yarn, pnpm, or bun
+- [Node.js](https://nodejs.org/) 20 or later
+- npm
 
 ### Installation
 
@@ -67,73 +96,96 @@ npm run build
 npm start
 ```
 
+---
+
+## 🐳 Docker
+
+```bash
+# 1. Build Docker image
+docker compose build
+
+# 2. Start container
+docker compose up -d
+
+# 3. Access at http://localhost:3000
+```
+
+---
+
 ## Project Structure
 
 ```text
 src/
 ├── app/
-│   ├── globals.css              # Global styles, Bootstrap import, custom dark theme
-│   ├── layout.tsx               # Root layout with Bootstrap dark theme
-│   └── page.tsx                 # Main page entry point
+│   ├── globals.css              # Global styles, Bootstrap, Google Sans, dark/light CSS variables
+│   ├── layout.tsx               # Root layout: ThemeProvider, SearchProvider, Navbar, Footer
+│   ├── page.tsx                 # Entry page → redirects to /profile
+│   ├── profile/
+│   │   └── page.tsx             # /profile route: player profile from profile API
+│   └── stats/
+│       └── page.tsx             # /stats route: full stats dashboard from stats API
 ├── components/
-│   ├── Dashboard.tsx            # Main dashboard: search bar, API fetch, layout orchestration
-│   ├── PlayerHeader.tsx         # Player avatar, username, platform, time played, XP
-│   ├── StatCards.tsx            # Grid cards: combat, performance, match, support, kill, objective stats
-│   ├── DamageBreakdown.tsx      # Damage & assists breakdown with color-coded progress bars
-│   ├── ClassesTable.tsx         # Class cards (Assault, Engineer, Support, Recon) with per-class stats
-│   ├── GameModesTable.tsx       # Game mode cards (Conquest, Breakthrough) with mode stats
-│   ├── WeaponsTable.tsx         # Weapons DataTable with images, sortable columns
-│   ├── VehiclesTable.tsx        # Vehicles DataTable with images, sortable columns
-│   ├── MapsTable.tsx            # Maps DataTable with thumbnails, sortable columns
-│   ├── GadgetsTable.tsx         # Gadgets DataTable with images, sortable columns
-│   └── DataTable.tsx            # Generic reusable DataTable (search, sort, pagination)
+│   ├── Navbar.tsx               # Shared navbar: tabs (👤 Profile, 📊 Stats), search bar, ThemeToggle
+│   ├── SearchProvider.tsx       # React Context for shared search state across pages
+│   ├── Profile.tsx              # Profile page: rank, card, competitive ranks, detailed stats
+│   ├── PlayerHeader.tsx         # Player avatar, name, platform, time played, XP
+│   ├── StatCards.tsx            # Grid of stat cards
+│   ├── DamageBreakdown.tsx      # Damage & assists breakdown with progress bars
+│   ├── ClassesTable.tsx         # Class cards (Assault, Engineer, Support, Recon)
+│   ├── GameModesTable.tsx       # Game mode cards (Conquest, Breakthrough)
+│   ├── WeaponsTable.tsx         # Weapons DataTable with images
+│   ├── VehiclesTable.tsx        # Vehicles DataTable with images
+│   ├── MapsTable.tsx            # Maps DataTable with thumbnails
+│   ├── GadgetsTable.tsx         # Gadgets DataTable with images
+│   ├── DataTable.tsx            # Generic reusable DataTable (search, sort, pagination)
+│   ├── ThemeProvider.tsx        # Context provider for theme (dark/light/system)
+│   ├── ThemeToggle.tsx          # UI toggle buttons for theme selection
+│   └── Footer.tsx               # Shared footer with copyright, GitHub link, version
 └── types/
     └── bf6.ts                   # TypeScript interfaces for all API response types
 ```
 
-## 🐳 Docker
+---
 
-```bash
-# 1. Build Docker
-docker compose --build
+## Routing
 
+| Route       | Description                                    |
+| ----------- | ---------------------------------------------- |
+| `/`         | Redirects to `/profile`                        |
+| `/profile`  | Player profile page (default landing)          |
+| `/stats`    | Full stats dashboard                           |
 
-# 2. Docker compose up
-docker compose up -d
-
-# 3. Go to Web UI
-http://localhost:3022
-```
+---
 
 ## API Reference
 
-The application fetches data from:
+### Stats Endpoint
 
 ```text
-https://api.gametools.network/bf6/stats/?categories=multiplayer&raw=false&format_values=true&seperation=false&name={playerName}&platform={platform}&skip_battlelog=true&lang=en-us
+GET https://api.gametools.network/bf6/stats/?categories=multiplayer&raw=false&format_values=true&seperation=false&name={playerName}&platform={platform}&skip_battlelog=true&lang=en-us
 ```
 
-| Parameter  | Description                            | Values                          |
-| ---------- | -------------------------------------- | ------------------------------- |
-| `name`     | Player username                        | Any BF6 username                |
-| `platform` | Gaming platform                        | `ea`, `pc`, `xbox`, `psn`       |
-| `lang`     | Language                               | `en-us`, and others             |
+### Profile Endpoint
 
-## Screenshots
+```text
+GET https://api.gametools.network/bf6/profile/?name={playerName}&platform={platform}&skip_battlelog=true&lang=en-us
+```
 
-### The dashboard features a dark gaming-themed UI with
+| Parameter  | Description       | Values                    |
+| ---------- | ----------------- | ------------------------- |
+| `name`     | Player username   | Any BF6 username          |
+| `platform` | Gaming platform   | `ea`, `pc`, `xbox`, `psn` |
+| `lang`     | Language          | `en-us`, and others       |
 
-- Gradient header with player avatar and info
-- Color-coded stat cards organized in responsive grids
-- Sortable & searchable data tables for weapons, vehicles, maps, and gadgets
-- Progress bars for damage/assists breakdowns
-- Class and game mode summary cards
+---
 
 ## Deployment
 
 Deploy easily on [Vercel](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme):
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/PalmiizKittinan/bf6-stats)
+
+---
 
 ## License
 
