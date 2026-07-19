@@ -87,7 +87,7 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [http://localhost:3022](http://localhost:3022) in your browser.
 
 ### Production Build
 
@@ -107,7 +107,7 @@ docker compose build
 # 2. Start container
 docker compose up -d
 
-# 3. Access at http://localhost:3000
+# 3. Access at http://localhost:3022
 ```
 
 ---
