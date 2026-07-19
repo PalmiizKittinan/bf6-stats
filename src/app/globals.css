@@ -63,7 +63,7 @@
 body {
   background-color: var(--bf6-bg);
   color: var(--bf6-text);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Google Sans", Arial, Helvetica, sans-serif;
   min-height: 100vh;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
