@@ -179,14 +179,6 @@ GET https://api.gametools.network/bf6/profile/?name={playerName}&platform={platf
 
 ---
 
-## Deployment
-
-Deploy easily on [Vercel](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme):
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/PalmiizKittinan/bf6-stats)
-
----
-
 ## License
 
 This project is for personal / educational use. Game data is provided by the [GameTools Network](https://gametools.network) third-party API.
