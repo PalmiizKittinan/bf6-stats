@@ -30,7 +30,7 @@ interface ProfileProps {
 
 export default function Profile({ playerName, platform }: ProfileProps) {
   const [profile, setProfile] = useState<BF6Profile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const controllerRef = useRef<AbortController | null>(null);
 
@@ -66,11 +66,37 @@ export default function Profile({ playerName, platform }: ProfileProps) {
     }
   }, []);
 
-  useEffect(() => {
-    fetchProfile(playerName, platform);
+  const handleRefresh = useCallback(() => {
+    if (playerName) {
+      fetchProfile(playerName, platform);
+    }
   }, [playerName, platform, fetchProfile]);
 
-  if (loading) {
+  useEffect(() => {
+    if (playerName) {
+      fetchProfile(playerName, platform);
+    } else {
+      setProfile(null);
+      setError(null);
+      setLoading(false);
+    }
+  }, [playerName, platform, fetchProfile]);
+
+  if (!playerName) {
+    return (
+      <div className="text-center py-5">
+        <div className="stats-card p-5 mx-auto" style={{ maxWidth: 520 }}>
+          <div className="fs-1 mb-3">🎮</div>
+          <h3 className="text-white fw-bold mb-3">Welcome to BF6 Stats</h3>
+          <p className="text-muted mb-0">
+            Please enter a player name in the search bar above to start tracking stats.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading && !profile) {
     return (
       <div className="d-flex flex-column align-items-center justify-content-center py-5">
         <div className="spinner-grow text-danger mb-3" role="status">
@@ -128,6 +154,26 @@ export default function Profile({ playerName, platform }: ProfileProps) {
 
   return (
     <div>
+      {/* Refresh Button */}
+      <div className="d-flex justify-content-end mb-3">
+        <button
+          className="btn btn-sm btn-outline-info"
+          onClick={handleRefresh}
+        >
+          🔄 Refresh
+        </button>
+      </div>
+
+      {/* Refreshing indicator */}
+      {loading && profile && (
+        <div className="d-flex align-items-center justify-content-center py-2 mb-3">
+          <div className="spinner-border spinner-border-sm text-danger me-2" role="status">
+            <span className="visually-hidden">Refreshing...</span>
+          </div>
+          <span className="text-light">Refreshing data...</span>
+        </div>
+      )}
+
       {/* Player Card Header */}
       <div className="header-section py-4 mb-4">
         <div className="container">

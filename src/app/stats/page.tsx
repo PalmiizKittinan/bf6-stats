@@ -18,7 +18,7 @@ const API_BASE = "https://api.gametools.network/bf6/stats/";
 export default function StatsPage() {
   const { playerName, platform, resetToDefault } = useSearch();
   const [stats, setStats] = useState<BF6Stats | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const controllerRef = useRef<AbortController | null>(null);
 
@@ -59,17 +59,61 @@ export default function StatsPage() {
   }, []);
 
   useEffect(() => {
-    doFetch(playerName, platform);
+    if (playerName) {
+      doFetch(playerName, platform);
+    } else {
+      setStats(null);
+      setError(null);
+      setLoading(false);
+    }
+  }, [playerName, platform, doFetch]);
+
+  const handleRefresh = useCallback(() => {
+    if (playerName) {
+      doFetch(playerName, platform);
+    }
   }, [playerName, platform, doFetch]);
 
   return (
     <div className="container py-4">
-      {loading && (
+      {playerName && !loading && (
+        <div className="d-flex justify-content-end mb-3">
+          <button
+            className="btn btn-sm btn-outline-info"
+            onClick={handleRefresh}
+          >
+            🔄 Refresh
+          </button>
+        </div>
+      )}
+
+      {!playerName && !loading && (
+        <div className="text-center py-5">
+          <div className="stats-card p-5 mx-auto" style={{ maxWidth: 520 }}>
+            <div className="fs-1 mb-3">🎮</div>
+            <h3 className="text-white fw-bold mb-3">Welcome to BF6 Stats</h3>
+            <p className="text-muted mb-0">
+              Please enter a player name in the search bar above to start tracking stats.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {playerName && loading && !stats && (
         <div className="d-flex flex-column align-items-center justify-content-center py-5">
           <div className="spinner-grow text-danger mb-3" role="status">
             <span className="visually-hidden">Loading...</span>
           </div>
           <h5 className="text-light">Loading stats for {playerName}...</h5>
+        </div>
+      )}
+
+      {playerName && loading && stats && (
+        <div className="d-flex align-items-center justify-content-center py-2 mb-3">
+          <div className="spinner-border spinner-border-sm text-danger me-2" role="status">
+            <span className="visually-hidden">Refreshing...</span>
+          </div>
+          <span className="text-light">Refreshing data...</span>
         </div>
       )}
 
