@@ -214,6 +214,14 @@ body {
   color: var(--bf6-text-strong) !important;
 }
 
+[data-bs-theme="light"] .text-white {
+  color: var(--bf6-text-strong) !important;
+}
+
+[data-bs-theme="light"] .text-light {
+  color: var(--bf6-text) !important;
+}
+
 /* ===== Spinner ===== */
 
 .spinner-grow {
