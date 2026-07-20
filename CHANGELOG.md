@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/PalmiizKittinan/bf6-stats/compare/v1.1.0...v1.2.0) (2026-07-20)
+
+
+### Features
+
+* Update feature save/delete player profile name ([b6e99ba](https://github.com/PalmiizKittinan/bf6-stats/commit/b6e99ba1897231af978905286aaa18cc568e35fb))
+
 # [1.1.0](https://github.com/PalmiizKittinan/bf6-stats/compare/v1.0.0...v1.1.0) (2026-07-19)
 
 
