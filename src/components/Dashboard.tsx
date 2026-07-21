@@ -184,7 +184,7 @@ export default function Dashboard() {
         )}
 
         {activeTab === "profile" && playerName && (
-          <Profile playerName={playerName} platform={platform} />
+          <Profile />
         )}
 
         {stats && !loading && activeTab === "stats" && (
