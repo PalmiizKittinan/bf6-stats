@@ -1,9 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
-import { BF6Profile, ProfileStat, CompetitiveRank } from "@/types/bf6";
-
-const PROFILE_API = "https://api.gametools.network/bf6/profile/";
+import { ProfileStat, CompetitiveRank } from "@/types/bf6";
+import { usePlayerStore } from "@/store/usePlayerStore";
 
 function getStat(stats: ProfileStat[], name: string): number | undefined {
   const s = stats.find((s) => s.name === name);
@@ -23,64 +21,20 @@ function formatTime(seconds: number | undefined): string {
   return `${m}m`;
 }
 
-interface ProfileProps {
-  playerName: string;
-  platform: string;
-}
+export default function Profile() {
+  const {
+    playerName,
+    profile,
+    profileLoading,
+    profileError,
+    fetchProfile,
+  } = usePlayerStore();
 
-export default function Profile({ playerName, platform }: ProfileProps) {
-  const [profile, setProfile] = useState<BF6Profile | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const controllerRef = useRef<AbortController | null>(null);
-
-  const fetchProfile = useCallback(async (name: string, plat: string) => {
-    controllerRef.current?.abort();
-    const controller = new AbortController();
-    controllerRef.current = controller;
-    setLoading(true);
-    setError(null);
-
-    try {
-      const params = new URLSearchParams({
-        name: name,
-        platform: plat,
-        skip_battlelog: "true",
-        lang: "en-us",
-      });
-      const res = await fetch(`${PROFILE_API}?${params.toString()}`, {
-        signal: controller.signal,
-      });
-      if (!res.ok) throw new Error(`API error: ${res.status}`);
-      const data: BF6Profile = await res.json();
-      setProfile(data);
-    } catch (err) {
-      if (!controller.signal.aborted) {
-        setError(err instanceof Error ? err.message : "Failed to fetch profile");
-        setProfile(null);
-      }
-    } finally {
-      if (!controller.signal.aborted) {
-        setLoading(false);
-      }
-    }
-  }, []);
-
-  const handleRefresh = useCallback(() => {
+  const handleRefresh = () => {
     if (playerName) {
-      fetchProfile(playerName, platform);
+      fetchProfile();
     }
-  }, [playerName, platform, fetchProfile]);
-
-  useEffect(() => {
-    if (playerName) {
-      fetchProfile(playerName, platform);
-    } else {
-      setProfile(null);
-      setError(null);
-      setLoading(false);
-    }
-  }, [playerName, platform, fetchProfile]);
+  };
 
   if (!playerName) {
     return (
@@ -96,7 +50,7 @@ export default function Profile({ playerName, platform }: ProfileProps) {
     );
   }
 
-  if (loading && !profile) {
+  if (profileLoading && !profile) {
     return (
       <div className="d-flex flex-column align-items-center justify-content-center py-5">
         <div className="spinner-grow text-danger mb-3" role="status">
@@ -107,13 +61,13 @@ export default function Profile({ playerName, platform }: ProfileProps) {
     );
   }
 
-  if (error || !profile || !profile.playerProfiles?.length) {
+  if (profileError || !profile || !profile.playerProfiles?.length) {
     return (
       <div className="text-center py-5">
         <div className="stats-card p-4 mx-auto" style={{ maxWidth: 500 }}>
           <div className="fs-1 mb-3">⚠️</div>
           <h5 className="text-white mb-2">Profile Not Found</h5>
-          <p className="text-muted">{error || "No profile data available."}</p>
+          <p className="text-muted">{profileError || "No profile data available."}</p>
         </div>
       </div>
     );
@@ -165,7 +119,7 @@ export default function Profile({ playerName, platform }: ProfileProps) {
       </div>
 
       {/* Refreshing indicator */}
-      {loading && profile && (
+      {profileLoading && profile && (
         <div className="d-flex align-items-center justify-content-center py-2 mb-3">
           <div className="spinner-border spinner-border-sm text-danger me-2" role="status">
             <span className="visually-hidden">Refreshing...</span>

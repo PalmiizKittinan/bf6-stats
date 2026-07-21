@@ -1,3 +1,15 @@
+## [1.2.1](https://github.com/PalmiizKittinan/bf6-stats/compare/v1.2.0...v1.2.1) (2026-07-21)
+
+
+### Bug Fixes
+
+* type script ci error ([e7fd2e8](https://github.com/PalmiizKittinan/bf6-stats/commit/e7fd2e8b3c02f4f2ecf5a827445e4db173d2bc03))
+
+
+### Performance Improvements
+
+* **API:** Improve API when fetch success then save data-content store into browser storage ([5048c3b](https://github.com/PalmiizKittinan/bf6-stats/commit/5048c3baa36859756e7dd0a084379319543fb0f3))
+
 # [1.2.0](https://github.com/PalmiizKittinan/bf6-stats/compare/v1.1.0...v1.2.0) (2026-07-20)
 
 
