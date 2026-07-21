@@ -3,13 +3,9 @@
 import {
   createContext,
   useContext,
-  useState,
-  useCallback,
   type ReactNode,
 } from "react";
-
-const DEFAULT_NAME = "";
-const DEFAULT_PLATFORM = "ea";
+import { usePlayerStore } from "@/store/usePlayerStore";
 
 interface SearchContextValue {
   playerName: string;
@@ -22,8 +18,8 @@ interface SearchContextValue {
 }
 
 const SearchContext = createContext<SearchContextValue>({
-  playerName: DEFAULT_NAME,
-  platform: DEFAULT_PLATFORM,
+  playerName: "",
+  platform: "ea",
   searchInput: "",
   setSearchInput: () => {},
   setPlatform: () => {},
@@ -36,26 +32,15 @@ export function useSearch() {
 }
 
 export default function SearchProvider({ children }: { children: ReactNode }) {
-  const [playerName, setPlayerName] = useState("");
-  const [platform, setPlatform] = useState(DEFAULT_PLATFORM);
-  const [searchInput, setSearchInput] = useState("");
-
-  const handleSearch = useCallback(
-    (e: React.FormEvent) => {
-      e.preventDefault();
-      const trimmed = searchInput.trim();
-      if (trimmed) {
-        setPlayerName(trimmed);
-      }
-    },
-    [searchInput]
-  );
-
-  const resetToDefault = useCallback(() => {
-    setPlayerName(DEFAULT_NAME);
-    setPlatform(DEFAULT_PLATFORM);
-    setSearchInput("");
-  }, []);
+  const {
+    playerName,
+    platform,
+    searchInput,
+    setSearchInput,
+    setPlatform,
+    handleSearch,
+    resetToDefault,
+  } = usePlayerStore();
 
   return (
     <SearchContext.Provider

@@ -81,6 +81,8 @@ export default function MapsTable({ maps }: MapsTableProps) {
       searchPlaceholder="Search maps..."
       title="Maps"
       icon="🗺️"
+      defaultSortKey="wins"
+      defaultSortDir="desc"
     />
   );
 }
