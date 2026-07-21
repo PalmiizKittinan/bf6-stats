@@ -10,6 +10,17 @@ export default function PlayerHeader({ stats }: PlayerHeaderProps) {
   const platformIcon = stats.platform === "pc" ? "🖥️" : "🎮";
   const xp = stats.XP && stats.XP.length > 0 ? stats.XP[0] : null;
 
+  // Find best class by highest score, excluding "All"
+  const bestClass =
+    stats.classes && stats.classes.length > 0
+      ? stats.classes
+          .filter((cls) => cls.className !== "All")
+          .reduce(
+            (best, cls) => (cls.score > best.score ? cls : best),
+            stats.classes.find((cls) => cls.className !== "All")!
+          )
+      : null;
+
   return (
     <div className="header-section py-4 mb-4">
       <div className="container">
@@ -33,9 +44,11 @@ export default function PlayerHeader({ stats }: PlayerHeaderProps) {
               <span className="text-danger">
                 Platform: <span className="text-capitalize fw-semibold">{stats.platform}</span>
               </span>
-              <span className="text-danger">
-                Best Class: <span className="fw-semibold">{stats.bestClass}</span>
-              </span>
+              {bestClass && (
+                <span className="text-danger">
+                  Best Class: <span className="fw-semibold">{bestClass.className}</span>
+                </span>
+              )}
               <span className="text-danger">
                 Time Played: <span className="fw-semibold">{stats.timePlayed}</span>
               </span>
