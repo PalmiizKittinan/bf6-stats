@@ -1,8 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
-import { useSearch } from "@/components/SearchProvider";
-import { BF6Stats } from "@/types/bf6";
+import { usePlayerStore } from "@/store/usePlayerStore";
 import PlayerHeader from "@/components/PlayerHeader";
 import StatCards from "@/components/StatCards";
 import WeaponsTable from "@/components/WeaponsTable";
@@ -12,71 +10,27 @@ import ClassesTable from "@/components/ClassesTable";
 import MapsTable from "@/components/MapsTable";
 import GameModesTable from "@/components/GameModesTable";
 import GadgetsTable from "@/components/GadgetsTable";
-
-const API_BASE = "https://api.gametools.network/bf6/stats/";
+import { BF6Stats } from "@/types/bf6";
 
 export default function StatsPage() {
-  const { playerName, platform, resetToDefault } = useSearch();
-  const [stats, setStats] = useState<BF6Stats | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const controllerRef = useRef<AbortController | null>(null);
+  const {
+    playerName,
+    stats,
+    statsLoading,
+    statsError,
+    fetchStats,
+    resetToDefault,
+  } = usePlayerStore();
 
-  const doFetch = useCallback(async (name: string, plat: string) => {
-    controllerRef.current?.abort();
-    const controller = new AbortController();
-    controllerRef.current = controller;
-
-    try {
-      const params = new URLSearchParams({
-        categories: "multiplayer",
-        raw: "false",
-        format_values: "true",
-        seperation: "false",
-        name: name,
-        platform: plat,
-        skip_battlelog: "true",
-        lang: "en-us",
-      });
-      const res = await fetch(`${API_BASE}?${params.toString()}`, {
-        signal: controller.signal,
-      });
-      if (!res.ok) throw new Error(`API error: ${res.status}`);
-      const data: BF6Stats = await res.json();
-      if (!data.hasResults) {
-        throw new Error("Player not found. Please check the username and platform.");
-      }
-      setStats(data);
-      setError(null);
-      setLoading(false);
-    } catch (err) {
-      if (!controller.signal.aborted) {
-        setError(err instanceof Error ? err.message : "Failed to fetch stats");
-        setStats(null);
-        setLoading(false);
-      }
-    }
-  }, []);
-
-  useEffect(() => {
+  const handleRefresh = () => {
     if (playerName) {
-      doFetch(playerName, platform);
-    } else {
-      setStats(null);
-      setError(null);
-      setLoading(false);
+      fetchStats();
     }
-  }, [playerName, platform, doFetch]);
-
-  const handleRefresh = useCallback(() => {
-    if (playerName) {
-      doFetch(playerName, platform);
-    }
-  }, [playerName, platform, doFetch]);
+  };
 
   return (
     <div className="container py-4">
-      {playerName && !loading && (
+      {playerName && !statsLoading && (
         <div className="d-flex justify-content-end mb-3">
           <button
             className="btn btn-sm btn-outline-info"
@@ -87,7 +41,7 @@ export default function StatsPage() {
         </div>
       )}
 
-      {!playerName && !loading && (
+      {!playerName && !statsLoading && (
         <div className="text-center py-5">
           <div className="stats-card p-5 mx-auto" style={{ maxWidth: 520 }}>
             <div className="fs-1 mb-3">🎮</div>
@@ -99,7 +53,7 @@ export default function StatsPage() {
         </div>
       )}
 
-      {playerName && loading && !stats && (
+      {playerName && statsLoading && !stats && (
         <div className="d-flex flex-column align-items-center justify-content-center py-5">
           <div className="spinner-grow text-danger mb-3" role="status">
             <span className="visually-hidden">Loading...</span>
@@ -108,7 +62,7 @@ export default function StatsPage() {
         </div>
       )}
 
-      {playerName && loading && stats && (
+      {playerName && statsLoading && stats && (
         <div className="d-flex align-items-center justify-content-center py-2 mb-3">
           <div className="spinner-border spinner-border-sm text-danger me-2" role="status">
             <span className="visually-hidden">Refreshing...</span>
@@ -117,24 +71,24 @@ export default function StatsPage() {
         </div>
       )}
 
-      {error && !loading && (
+      {statsError && !statsLoading && (
         <div className="text-center py-5">
           <div className="stats-card p-5 mx-auto" style={{ maxWidth: "500px" }}>
             <div className="fs-1 mb-3">⚠️</div>
             <h4 className="text-white mb-3">Error</h4>
-            <p className="text-muted">{error}</p>
+            <p className="text-muted">{statsError}</p>
             <button
               className="btn btn-sm mt-2"
               style={{ backgroundColor: "#e94560", color: "white", borderColor: "#e94560" }}
               onClick={resetToDefault}
             >
-              Load Default Player
+              Clear Search
             </button>
           </div>
         </div>
       )}
 
-      {stats && !loading && (
+      {stats && !statsLoading && (
         <>
           <PlayerHeader stats={stats} />
           <StatCards stats={stats} />
