@@ -1,3 +1,10 @@
+## [1.2.3](https://github.com/PalmiizKittinan/bf6-stats/compare/v1.2.2...v1.2.3) (2026-07-22)
+
+
+### Bug Fixes
+
+* **API:** Add API timeout ([38eda7d](https://github.com/PalmiizKittinan/bf6-stats/commit/38eda7dd5f7df7b9e112b87d9716e11780782e6a))
+
 ## [1.2.2](https://github.com/PalmiizKittinan/bf6-stats/compare/v1.2.1...v1.2.2) (2026-07-21)
 
 
