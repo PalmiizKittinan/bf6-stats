@@ -3,7 +3,7 @@
 [![CI/CD](https://github.com/PalmiizKittinan/bf6-stats/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/PalmiizKittinan/bf6-stats/actions/workflows/ci.yml)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org)
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)](https://getbootstrap.com/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-0891B2?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Zustand](https://img.shields.io/badge/Zustand-5-FF6B00?style=for-the-badge)](https://github.com/pmndrs/zustand)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
@@ -28,7 +28,7 @@ Data is powered by the [GameTools Network API](https://gametools.network).
 
 - **UI toggle** — Switch between Bootstrap and Tailwind themes via **BS** / **TW** buttons in the navbar
 - **Persistent choice** — Framework selection is saved to localStorage
-- **Distinct themes** — Bootstrap uses red accent (#e94560), Tailwind uses cyan accent (#06b6d4) with glass-morphism cards
+- **Distinct themes** — Bootstrap uses red accent (#e94560), Tailwind uses teal accent (#0891B2) with glass-morphism cards
 - **Dark/Light themes** — Both frameworks support dark, light, and system theme modes
 
 ### 👤 Profile Page (`/profile`)
@@ -164,7 +164,7 @@ src/
 │   ├── Dashboard.tsx            # Legacy single-page dashboard (unused)
 │   ├── Footer.tsx               # Bootstrap footer
 │   ├── tailwind/                # Tailwind CSS theme components
-│   │   ├── NavbarTW.tsx         # Tailwind navbar with glass-morphism, cyan accent
+│   │   ├── NavbarTW.tsx         # Tailwind navbar with glass-morphism, teal accent
 │   │   ├── ThemeToggleTW.tsx    # Tailwind theme toggle buttons
 │   │   ├── FooterTW.tsx         # Tailwind footer
 │   │   ├── PlayerHeaderTW.tsx   # Tailwind player header with glow effects
