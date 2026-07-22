@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import ThemeToggle from "./ThemeToggle";
 import { useSearch } from "./SearchProvider";
+import { useCSSFramework } from "./CSSFrameworkProvider";
 
 interface SavedName {
   name: string;
@@ -31,6 +32,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const { searchInput, setSearchInput, platform, setPlatform, handleSearch } =
     useSearch();
+  const { framework, setFramework } = useCSSFramework();
 
   const [savedNames, setSavedNames] = useState<SavedName[]>([]);
   const [showSavedMenu, setShowSavedMenu] = useState(false);
@@ -243,6 +245,26 @@ export default function Navbar() {
             className="vr d-none d-lg-block mx-2"
             style={{ borderColor: "rgba(255,255,255,0.2)" }}
           />
+
+          {/* CSS Framework Toggle */}
+          <div className="btn-group btn-group-sm">
+            <button
+              type="button"
+              className={`btn ${framework === "bootstrap" ? "btn-primary" : "btn-outline-secondary"}`}
+              onClick={() => setFramework("bootstrap")}
+              title="Bootstrap"
+            >
+              BS
+            </button>
+            <button
+              type="button"
+              className={`btn ${framework === "tailwind" ? "btn-info" : "btn-outline-secondary"}`}
+              onClick={() => setFramework("tailwind")}
+              title="Tailwind"
+            >
+              TW
+            </button>
+          </div>
 
           {/* Theme Toggle - Far right */}
           <ThemeToggle />

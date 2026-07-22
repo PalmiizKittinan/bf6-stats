@@ -3,11 +3,12 @@
 [![CI/CD](https://github.com/PalmiizKittinan/bf6-stats/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/PalmiizKittinan/bf6-stats/actions/workflows/ci.yml)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org)
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)](https://getbootstrap.com/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Zustand](https://img.shields.io/badge/Zustand-5-FF6B00?style=for-the-badge)](https://github.com/pmndrs/zustand)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
-A web application for viewing your **Battlefield 6** multiplayer statistics, built with [Next.js](https://nextjs.org), [Bootstrap 5.3](https://getbootstrap.com/), and [Zustand](https://github.com/pmndrs/zustand) for state management.
+A web application for viewing your **Battlefield 6** multiplayer statistics, built with [Next.js](https://nextjs.org), [Bootstrap 5.3](https://getbootstrap.com/), [Tailwind CSS 4](https://tailwindcss.com/), and [Zustand](https://github.com/pmndrs/zustand) for state management.
 
 Data is powered by the [GameTools Network API](https://gametools.network).
 
@@ -22,6 +23,13 @@ Data is powered by the [GameTools Network API](https://gametools.network).
 - **10-second timeout** — API requests abort automatically with an error message if no response within 10 seconds
 - **Saved player names** — Save frequently searched players to localStorage for quick access
 - **Refresh buttons** — Each page has its own refresh button to re-fetch its specific data
+
+### 🎨 Dual CSS Framework (Bootstrap + Tailwind)
+
+- **UI toggle** — Switch between Bootstrap and Tailwind themes via **BS** / **TW** buttons in the navbar
+- **Persistent choice** — Framework selection is saved to localStorage
+- **Distinct themes** — Bootstrap uses red accent (#e94560), Tailwind uses cyan accent (#06b6d4) with glass-morphism cards
+- **Dark/Light themes** — Both frameworks support dark, light, and system theme modes
 
 ### 👤 Profile Page (`/profile`)
 
@@ -67,7 +75,7 @@ Data is powered by the [GameTools Network API](https://gametools.network).
 | ------------ | --------------------------------------- |
 | Framework    | [Next.js 16](https://nextjs.org/) (App Router, Turbopack) |
 | Language     | TypeScript                              |
-| UI Library   | [Bootstrap 5.3](https://getbootstrap.com/) |
+| UI Library   | [Bootstrap 5.3](https://getbootstrap.com/) + [Tailwind CSS 4](https://tailwindcss.com/) |
 | Font         | Google Sans (Google Fonts)              |
 | State Mgmt   | [Zustand 5.x](https://github.com/pmndrs/zustand) |
 | API          | [GameTools Network](https://api.gametools.network/) REST API |
@@ -127,19 +135,22 @@ docker compose up -d
 ```text
 src/
 ├── app/
-│   ├── globals.css              # Global styles, Bootstrap, Google Sans, dark/light CSS variables
-│   ├── layout.tsx               # Root layout: ThemeProvider, SearchProvider, Navbar, Footer
+│   ├── globals.css              # Global styles, Bootstrap + Tailwind, CSS variables, dark/light themes
+│   ├── layout.tsx               # Root layout: ThemeProvider, CSSFrameworkProvider, SearchProvider, Navbar, Footer
 │   ├── page.tsx                 # Entry page → redirects to /profile
 │   ├── profile/
-│   │   └── page.tsx             # /profile route: renders <Profile /> component
+│   │   └── page.tsx             # /profile route: switches between Bootstrap/Tailwind Profile
 │   └── stats/
-│       └── page.tsx             # /stats route: renders stats UI from Zustand store
+│       └── page.tsx             # /stats route: switches between Bootstrap/Tailwind Stats
 ├── components/
-│   ├── Navbar.tsx               # Shared navbar: tabs, search bar, saved names, ThemeToggle
+│   ├── Navbar.tsx               # Bootstrap navbar with BS/TW toggle
+│   ├── NavbarWrapper.tsx        # Switches between Bootstrap/Tailwind navbar
+│   ├── FooterWrapper.tsx        # Switches between Bootstrap/Tailwind footer
+│   ├── CSSFrameworkProvider.tsx  # Context for Bootstrap/Tailwind selection (persisted)
 │   ├── SearchProvider.tsx       # Thin React Context wrapper delegating to Zustand store
-│   ├── Profile.tsx              # Profile page (reads from Zustand store)
-│   ├── PlayerHeader.tsx         # Player avatar, name, platform, best class, time played, XP
-│   ├── StatCards.tsx            # Grid of stat cards
+│   ├── Profile.tsx              # Bootstrap Profile page (reads from Zustand store)
+│   ├── PlayerHeader.tsx         # Bootstrap player header
+│   ├── StatCards.tsx            # Bootstrap stat cards grid
 │   ├── DamageBreakdown.tsx      # Damage & assists breakdown with progress bars
 │   ├── ClassesTable.tsx         # Class cards (Assault, Engineer, Support, Recon)
 │   ├── GameModesTable.tsx       # Game mode cards (Conquest, Breakthrough)
@@ -149,8 +160,17 @@ src/
 │   ├── GadgetsTable.tsx         # Gadgets DataTable with images
 │   ├── DataTable.tsx            # Generic reusable DataTable (search, sort, pagination)
 │   ├── ThemeProvider.tsx        # Context provider for theme (dark/light/system)
-│   ├── ThemeToggle.tsx          # UI toggle buttons for theme selection
-│   └── Footer.tsx               # Shared footer with copyright, GitHub link, version
+│   ├── ThemeToggle.tsx          # Bootstrap theme toggle buttons
+│   ├── Dashboard.tsx            # Legacy single-page dashboard (unused)
+│   ├── Footer.tsx               # Bootstrap footer
+│   ├── tailwind/                # Tailwind CSS theme components
+│   │   ├── NavbarTW.tsx         # Tailwind navbar with glass-morphism, cyan accent
+│   │   ├── ThemeToggleTW.tsx    # Tailwind theme toggle buttons
+│   │   ├── FooterTW.tsx         # Tailwind footer
+│   │   ├── PlayerHeaderTW.tsx   # Tailwind player header with glow effects
+│   │   ├── StatCardsTW.tsx      # Tailwind glass-morphism stat cards
+│   │   ├── ProfileTW.tsx        # Full Tailwind Profile page
+│   │   └── StatsPageTW.tsx      # Full Tailwind Stats page
 ├── store/
 │   └── usePlayerStore.ts        # Zustand store: search, stats, profile, fetching, timeout
 └── types/
@@ -179,6 +199,10 @@ The app uses **Zustand** (`src/store/usePlayerStore.ts`) as a centralized store 
 - **Fetching**: Uses `AbortController` with 10-second timeout
 - **Cross-page persistence**: Data survives navigation between `/profile` and `/stats`
 - **Local-only fetch**: Data is only fetched on user action (Search, Refresh) — never on page load
+
+Additional state:
+- **CSSFrameworkProvider** — Manages Bootstrap/Tailwind selection, persisted to localStorage
+- **ThemeProvider** — Manages dark/light/system theme, persisted to localStorage
 
 ---
 
