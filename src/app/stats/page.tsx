@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useCSSFramework } from "@/components/CSSFrameworkProvider";
 import { usePlayerStore } from "@/store/usePlayerStore";
 import PlayerHeader from "@/components/PlayerHeader";
@@ -122,14 +123,48 @@ function StatsPageBootstrap() {
 }
 
 function SeasonStatsSection({ seasons }: { seasons: BF6Stats["seasons"] }) {
-  const activeSeasons = seasons.filter((s) => s.modes.length > 0);
+  const [page, setPage] = useState(0);
+  const PAGE_SIZE = 3;
+
+  // Filter active seasons and sort newest first
+  const activeSeasons = [...seasons]
+    .filter((s) => s.modes.length > 0)
+    .reverse();
   if (activeSeasons.length === 0) return null;
+
+  const totalPages = Math.ceil(activeSeasons.length / PAGE_SIZE);
+  const pagedSeasons = activeSeasons.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
 
   return (
     <div className="mb-4">
-      <h5 className="section-title">📅 Season Stats</h5>
+      <h5 className="section-title">
+        📅 Season Stats
+        {totalPages > 1 && (
+          <span className="float-end d-flex align-items-center gap-2">
+            <button
+              className="btn btn-sm btn-outline-secondary"
+            onClick={() => setPage((p: number) => Math.max(0, p - 1))}
+              disabled={page === 0}
+              style={{ padding: "2px 8px", fontSize: "0.75rem" }}
+            >
+              ◀
+            </button>
+            <span className="text-muted small" style={{ fontSize: "0.75rem" }}>
+              {page + 1}/{totalPages}
+            </span>
+            <button
+              className="btn btn-sm btn-outline-secondary"
+            onClick={() => setPage((p: number) => Math.min(totalPages - 1, p + 1))}
+              disabled={page === totalPages - 1}
+              style={{ padding: "2px 8px", fontSize: "0.75rem" }}
+            >
+              ▶
+            </button>
+          </span>
+        )}
+      </h5>
       <div className="row g-3">
-        {activeSeasons.map((season) => (
+        {pagedSeasons.map((season) => (
           <div key={season.seasonId} className="col-12 col-md-6 col-lg-4">
             <div className="season-badge p-3 h-100">
               <h6 className="text-white fw-bold mb-3">{season.season}</h6>

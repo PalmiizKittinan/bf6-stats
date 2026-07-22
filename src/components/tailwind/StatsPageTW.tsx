@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { usePlayerStore } from "@/store/usePlayerStore";
 import PlayerHeaderTW from "./PlayerHeaderTW";
 import StatCardsTW from "./StatCardsTW";
@@ -89,17 +90,51 @@ export default function StatsPageTW() {
 }
 
 function SeasonStatsSectionTW({ seasons }: { seasons: BF6Stats["seasons"] }) {
-  const activeSeasons = seasons.filter((s) => s.modes.length > 0);
+  const [page, setPage] = useState(0);
+  const PAGE_SIZE = 3;
+
+  // Filter active seasons and sort newest first
+  const activeSeasons = [...seasons]
+    .filter((s) => s.modes.length > 0)
+    .reverse();
   if (activeSeasons.length === 0) return null;
+
+  const totalPages = Math.ceil(activeSeasons.length / PAGE_SIZE);
+  const pagedSeasons = activeSeasons.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
 
   return (
     <div className="mb-4">
-      <h5 className="section-title">📅 Season Stats</h5>
+      <h5 className="section-title flex items-center justify-between">
+        <span>📅 Season Stats</span>
+        {totalPages > 1 && (
+          <span className="flex items-center gap-2">
+            <button
+              className="px-2 py-0.5 rounded text-xs border cursor-pointer transition-colors disabled:opacity-30"
+              style={{ borderColor: "var(--bf6-border-hover)", color: "var(--bf6-text-muted)" }}
+              onClick={() => setPage((p) => Math.max(0, p - 1))}
+              disabled={page === 0}
+            >
+              ◀
+            </button>
+            <span className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>
+              {page + 1}/{totalPages}
+            </span>
+            <button
+              className="px-2 py-0.5 rounded text-xs border cursor-pointer transition-colors disabled:opacity-30"
+              style={{ borderColor: "var(--bf6-border-hover)", color: "var(--bf6-text-muted)" }}
+              onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+              disabled={page === totalPages - 1}
+            >
+              ▶
+            </button>
+          </span>
+        )}
+      </h5>
       <div className="flex flex-wrap -mx-1">
-        {activeSeasons.map((season) => (
+        {pagedSeasons.map((season) => (
           <div key={season.seasonId} className="w-full sm:w-1/2 lg:w-1/3 p-1">
             <div className="season-badge p-3 h-full">
-              <h6 className="text-bf6-text-strong font-bold mb-3">{season.season}</h6>
+              <h6 className="font-bold mb-3" style={{ color: "var(--bf6-text-strong)" }}>{season.season}</h6>
               {season.modes.map((mode) => (
                 <div key={mode.modeId}>
                   <div className="mb-2">
@@ -108,12 +143,12 @@ function SeasonStatsSectionTW({ seasons }: { seasons: BF6Stats["seasons"] }) {
                     <span className="px-2 py-0.5 rounded text-xs bg-red-600 text-white">{mode.losses}L</span>
                   </div>
                   <div className="grid grid-cols-2 gap-2 mt-1">
-                    <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Matches</div><div className="font-bold text-bf6-text-strong">{mode.matches}</div></div>
+                    <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Matches</div><div className="font-bold" style={{ color: "var(--bf6-text-strong)" }}>{mode.matches}</div></div>
                     <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Win Rate</div><div className="font-bold text-green-400">{mode.matches > 0 ? ((mode.wins / mode.matches) * 100).toFixed(1) : 0}%</div></div>
-                    <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Kills</div><div className="font-bold text-bf6-text-strong">{mode.kills.toLocaleString()}</div></div>
+                    <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Kills</div><div className="font-bold" style={{ color: "var(--bf6-text-strong)" }}>{mode.kills.toLocaleString()}</div></div>
                     <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>K/D</div><div className="font-bold stat-highlight">{mode.killDeath.toFixed(2)}</div></div>
-                    <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Score</div><div className="font-bold text-bf6-text-strong">{mode.score.toLocaleString()}</div></div>
-                    <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Time</div><div className="font-bold text-bf6-text-strong">{mode.timePlayed}</div></div>
+                    <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Score</div><div className="font-bold" style={{ color: "var(--bf6-text-strong)" }}>{mode.score.toLocaleString()}</div></div>
+                    <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Time</div><div className="font-bold" style={{ color: "var(--bf6-text-strong)" }}>{mode.timePlayed}</div></div>
                   </div>
                 </div>
               ))}
