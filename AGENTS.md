@@ -8,7 +8,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 # BF6 Stats Dashboard — Project Guide
 
-> A web application for viewing **Battlefield 6** multiplayer statistics, built with **Next.js 16 (App Router)**, **TypeScript**, and **Bootstrap 5.3**.
+> A web application for viewing **Battlefield 6** multiplayer statistics, built with **Next.js 16 (App Router)**, **TypeScript**, **Bootstrap 5.3**, and **Zustand** for state management.
 
 Data is powered by the [GameTools Network API](https://gametools.network).
 
@@ -22,9 +22,9 @@ Data is powered by the [GameTools Network API](https://gametools.network).
 4. [Routing](#routing)
 5. [API Integration](#api-integration)
 6. [Component Architecture](#component-architecture)
-7. [Theming System](#theming-system)
-8. [DataTable Component](#datatable-component)
-9. [State Management](#state-management)
+7. [State Management](#state-management)
+8. [Theming System](#theming-system)
+9. [DataTable Component](#datatable-component)
 10. [Development Commands](#development-commands)
 11. [Docker](#docker)
 12. [CI/CD & Semantic Release](#cicd--semantic-release)
@@ -43,6 +43,7 @@ Data is powered by the [GameTools Network API](https://gametools.network).
 | UI Library   | Bootstrap 5.3                           |
 | Font         | Google Sans (Google Fonts)              |
 | Styling      | Custom CSS with CSS variables (dark/light themes) |
+| State Mgmt   | Zustand 5.x                             |
 | API          | GameTools Network REST API (external)   |
 | Runtime      | Node.js 20+                             |
 | Package Mgr  | npm                                     |
@@ -62,7 +63,7 @@ bf6-stats/
 ├── tsconfig.json                   # TypeScript configuration
 ├── postcss.config.mjs              # PostCSS config (empty, no Tailwind)
 ├── eslint.config.mjs               # ESLint configuration
-├── package.json                    # Dependencies & scripts (version: 1.1.0)
+├── package.json                    # Dependencies & scripts
 ├── Dockerfile                      # Docker build (node:20-alpine)
 ├── docker-compose.yaml             # Docker Compose for development
 ├── .dockerignore                   # Docker ignore rules
@@ -82,15 +83,15 @@ bf6-stats/
     │   ├── layout.tsx              # Root layout: ThemeProvider, SearchProvider, Navbar, Footer
     │   ├── page.tsx                # Entry page → redirects to /profile
     │   ├── profile/
-    │   │   └── page.tsx            # /profile route: player profile from profile API
+    │   │   └── page.tsx            # /profile route: renders <Profile /> component
     │   └── stats/
-    │       └── page.tsx            # /stats route: full stats dashboard from stats API
+    │       └── page.tsx            # /stats route: renders stats UI from Zustand store
     │
     ├── components/
-    │   ├── Navbar.tsx              # Shared navbar: tabs (👤 Profile, 📊 Stats), search bar, ThemeToggle
-    │   ├── SearchProvider.tsx      # React Context for shared search state (playerName, platform)
-    │   ├── Profile.tsx             # Profile page component: rank, card, competitive ranks, detailed stats
-    │   ├── PlayerHeader.tsx        # Player avatar, name, platform, time played, XP
+    │   ├── Navbar.tsx              # Shared navbar: tabs, search bar, saved names, ThemeToggle
+    │   ├── SearchProvider.tsx      # Thin React Context wrapper delegating to Zustand store
+    │   ├── Profile.tsx             # Profile page component (reads from Zustand store)
+    │   ├── PlayerHeader.tsx        # Player avatar, name, platform, best class, time played, XP
     │   ├── StatCards.tsx            # Grid of stat cards (combat, performance, match, support, objectives)
     │   ├── DamageBreakdown.tsx     # Damage & assists breakdown with color-coded progress bars
     │   ├── ClassesTable.tsx        # Class cards (Assault, Engineer, Support, Recon)
@@ -102,7 +103,11 @@ bf6-stats/
     │   ├── DataTable.tsx           # Generic reusable DataTable (search, sort, pagination)
     │   ├── ThemeProvider.tsx       # Context provider for theme (dark/light/system) using useSyncExternalStore
     │   ├── ThemeToggle.tsx         # UI toggle buttons for theme selection
+    │   ├── Dashboard.tsx           # Legacy single-page dashboard (unused by routing)
     │   └── Footer.tsx              # Shared footer with copyright, GitHub link, version from package.json
+    │
+    ├── store/
+    │   └── usePlayerStore.ts       # Zustand store: search state, stats/profile data, fetching, timeout
     │
     └── types/
         └── bf6.ts                  # TypeScript interfaces for all API response types
@@ -118,18 +123,18 @@ bf6-stats/
 | ----------------- | ---- | ------- |
 | `layout.tsx`      | Root layout | Wraps `<html>` and `<body>`. Imports `globals.css`, Google Sans font. Wraps children with `ThemeProvider` → `SearchProvider` → `Navbar` + `<main>` + `Footer`. Sets initial `data-bs-theme="dark"` on `<html>`. |
 | `page.tsx`        | Entry page | Server component that redirects `/` to `/profile`. |
-| `profile/page.tsx`| Profile page | Client component. Uses `useSearch()` to get playerName/platform. Renders `<Profile>`. |
-| `stats/page.tsx`  | Stats page | Client component. Uses `useSearch()` to get playerName/platform. Fetches stats API and renders all stats sections. |
+| `profile/page.tsx`| Profile page | Client component. Renders `<Profile />` (no props — reads from Zustand store). |
+| `stats/page.tsx`  | Stats page | Client component. Reads stats data from Zustand store, renders all stats sections. |
 | `globals.css`     | Global styles | Imports Bootstrap CSS. Defines CSS variables for dark/light themes. Google Sans as primary font. Custom classes for cards, tables, navbar, scrollbar, theme toggle. |
 
 ### Components (`src/components/`)
 
 | Component         | Type          | Purpose |
 | ----------------- | ------------- | ------- |
-| `Navbar.tsx`      | Client Component | Shared navbar across all pages. Contains: tabs (👤 Profile, 📊 Stats) using `next/link`, search form (player name + platform), ThemeToggle. Uses `usePathname()` for active tab highlighting and `useSearch()` for search state. |
-| `SearchProvider.tsx`| Client Component (Context) | React Context providing shared search state (`playerName`, `platform`, `searchInput`, `handleSearch`, `resetToDefault`) across pages. |
-| `Profile.tsx`     | Client Component | Fetches `/bf6/profile/` API. Displays rank image, rank name, badges, dog tags, competitive ranks, profile overview stats, combat stats, support stats, objective stats, class stats cards, weapon type kills, distance & travel. |
-| `PlayerHeader.tsx`| Client Component | Displays player avatar, username, platform, time played, XP from stats API. |
+| `Navbar.tsx`      | Client Component | Shared navbar across all pages. Contains: tabs (👤 Profile, 📊 Stats) using `next/link`, search form (player name + platform), saved names (localStorage), ThemeToggle. Uses `usePathname()` for active tab highlighting and `useSearch()` for search state. |
+| `SearchProvider.tsx`| Client Component (Context) | Thin React Context wrapper that delegates all state to the Zustand store (`usePlayerStore`). Provides `playerName`, `platform`, `searchInput`, `setSearchInput`, `setPlatform`, `handleSearch`, `resetToDefault`. |
+| `Profile.tsx`     | Client Component | Reads profile data from Zustand store. Displays rank image, rank name, badges, dog tags, competitive ranks, profile overview stats, combat stats, support stats, objective stats, class stats cards, weapon type kills, distance & travel. Has refresh button. |
+| `PlayerHeader.tsx`| Client Component | Displays player avatar, username, platform, best class (calculated from classes data, excluding "All"), time played, XP from stats API. |
 | `StatCards.tsx`    | Client Component | Grid of `<StatCard>` sub-components showing core combat, performance, match, support, kill breakdown, objective, and additional stats. |
 | `DamageBreakdown.tsx` | Client Component | Shows damage types (human, explosive, passenger, etc.) and assist types with colored progress bars and percentages. |
 | `ClassesTable.tsx` | Client Component | Displays class cards (Assault, Engineer, Support, Recon) with kills, deaths, K/D, KPM, score, spawns, assists, revives. |
@@ -141,7 +146,14 @@ bf6-stats/
 | `DataTable.tsx`   | Client Component | **Generic reusable table** with: column sorting (click header), text search/filter, pagination (page size configurable). Accepts generic type `T extends { id: string }`. |
 | `ThemeProvider.tsx` | Client Component (Context) | React Context provider for theme management. Supports `dark`, `light`, `system` modes. Uses `useSyncExternalStore` for OS theme sync. Persists to `localStorage`. Exposes `useTheme()` hook. |
 | `ThemeToggle.tsx` | Client Component | Three toggle buttons (☀️ Light, 💻 OS, 🌙 Dark) for theme selection. Uses `useTheme()` hook. |
+| `Dashboard.tsx`   | Client Component | Legacy single-page dashboard with inline navbar. **Not used by current routing** — kept for reference only. |
 | `Footer.tsx`      | Server Component | Shared footer across all pages. Shows copyright with current year, GitHub link, and version badge from `package.json`. |
+
+### Store (`src/store/`)
+
+| File              | Contents |
+| ----------------- | -------- |
+| `usePlayerStore.ts` | Zustand store managing all app state: search (`searchInput`, `playerName`, `platform`), stats data (`stats`, `statsLoading`, `statsError`), profile data (`profile`, `profileLoading`, `profileError`). Handles fetching with AbortController, 10-second timeout, and shared state across pages. |
 
 ### Types (`src/types/`)
 
@@ -189,18 +201,15 @@ GET https://api.gametools.network/bf6/profile/?name={playerName}&platform={platf
 
 ### Fetching Pattern
 
-Data is fetched client-side using `fetch` API with `useCallback` + `useEffect` + `AbortController`. There is **no server-side data fetching** — all data is loaded on the client after hydration.
+Data is fetched client-side from the Zustand store (`usePlayerStore`). The store uses `AbortController` with a **10-second timeout**. Fetching is triggered only when the user clicks the Search button — not on page load or page navigation.
 
 ```typescript
-const doFetch = useCallback(async (name: string, plat: string) => {
-  controllerRef.current?.abort();
-  const controller = new AbortController();
-  controllerRef.current = controller;
-  // ... fetch with signal ...
-}, []);
-
-useEffect(() => { doFetch(playerName, platform); }, [playerName, platform, doFetch]);
+// In usePlayerStore.ts
+const timeoutId = setTimeout(() => controller.abort(), 10_000);
+const res = await fetch(url, { signal: controller.signal });
 ```
+
+Data persists in the Zustand store across page navigation (`/profile` ↔ `/stats`). It is only cleared on browser refresh or when the user clicks "Clear Search".
 
 ---
 
@@ -209,12 +218,14 @@ useEffect(() => { doFetch(playerName, platform); }, [playerName, platform, doFet
 ```text
 layout.tsx
   ├── ThemeProvider
-  │   └── SearchProvider
-  │       ├── Navbar (tabs: /profile, /stats + search bar + ThemeToggle)
+  │   └── SearchProvider (delegates to Zustand store)
+  │       ├── Navbar (tabs: /profile, /stats + search bar + saved names + ThemeToggle)
   │       ├── <main>
   │       │   └── {children} (page.tsx)
-  │       │       ├── /profile → Profile.tsx (fetches profile API)
-  │       │       └── /stats → stats/page.tsx (fetches stats API)
+  │       │       ├── /profile → Profile.tsx (reads profile from Zustand)
+  │       │       │   └── 🔄 Refresh button (re-fetches profile)
+  │       │       └── /stats → stats/page.tsx (reads stats from Zustand)
+  │       │           ├── 🔄 Refresh button (re-fetches stats)
   │       │           ├── PlayerHeader
   │       │           ├── StatCards
   │       │           ├── DamageBreakdown
@@ -228,7 +239,32 @@ layout.tsx
   │       └── Footer
 ```
 
-**Data flow**: Each page fetches its own API data using `useSearch()` for the player name and platform. Data is stored in page-local `useState` and passed as props to child components.
+**Data flow**: The Zustand store (`usePlayerStore`) holds all shared state — search input, player name, platform, stats data, and profile data. When the user clicks Search, both `fetchStats()` and `fetchProfile()` are called. Pages read directly from the store — no prop drilling or page-local fetching.
+
+---
+
+## State Management
+
+State is managed with **Zustand** (`src/store/usePlayerStore.ts`):
+
+| State              | Description |
+| ------------------ | ----------- |
+| `searchInput`      | Current text in the search input |
+| `playerName`       | Active searched player name (set on Search click) |
+| `platform`         | Selected platform (ea/pc/xbox/psn) |
+| `stats` / `statsLoading` / `statsError` | Stats API data and fetch status |
+| `profile` / `profileLoading` / `profileError` | Profile API data and fetch status |
+
+Additional state:
+- **React Context** (`ThemeProvider`) for global theme state using `useSyncExternalStore`
+- **React Context** (`SearchProvider`) — thin wrapper delegating to Zustand store
+- **`localStorage`** for theme persistence (`bf6-theme`) and saved player names (`bf6-saved-names`)
+
+Key behaviors:
+- **Search-on-click**: Data is only fetched when user clicks Search or selects a saved name — no auto-fetch on page load
+- **Cross-page persistence**: Data persists in Zustand when navigating between `/profile` and `/stats`
+- **10-second timeout**: API requests are aborted with a timeout error message if no response within 10 seconds
+- **Refresh**: Each page has its own refresh button to re-fetch its specific data
 
 ---
 
@@ -285,18 +321,6 @@ import DataTable from "./DataTable";
 - **Search**: Filters rows by matching `searchKeys` against input text.
 - **Pagination**: Page navigation with first/prev/page numbers/next/last buttons. Shows max 5 page buttons.
 - **Custom renderers**: Each column can have a `render` function for custom cell content (images, badges, formatted numbers).
-
----
-
-## State Management
-
-No external state library is used. State is managed with:
-
-- **React `useState`** for page-local state (stats data, loading/error)
-- **React Context** (`SearchProvider`) for shared search state (playerName, platform) across pages
-- **React Context** (`ThemeProvider`) for global theme state using `useSyncExternalStore`
-- **`localStorage`** for theme persistence
-- **`useCallback`** + **`useEffect`** + `AbortController` for data fetching
 
 ---
 
@@ -397,9 +421,8 @@ Empty plugins — Bootstrap is imported directly via CSS `@import`.
 ### Adding a New Page
 
 1. Create `src/app/<route>/page.tsx` as a client component
-2. Use `useSearch()` from `SearchProvider` to access playerName/platform
-3. Fetch API data using `useCallback` + `useEffect` + `AbortController`
-4. Add navigation link in `Navbar.tsx` using `next/link`
+2. Read data from `usePlayerStore()` (Zustand) for playerName/platform/stats/profile
+3. Add navigation link in `Navbar.tsx` using `next/link`
 
 ### Adding a New Stats Section
 
@@ -430,5 +453,6 @@ Edit CSS variables in `src/app/globals.css` under `[data-bs-theme="dark"]` or `[
 | `react`    | 19.x    | UI library |
 | `react-dom`| 19.x    | React DOM rendering |
 | `bootstrap`| 5.3.3   | CSS framework |
+| `zustand`  | 5.x     | State management |
 
 All dev dependencies are standard Next.js defaults (TypeScript, ESLint, Tailwind CSS PostCSS — though Tailwind is not used).

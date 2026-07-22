@@ -4,15 +4,24 @@
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org)
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)](https://getbootstrap.com/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Zustand](https://img.shields.io/badge/Zustand-5-FF6B00?style=for-the-badge)](https://github.com/pmndrs/zustand)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
-A web application for viewing your **Battlefield 6** multiplayer statistics, built with [Next.js](https://nextjs.org) and [Bootstrap 5.3](https://getbootstrap.com/).
+A web application for viewing your **Battlefield 6** multiplayer statistics, built with [Next.js](https://nextjs.org), [Bootstrap 5.3](https://getbootstrap.com/), and [Zustand](https://github.com/pmndrs/zustand) for state management.
 
 Data is powered by the [GameTools Network API](https://gametools.network).
 
 ---
 
 ## Features
+
+### 🔍 Search & State
+
+- **Search-on-click** — Data is only fetched when the user clicks Search or selects a saved name
+- **Cross-page persistence** — Data persists in Zustand store when navigating between `/profile` and `/stats`
+- **10-second timeout** — API requests abort automatically with an error message if no response within 10 seconds
+- **Saved player names** — Save frequently searched players to localStorage for quick access
+- **Refresh buttons** — Each page has its own refresh button to re-fetch its specific data
 
 ### 👤 Profile Page (`/profile`)
 
@@ -60,6 +69,7 @@ Data is powered by the [GameTools Network API](https://gametools.network).
 | Language     | TypeScript                              |
 | UI Library   | [Bootstrap 5.3](https://getbootstrap.com/) |
 | Font         | Google Sans (Google Fonts)              |
+| State Mgmt   | [Zustand 5.x](https://github.com/pmndrs/zustand) |
 | API          | [GameTools Network](https://api.gametools.network/) REST API |
 | CI/CD        | GitHub Actions + semantic-release       |
 | Container    | Docker + Docker Compose                 |
@@ -87,7 +97,7 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3022](http://localhost:3022) in your browser.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### Production Build
 
@@ -121,14 +131,14 @@ src/
 │   ├── layout.tsx               # Root layout: ThemeProvider, SearchProvider, Navbar, Footer
 │   ├── page.tsx                 # Entry page → redirects to /profile
 │   ├── profile/
-│   │   └── page.tsx             # /profile route: player profile from profile API
+│   │   └── page.tsx             # /profile route: renders <Profile /> component
 │   └── stats/
-│       └── page.tsx             # /stats route: full stats dashboard from stats API
+│       └── page.tsx             # /stats route: renders stats UI from Zustand store
 ├── components/
-│   ├── Navbar.tsx               # Shared navbar: tabs (👤 Profile, 📊 Stats), search bar, ThemeToggle
-│   ├── SearchProvider.tsx       # React Context for shared search state across pages
-│   ├── Profile.tsx              # Profile page: rank, card, competitive ranks, detailed stats
-│   ├── PlayerHeader.tsx         # Player avatar, name, platform, time played, XP
+│   ├── Navbar.tsx               # Shared navbar: tabs, search bar, saved names, ThemeToggle
+│   ├── SearchProvider.tsx       # Thin React Context wrapper delegating to Zustand store
+│   ├── Profile.tsx              # Profile page (reads from Zustand store)
+│   ├── PlayerHeader.tsx         # Player avatar, name, platform, best class, time played, XP
 │   ├── StatCards.tsx            # Grid of stat cards
 │   ├── DamageBreakdown.tsx      # Damage & assists breakdown with progress bars
 │   ├── ClassesTable.tsx         # Class cards (Assault, Engineer, Support, Recon)
@@ -141,6 +151,8 @@ src/
 │   ├── ThemeProvider.tsx        # Context provider for theme (dark/light/system)
 │   ├── ThemeToggle.tsx          # UI toggle buttons for theme selection
 │   └── Footer.tsx               # Shared footer with copyright, GitHub link, version
+├── store/
+│   └── usePlayerStore.ts        # Zustand store: search, stats, profile, fetching, timeout
 └── types/
     └── bf6.ts                   # TypeScript interfaces for all API response types
 ```
@@ -154,6 +166,19 @@ src/
 | `/`         | Redirects to `/profile`                        |
 | `/profile`  | Player profile page (default landing)          |
 | `/stats`    | Full stats dashboard                           |
+
+---
+
+## State Management
+
+The app uses **Zustand** (`src/store/usePlayerStore.ts`) as a centralized store for all application state:
+
+- **Search state**: `searchInput`, `playerName`, `platform`
+- **Stats data**: `stats`, `statsLoading`, `statsError`
+- **Profile data**: `profile`, `profileLoading`, `profileError`
+- **Fetching**: Uses `AbortController` with 10-second timeout
+- **Cross-page persistence**: Data survives navigation between `/profile` and `/stats`
+- **Local-only fetch**: Data is only fetched on user action (Search, Refresh) — never on page load
 
 ---
 
