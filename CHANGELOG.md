@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/PalmiizKittinan/bf6-stats/compare/v1.2.3...v1.3.0) (2026-07-22)
+
+
+### Features
+
+* **CSS:** User can select CSS framework Bootstrap/Tailwind ([6a66a36](https://github.com/PalmiizKittinan/bf6-stats/commit/6a66a3647bb1cc0eae529ba2f28fba412c5ba8a5))
+
 ## [1.2.3](https://github.com/PalmiizKittinan/bf6-stats/compare/v1.2.2...v1.2.3) (2026-07-22)
 
 

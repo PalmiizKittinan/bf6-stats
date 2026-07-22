@@ -8,7 +8,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 # BF6 Stats Dashboard — Project Guide
 
-> A web application for viewing **Battlefield 6** multiplayer statistics, built with **Next.js 16 (App Router)**, **TypeScript**, **Bootstrap 5.3**, and **Zustand** for state management.
+> A web application for viewing **Battlefield 6** multiplayer statistics, built with **Next.js 16 (App Router)**, **TypeScript**, **Bootstrap 5.3**, **Tailwind CSS 4**, and **Zustand** for state management.
 
 Data is powered by the [GameTools Network API](https://gametools.network).
 
@@ -24,13 +24,14 @@ Data is powered by the [GameTools Network API](https://gametools.network).
 6. [Component Architecture](#component-architecture)
 7. [State Management](#state-management)
 8. [Theming System](#theming-system)
-9. [DataTable Component](#datatable-component)
-10. [Development Commands](#development-commands)
-11. [Docker](#docker)
-12. [CI/CD & Semantic Release](#cicd--semantic-release)
-13. [Environment & Config](#environment--config)
-14. [Coding Conventions](#coding-conventions)
-15. [Key Patterns](#key-patterns)
+9. [Dual CSS Framework](#dual-css-framework)
+10. [DataTable Component](#datatable-component)
+11. [Development Commands](#development-commands)
+12. [Docker](#docker)
+13. [CI/CD & Semantic Release](#cicd--semantic-release)
+14. [Environment & Config](#environment--config)
+15. [Coding Conventions](#coding-conventions)
+16. [Key Patterns](#key-patterns)
 
 ---
 
@@ -40,9 +41,9 @@ Data is powered by the [GameTools Network API](https://gametools.network).
 | ------------ | --------------------------------------- |
 | Framework    | Next.js 16 (App Router, Turbopack)      |
 | Language     | TypeScript                              |
-| UI Library   | Bootstrap 5.3                           |
+| UI Library   | Bootstrap 5.3 + Tailwind CSS 4          |
 | Font         | Google Sans (Google Fonts)              |
-| Styling      | Custom CSS with CSS variables (dark/light themes) |
+| Styling      | CSS variables (dark/light themes) + Tailwind `@theme` tokens |
 | State Mgmt   | Zustand 5.x                             |
 | API          | GameTools Network REST API (external)   |
 | Runtime      | Node.js 20+                             |
@@ -61,7 +62,7 @@ bf6-stats/
 ├── README.md                       # User-facing documentation with badges
 ├── next.config.ts                  # Next.js configuration (image domains, etc.)
 ├── tsconfig.json                   # TypeScript configuration
-├── postcss.config.mjs              # PostCSS config (empty, no Tailwind)
+├── postcss.config.mjs              # PostCSS config (Tailwind CSS v4 plugin)
 ├── eslint.config.mjs               # ESLint configuration
 ├── package.json                    # Dependencies & scripts
 ├── Dockerfile                      # Docker build (node:20-alpine)
@@ -79,21 +80,24 @@ bf6-stats/
 │
 └── src/
     ├── app/
-    │   ├── globals.css             # Global styles, Bootstrap import, Google Sans font, dark/light CSS variables
-    │   ├── layout.tsx              # Root layout: ThemeProvider, SearchProvider, Navbar, Footer
+    │   ├── globals.css             # Global styles: Bootstrap + Tailwind imports, CSS variables, theme overrides
+    │   ├── layout.tsx              # Root layout: ThemeProvider, CSSFrameworkProvider, SearchProvider
     │   ├── page.tsx                # Entry page → redirects to /profile
     │   ├── profile/
-    │   │   └── page.tsx            # /profile route: renders <Profile /> component
+    │   │   └── page.tsx            # /profile route: switches Bootstrap/Tailwind Profile
     │   └── stats/
-    │       └── page.tsx            # /stats route: renders stats UI from Zustand store
+    │       └── page.tsx            # /stats route: switches Bootstrap/Tailwind Stats
     │
     ├── components/
-    │   ├── Navbar.tsx              # Shared navbar: tabs, search bar, saved names, ThemeToggle
+    │   ├── Navbar.tsx              # Bootstrap navbar with BS/TW toggle
+    │   ├── NavbarWrapper.tsx       # Switches between Bootstrap/Tailwind navbar
+    │   ├── FooterWrapper.tsx       # Switches between Bootstrap/Tailwind footer
+    │   ├── CSSFrameworkProvider.tsx # Context for Bootstrap/Tailwind selection (persisted to localStorage)
     │   ├── SearchProvider.tsx      # Thin React Context wrapper delegating to Zustand store
-    │   ├── Profile.tsx             # Profile page component (reads from Zustand store)
-    │   ├── PlayerHeader.tsx        # Player avatar, name, platform, best class, time played, XP
-    │   ├── StatCards.tsx            # Grid of stat cards (combat, performance, match, support, objectives)
-    │   ├── DamageBreakdown.tsx     # Damage & assists breakdown with color-coded progress bars
+    │   ├── Profile.tsx             # Bootstrap Profile page (reads from Zustand store)
+    │   ├── PlayerHeader.tsx        # Bootstrap player header (avatar, name, best class, time, XP)
+    │   ├── StatCards.tsx            # Bootstrap stat cards grid
+    │   ├── DamageBreakdown.tsx     # Damage & assists breakdown with progress bars
     │   ├── ClassesTable.tsx        # Class cards (Assault, Engineer, Support, Recon)
     │   ├── GameModesTable.tsx      # Game mode cards (Conquest, Breakthrough)
     │   ├── WeaponsTable.tsx        # Weapons DataTable with images
@@ -102,9 +106,17 @@ bf6-stats/
     │   ├── GadgetsTable.tsx        # Gadgets DataTable with images
     │   ├── DataTable.tsx           # Generic reusable DataTable (search, sort, pagination)
     │   ├── ThemeProvider.tsx       # Context provider for theme (dark/light/system) using useSyncExternalStore
-    │   ├── ThemeToggle.tsx         # UI toggle buttons for theme selection
+    │   ├── ThemeToggle.tsx         # Bootstrap theme toggle buttons
     │   ├── Dashboard.tsx           # Legacy single-page dashboard (unused by routing)
-    │   └── Footer.tsx              # Shared footer with copyright, GitHub link, version from package.json
+    │   ├── Footer.tsx              # Bootstrap footer
+    │   └── tailwind/               # Tailwind CSS theme components
+    │       ├── NavbarTW.tsx        # Tailwind navbar (CSS variables, cyan accent)
+    │       ├── ThemeToggleTW.tsx   # Tailwind theme toggle buttons
+    │       ├── FooterTW.tsx        # Tailwind footer
+    │       ├── PlayerHeaderTW.tsx  # Tailwind player header with glow effects
+    │       ├── StatCardsTW.tsx     # Tailwind glass-morphism stat cards
+    │       ├── ProfileTW.tsx       # Full Tailwind Profile page
+    │       └── StatsPageTW.tsx     # Full Tailwind Stats page (reuses shared sub-components)
     │
     ├── store/
     │   └── usePlayerStore.ts       # Zustand store: search state, stats/profile data, fetching, timeout
@@ -121,33 +133,27 @@ bf6-stats/
 
 | File              | Role | Details |
 | ----------------- | ---- | ------- |
-| `layout.tsx`      | Root layout | Wraps `<html>` and `<body>`. Imports `globals.css`, Google Sans font. Wraps children with `ThemeProvider` → `SearchProvider` → `Navbar` + `<main>` + `Footer`. Sets initial `data-bs-theme="dark"` on `<html>`. |
+| `layout.tsx`      | Root layout | Wraps `<html>` and `<body>`. Imports `globals.css`, Google Sans font. Wraps children with `ThemeProvider` → `CSSFrameworkProvider` → `SearchProvider` → `NavbarWrapper` + `<main>` + `FooterWrapper`. Sets initial `data-bs-theme="dark"` on `<html>`. |
 | `page.tsx`        | Entry page | Server component that redirects `/` to `/profile`. |
-| `profile/page.tsx`| Profile page | Client component. Renders `<Profile />` (no props — reads from Zustand store). |
-| `stats/page.tsx`  | Stats page | Client component. Reads stats data from Zustand store, renders all stats sections. |
-| `globals.css`     | Global styles | Imports Bootstrap CSS. Defines CSS variables for dark/light themes. Google Sans as primary font. Custom classes for cards, tables, navbar, scrollbar, theme toggle. |
+| `profile/page.tsx`| Profile page | Client component. Reads framework from `useCSSFramework()`, renders Bootstrap `<Profile />` or Tailwind `<ProfileTW />`. |
+| `stats/page.tsx`  | Stats page | Client component. Reads framework from `useCSSFramework()`, renders Bootstrap `StatsPageBootstrap` or Tailwind `<StatsPageTW />`. |
+| `globals.css`     | Global styles | Imports Tailwind CSS + Bootstrap CSS. Defines CSS variables for dark/light themes. `[data-framework="tailwind"]` selector overrides variables for Tailwind theme (cyan accent, navy background). Glass-morphism card classes. |
 
 ### Components (`src/components/`)
 
 | Component         | Type          | Purpose |
 | ----------------- | ------------- | ------- |
-| `Navbar.tsx`      | Client Component | Shared navbar across all pages. Contains: tabs (👤 Profile, 📊 Stats) using `next/link`, search form (player name + platform), saved names (localStorage), ThemeToggle. Uses `usePathname()` for active tab highlighting and `useSearch()` for search state. |
-| `SearchProvider.tsx`| Client Component (Context) | Thin React Context wrapper that delegates all state to the Zustand store (`usePlayerStore`). Provides `playerName`, `platform`, `searchInput`, `setSearchInput`, `setPlatform`, `handleSearch`, `resetToDefault`. |
-| `Profile.tsx`     | Client Component | Reads profile data from Zustand store. Displays rank image, rank name, badges, dog tags, competitive ranks, profile overview stats, combat stats, support stats, objective stats, class stats cards, weapon type kills, distance & travel. Has refresh button. |
-| `PlayerHeader.tsx`| Client Component | Displays player avatar, username, platform, best class (calculated from classes data, excluding "All"), time played, XP from stats API. |
-| `StatCards.tsx`    | Client Component | Grid of `<StatCard>` sub-components showing core combat, performance, match, support, kill breakdown, objective, and additional stats. |
-| `DamageBreakdown.tsx` | Client Component | Shows damage types (human, explosive, passenger, etc.) and assist types with colored progress bars and percentages. |
-| `ClassesTable.tsx` | Client Component | Displays class cards (Assault, Engineer, Support, Recon) with kills, deaths, K/D, KPM, score, spawns, assists, revives. |
-| `GameModesTable.tsx` | Client Component | Game mode cards (Conquest, Breakthrough) with mode-specific stats including objectives. |
-| `WeaponsTable.tsx` | Client Component | Wraps `<DataTable>` for weapons. Shows image, name, type, kills, K/M, damage, headshots, accuracy, etc. Default sorted by kills descending. |
-| `VehiclesTable.tsx` | Client Component | Wraps `<DataTable>` for vehicles. Shows image, name, type, kills, damage, spawns, assists, distance, destroyed. Default sorted by kills descending. |
-| `MapsTable.tsx`   | Client Component | Wraps `<DataTable>` for maps. Shows thumbnail, map name, matches, wins, losses, win %, time. Filters out "All" entry. |
-| `GadgetsTable.tsx` | Client Component | Wraps `<DataTable>` for gadgets. Shows image, name, type, kills, damage, assists, uses, repairs. Default sorted by kills descending. |
-| `DataTable.tsx`   | Client Component | **Generic reusable table** with: column sorting (click header), text search/filter, pagination (page size configurable). Accepts generic type `T extends { id: string }`. |
-| `ThemeProvider.tsx` | Client Component (Context) | React Context provider for theme management. Supports `dark`, `light`, `system` modes. Uses `useSyncExternalStore` for OS theme sync. Persists to `localStorage`. Exposes `useTheme()` hook. |
-| `ThemeToggle.tsx` | Client Component | Three toggle buttons (☀️ Light, 💻 OS, 🌙 Dark) for theme selection. Uses `useTheme()` hook. |
-| `Dashboard.tsx`   | Client Component | Legacy single-page dashboard with inline navbar. **Not used by current routing** — kept for reference only. |
-| `Footer.tsx`      | Server Component | Shared footer across all pages. Shows copyright with current year, GitHub link, and version badge from `package.json`. |
+| `Navbar.tsx`      | Client Component | Bootstrap navbar. Contains: tabs, search form, saved names (localStorage), BS/TW toggle, ThemeToggle. |
+| `NavbarWrapper.tsx` | Client Component | Switches between `Navbar.tsx` (Bootstrap) and `NavbarTW.tsx` (Tailwind) based on `useCSSFramework()`. |
+| `FooterWrapper.tsx` | Client Component | Switches between `Footer.tsx` (Bootstrap) and `FooterTW.tsx` (Tailwind) based on `useCSSFramework()`. |
+| `CSSFrameworkProvider.tsx` | Client Component (Context) | Manages Bootstrap/Tailwind selection. Persists to localStorage key `bf6-css-framework`. Sets `data-framework` attribute on `<html>` for CSS variable overrides. |
+| `SearchProvider.tsx`| Client Component (Context) | Thin React Context wrapper that delegates all state to the Zustand store (`usePlayerStore`). |
+| `Profile.tsx`     | Client Component | Bootstrap Profile page. Reads profile data from Zustand store. |
+| `PlayerHeader.tsx`| Client Component | Bootstrap player header. Best class calculated from classes data (excluding "All"). |
+| `StatCards.tsx`    | Client Component | Bootstrap stat cards grid. |
+| `tailwind/NavbarTW.tsx` | Client Component | Tailwind navbar using CSS variables for theme-aware colors. All colors use `var(--bf6-*)` — no hardcoded hex. |
+| `tailwind/ProfileTW.tsx` | Client Component | Full Tailwind Profile page using glass-morphism cards (`tw-glass-card`). |
+| `tailwind/StatsPageTW.tsx` | Client Component | Tailwind Stats page. Reuses Bootstrap sub-components (DamageBreakdown, ClassesTable, etc.) since they use shared CSS classes. |
 
 ### Store (`src/store/`)
 
@@ -218,25 +224,27 @@ Data persists in the Zustand store across page navigation (`/profile` ↔ `/stat
 ```text
 layout.tsx
   ├── ThemeProvider
-  │   └── SearchProvider (delegates to Zustand store)
-  │       ├── Navbar (tabs: /profile, /stats + search bar + saved names + ThemeToggle)
-  │       ├── <main>
-  │       │   └── {children} (page.tsx)
-  │       │       ├── /profile → Profile.tsx (reads profile from Zustand)
-  │       │       │   └── 🔄 Refresh button (re-fetches profile)
-  │       │       └── /stats → stats/page.tsx (reads stats from Zustand)
-  │       │           ├── 🔄 Refresh button (re-fetches stats)
-  │       │           ├── PlayerHeader
-  │       │           ├── StatCards
-  │       │           ├── DamageBreakdown
-  │       │           ├── ClassesTable
-  │       │           ├── GameModesTable
-  │       │           ├── SeasonStatsSection (inline)
-  │       │           ├── WeaponsTable → DataTable
-  │       │           ├── VehiclesTable → DataTable
-  │       │           ├── MapsTable → DataTable
-  │       │           └── GadgetsTable → DataTable
-  │       └── Footer
+  │   └── CSSFrameworkProvider
+  │       └── SearchProvider (delegates to Zustand store)
+  │           ├── NavbarWrapper
+  │           │   ├── Bootstrap: Navbar.tsx (with BS/TW toggle + ThemeToggle)
+  │           │   └── Tailwind: NavbarTW.tsx (with BS/TW toggle + ThemeToggleTW)
+  │           ├── <main>
+  │           │   └── {children} (page.tsx)
+  │           │       ├── /profile → switches Profile.tsx / ProfileTW.tsx
+  │           │       └── /stats → switches StatsPageBootstrap / StatsPageTW.tsx
+  │           │           ├── PlayerHeader / PlayerHeaderTW
+  │           │           ├── StatCards / StatCardsTW
+  │           │           ├── DamageBreakdown (shared)
+  │           │           ├── ClassesTable (shared)
+  │           │           ├── GameModesTable (shared)
+  │           │           ├── WeaponsTable → DataTable (shared)
+  │           │           ├── VehiclesTable → DataTable (shared)
+  │           │           ├── MapsTable → DataTable (shared)
+  │           │           └── GadgetsTable → DataTable (shared)
+  │           └── FooterWrapper
+  │               ├── Bootstrap: Footer.tsx
+  │               └── Tailwind: FooterTW.tsx
 ```
 
 **Data flow**: The Zustand store (`usePlayerStore`) holds all shared state — search input, player name, platform, stats data, and profile data. When the user clicks Search, both `fetchStats()` and `fetchProfile()` are called. Pages read directly from the store — no prop drilling or page-local fetching.
@@ -257,8 +265,9 @@ State is managed with **Zustand** (`src/store/usePlayerStore.ts`):
 
 Additional state:
 - **React Context** (`ThemeProvider`) for global theme state using `useSyncExternalStore`
+- **React Context** (`CSSFrameworkProvider`) for Bootstrap/Tailwind selection, persisted to localStorage
 - **React Context** (`SearchProvider`) — thin wrapper delegating to Zustand store
-- **`localStorage`** for theme persistence (`bf6-theme`) and saved player names (`bf6-saved-names`)
+- **`localStorage`** for theme persistence (`bf6-theme`), CSS framework persistence (`bf6-css-framework`), and saved player names (`bf6-saved-names`)
 
 Key behaviors:
 - **Search-on-click**: Data is only fetched when user clicks Search or selects a saved name — no auto-fetch on page load
@@ -273,8 +282,8 @@ Key behaviors:
 ### Architecture
 
 1. `ThemeProvider.tsx` — Context provider wrapping the entire app
-2. `ThemeToggle.tsx` — UI buttons to switch modes (in Navbar)
-3. `globals.css` — CSS variables for both themes
+2. `ThemeToggle.tsx` / `ThemeToggleTW.tsx` — UI buttons to switch modes (in Navbar)
+3. `globals.css` — CSS variables for both themes + Tailwind overrides
 
 ### Theme Modes
 
@@ -291,6 +300,39 @@ Theme mode is saved to `localStorage` key `bf6-theme` and restored after hydrati
 ### CSS Variables
 
 All colors use CSS custom properties defined under `[data-bs-theme="dark"]` and `[data-bs-theme="light"]` selectors in `globals.css`. Key variables: `--bf6-bg`, `--bf6-text`, `--bf6-text-strong`, `--bf6-text-muted`, `--bf6-accent`, `--bf6-border`, `--bf6-card-gradient`, `--bf6-header-bg`, `--bf6-search-bg`, `--bf6-bar-bg`.
+
+---
+
+## Dual CSS Framework
+
+The app supports both **Bootstrap** and **Tailwind CSS** simultaneously. Users can switch via **BS/TW** toggle buttons in the navbar.
+
+### How it Works
+
+1. **`CSSFrameworkProvider.tsx`** — React Context storing `"bootstrap"` or `"tailwind"`. Persisted to `localStorage` key `bf6-css-framework`. Sets `data-framework` attribute on `<html>`.
+
+2. **`globals.css`** — Contains `[data-framework="tailwind"]` selector that overrides CSS variables for Tailwind theme:
+   - **Dark**: Cyan accent (#06b6d4), navy background (#080b14)
+   - **Light**: Teal accent (#0891b2), sky blue background (#f0f9ff)
+
+3. **Wrapper components** (`NavbarWrapper`, `FooterWrapper`) — Conditionally render Bootstrap or Tailwind components.
+
+4. **Page components** (`profile/page.tsx`, `stats/page.tsx`) — Use `useCSSFramework()` to render Bootstrap or Tailwind versions.
+
+### Bootstrap Theme
+- Red accent (#e94560), blue-gray gradient background
+- Bootstrap classes: `container`, `row`, `col-*`, `d-flex`, `btn`, etc.
+- Custom CSS classes: `stats-card`, `stat-value`, `stat-highlight`
+
+### Tailwind Theme
+- Cyan accent (#06b6d4), dark navy gradient background
+- Glass-morphism cards (`tw-glass-card`) with backdrop-filter blur
+- Accent glow effects (`tw-accent-glow`)
+- Tailwind utility classes: `flex`, `rounded-md`, `border`, etc.
+- Uses CSS variables via inline styles for theme-aware colors
+
+### Shared Components
+Some components (DamageBreakdown, ClassesTable, GameModesTable, WeaponsTable, VehiclesTable, MapsTable, GadgetsTable, DataTable) use shared custom CSS classes that work in both frameworks. Tailwind pages reuse these Bootstrap sub-components.
 
 ---
 
@@ -392,7 +434,7 @@ No environment variables are needed — the API is public and requires no authen
 
 ### `postcss.config.mjs`
 
-Empty plugins — Bootstrap is imported directly via CSS `@import`.
+Configured with `@tailwindcss/postcss` plugin for Tailwind CSS v4.
 
 ### ESLint Config
 
@@ -405,14 +447,16 @@ Empty plugins — Bootstrap is imported directly via CSS `@import`.
 
 1. **All components are Client Components** (`"use client"`) since they use hooks, state, or event handlers.
 2. **TypeScript strict mode** — all props and data are fully typed.
-3. **Bootstrap classes** for layout (`container`, `row`, `col-*`, `g-3`, `d-flex`, etc.)
-4. **Custom CSS classes** for theming (`stats-card`, `stat-value`, `stat-label`, `stat-highlight`, `section-title`, `search-input`, `bf6-navbar`, `weapon-bar`, `season-badge`, `theme-toggle-btn`)
-5. **Emoji icons** used for visual indicators (💀, 🎯, 📊, 🏆, etc.)
-6. **Conditional rendering** — sections only render when their data exists
-7. **Images** use `onError` fallback handlers to hide broken images gracefully
-8. **Number formatting** — `toLocaleString()` for large numbers, `toFixed()` for decimals
-9. **Font** — Google Sans as primary font family
-10. **Footer** — Version from `package.json` displayed as a badge
+3. **Bootstrap components** use Bootstrap classes (`container`, `row`, `col-*`, `g-3`, `d-flex`, etc.)
+4. **Tailwind components** use Tailwind utility classes + CSS variables via inline styles for theme-aware colors
+5. **Custom CSS classes** shared between frameworks (`stats-card`, `stat-value`, `stat-label`, `stat-highlight`, `section-title`, `weapon-bar`, `season-badge`, `header-section`)
+6. **Tailwind-specific classes** (`tw-glass-card`, `tw-accent-glow`, `tw-bar-fill`)
+7. **Emoji icons** used for visual indicators (💀, 🎯, 📊, 🏆, etc.)
+8. **Conditional rendering** — sections only render when their data exists
+9. **Images** use `onError` fallback handlers to hide broken images gracefully
+10. **Number formatting** — `toLocaleString()` for large numbers, `toFixed()` for decimals
+11. **Font** — Google Sans as primary font family
+12. **Footer** — Version from `package.json` displayed as a badge
 
 ---
 
@@ -422,26 +466,30 @@ Empty plugins — Bootstrap is imported directly via CSS `@import`.
 
 1. Create `src/app/<route>/page.tsx` as a client component
 2. Read data from `usePlayerStore()` (Zustand) for playerName/platform/stats/profile
-3. Add navigation link in `Navbar.tsx` using `next/link`
+3. Use `useCSSFramework()` to conditionally render Bootstrap or Tailwind version
+4. Add navigation link in `Navbar.tsx` and `NavbarTW.tsx` using `next/link`
 
 ### Adding a New Stats Section
 
 1. Define the TypeScript interface in `src/types/bf6.ts`
-2. Create a new component in `src/components/`
-3. Import and add it to the relevant page with conditional rendering
-4. For table-heavy data, wrap `<DataTable>` with column definitions
+2. Create Bootstrap component in `src/components/`
+3. Create Tailwind component in `src/components/tailwind/`
+4. Import and add to both page versions with conditional rendering
+5. For table-heavy data, wrap `<DataTable>` with column definitions
 
-### Adding a New Column to DataTable
+### Adding a Tailwind Component
 
-In the relevant table component (e.g., `WeaponsTable.tsx`), add an entry to the `columns` array:
-
-```typescript
-{ key: "fieldName", label: "Display Name", sortable: true, align: "end" as const, render: (item) => item.fieldName.toLocaleString() }
-```
+1. Create file in `src/components/tailwind/`
+2. Use CSS variables via inline styles: `style={{ color: "var(--bf6-accent)" }}`
+3. Use Tailwind utility classes for layout: `flex`, `rounded-md`, `border`
+4. Use `tw-glass-card` class for card elements (glass-morphism)
+5. Use `tw-accent-glow` class for highlighted text (glow effect)
+6. Register in the appropriate wrapper/page component
 
 ### Modifying Theme Colors
 
-Edit CSS variables in `src/app/globals.css` under `[data-bs-theme="dark"]` or `[data-bs-theme="light"]` selectors.
+- **Bootstrap**: Edit CSS variables in `src/app/globals.css` under `[data-bs-theme="dark"]` or `[data-bs-theme="light"]`
+- **Tailwind**: Edit under `[data-framework="tailwind"]` or `[data-framework="tailwind"][data-bs-theme="light"]`
 
 ---
 
@@ -452,7 +500,9 @@ Edit CSS variables in `src/app/globals.css` under `[data-bs-theme="dark"]` or `[
 | `next`     | 16.2.x  | React framework with App Router |
 | `react`    | 19.x    | UI library |
 | `react-dom`| 19.x    | React DOM rendering |
-| `bootstrap`| 5.3.3   | CSS framework |
+| `bootstrap`| 5.3.3   | CSS framework (Bootstrap theme) |
+| `tailwindcss` | 4.x  | CSS framework (Tailwind theme) |
+| `@tailwindcss/postcss` | 4.x | PostCSS plugin for Tailwind v4 |
 | `zustand`  | 5.x     | State management |
 
-All dev dependencies are standard Next.js defaults (TypeScript, ESLint, Tailwind CSS PostCSS — though Tailwind is not used).
+All dev dependencies are standard Next.js defaults (TypeScript, ESLint, semantic-release).

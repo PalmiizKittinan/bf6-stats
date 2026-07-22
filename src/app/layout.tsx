@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import ThemeProvider from "@/components/ThemeProvider";
+import CSSFrameworkProvider from "@/components/CSSFrameworkProvider";
 import SearchProvider from "@/components/SearchProvider";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import NavbarWrapper from "@/components/NavbarWrapper";
+import FooterWrapper from "@/components/FooterWrapper";
 
 export const metadata: Metadata = {
   title: "BF6 Stats Dashboard",
@@ -24,11 +25,13 @@ export default function RootLayout({
       </head>
       <body>
         <ThemeProvider>
-          <SearchProvider>
-            <Navbar />
-            <main>{children}</main>
-            <Footer />
-          </SearchProvider>
+          <CSSFrameworkProvider>
+            <SearchProvider>
+              <NavbarWrapper />
+              <main>{children}</main>
+              <FooterWrapper />
+            </SearchProvider>
+          </CSSFrameworkProvider>
         </ThemeProvider>
       </body>
     </html>
