@@ -110,7 +110,7 @@ bf6-stats/
     │   ├── Dashboard.tsx           # Legacy single-page dashboard (unused by routing)
     │   ├── Footer.tsx              # Bootstrap footer
     │   └── tailwind/               # Tailwind CSS theme components
-    │       ├── NavbarTW.tsx        # Tailwind navbar (CSS variables, cyan accent)
+    │       ├── NavbarTW.tsx        # Tailwind navbar (CSS variables, teal accent)
     │       ├── ThemeToggleTW.tsx   # Tailwind theme toggle buttons
     │       ├── FooterTW.tsx        # Tailwind footer
     │       ├── PlayerHeaderTW.tsx  # Tailwind player header with glow effects
@@ -137,7 +137,7 @@ bf6-stats/
 | `page.tsx`        | Entry page | Server component that redirects `/` to `/profile`. |
 | `profile/page.tsx`| Profile page | Client component. Reads framework from `useCSSFramework()`, renders Bootstrap `<Profile />` or Tailwind `<ProfileTW />`. |
 | `stats/page.tsx`  | Stats page | Client component. Reads framework from `useCSSFramework()`, renders Bootstrap `StatsPageBootstrap` or Tailwind `<StatsPageTW />`. |
-| `globals.css`     | Global styles | Imports Tailwind CSS + Bootstrap CSS. Defines CSS variables for dark/light themes. `[data-framework="tailwind"]` selector overrides variables for Tailwind theme (cyan accent, navy background). Glass-morphism card classes. |
+| `globals.css`     | Global styles | Imports Tailwind CSS + Bootstrap CSS. Defines CSS variables for dark/light themes. `[data-framework="tailwind"]` selector overrides variables for Tailwind theme (teal accent, navy background). Glass-morphism card classes. |
 
 ### Components (`src/components/`)
 
@@ -312,7 +312,7 @@ The app supports both **Bootstrap** and **Tailwind CSS** simultaneously. Users c
 1. **`CSSFrameworkProvider.tsx`** — React Context storing `"bootstrap"` or `"tailwind"`. Persisted to `localStorage` key `bf6-css-framework`. Sets `data-framework` attribute on `<html>`.
 
 2. **`globals.css`** — Contains `[data-framework="tailwind"]` selector that overrides CSS variables for Tailwind theme:
-   - **Dark**: Cyan accent (#06b6d4), navy background (#080b14)
+   - **Dark**: teal accent (#0891b2), navy background (#080b14)
    - **Light**: Teal accent (#0891b2), sky blue background (#f0f9ff)
 
 3. **Wrapper components** (`NavbarWrapper`, `FooterWrapper`) — Conditionally render Bootstrap or Tailwind components.
@@ -325,7 +325,7 @@ The app supports both **Bootstrap** and **Tailwind CSS** simultaneously. Users c
 - Custom CSS classes: `stats-card`, `stat-value`, `stat-highlight`
 
 ### Tailwind Theme
-- Cyan accent (#06b6d4), dark navy gradient background
+- teal accent (#0891b2), dark navy gradient background
 - Glass-morphism cards (`tw-glass-card`) with backdrop-filter blur
 - Accent glow effects (`tw-accent-glow`)
 - Tailwind utility classes: `flex`, `rounded-md`, `border`, etc.
