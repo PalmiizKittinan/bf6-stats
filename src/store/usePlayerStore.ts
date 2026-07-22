@@ -4,6 +4,7 @@ import { BF6Stats, BF6Profile } from "@/types/bf6";
 const STATS_API = "https://api.gametools.network/bf6/stats/";
 const PROFILE_API = "https://api.gametools.network/bf6/profile/";
 const DEFAULT_PLATFORM = "ea";
+const TIMEOUT_MS = 10_000;
 
 interface PlayerStore {
   // Search state
@@ -81,6 +82,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     statsController?.abort();
     const controller = new AbortController();
     statsController = controller;
+    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
     set({ statsLoading: true, statsError: null });
 
@@ -105,12 +107,21 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
           "Player not found. Please check the username and platform."
         );
       }
+      clearTimeout(timeoutId);
       set({ stats: data, statsError: null, statsLoading: false });
     } catch (err) {
+      clearTimeout(timeoutId);
       if (!controller.signal.aborted) {
         set({
           statsError:
             err instanceof Error ? err.message : "Failed to fetch stats",
+          stats: null,
+          statsLoading: false,
+        });
+      } else if (statsController === controller) {
+        // Timeout or manual abort on current controller
+        set({
+          statsError: "Request timed out. The server did not respond within 10 seconds. Please try again.",
           stats: null,
           statsLoading: false,
         });
@@ -130,6 +141,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     profileController?.abort();
     const controller = new AbortController();
     profileController = controller;
+    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
     set({ profileLoading: true, profileError: null });
 
@@ -145,12 +157,21 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
       });
       if (!res.ok) throw new Error(`API error: ${res.status}`);
       const data: BF6Profile = await res.json();
+      clearTimeout(timeoutId);
       set({ profile: data, profileError: null, profileLoading: false });
     } catch (err) {
+      clearTimeout(timeoutId);
       if (!controller.signal.aborted) {
         set({
           profileError:
             err instanceof Error ? err.message : "Failed to fetch profile",
+          profile: null,
+          profileLoading: false,
+        });
+      } else if (profileController === controller) {
+        // Timeout or manual abort on current controller
+        set({
+          profileError: "Request timed out. The server did not respond within 10 seconds. Please try again.",
           profile: null,
           profileLoading: false,
         });
