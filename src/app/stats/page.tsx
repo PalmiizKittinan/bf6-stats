@@ -1,5 +1,6 @@
 "use client";
 
+import { useCSSFramework } from "@/components/CSSFrameworkProvider";
 import { usePlayerStore } from "@/store/usePlayerStore";
 import PlayerHeader from "@/components/PlayerHeader";
 import StatCards from "@/components/StatCards";
@@ -10,9 +11,20 @@ import ClassesTable from "@/components/ClassesTable";
 import MapsTable from "@/components/MapsTable";
 import GameModesTable from "@/components/GameModesTable";
 import GadgetsTable from "@/components/GadgetsTable";
+import StatsPageTW from "@/components/tailwind/StatsPageTW";
 import { BF6Stats } from "@/types/bf6";
 
 export default function StatsPage() {
+  const { framework } = useCSSFramework();
+
+  if (framework === "tailwind") {
+    return <StatsPageTW />;
+  }
+
+  return <StatsPageBootstrap />;
+}
+
+function StatsPageBootstrap() {
   const {
     playerName,
     stats,

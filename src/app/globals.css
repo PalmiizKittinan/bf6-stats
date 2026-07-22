@@ -1,4 +1,119 @@
+@import "tailwindcss";
 @import "bootstrap/dist/css/bootstrap.min.css";
+
+/* ===== Tailwind Dark Mode ===== */
+@custom-variant dark (&:where([data-bs-theme="dark"], [data-bs-theme="dark"] *));
+
+/* ===== Tailwind Theme Tokens ===== */
+@theme {
+  --color-bf6-bg: var(--bf6-bg);
+  --color-bf6-dark: var(--bf6-dark);
+  --color-bf6-darker: var(--bf6-darker);
+  --color-bf6-accent: var(--bf6-accent);
+  --color-bf6-card-bg: var(--bf6-card-bg);
+  --color-bf6-text: var(--bf6-text);
+  --color-bf6-text-muted: var(--bf6-text-muted);
+  --color-bf6-text-strong: var(--bf6-text-strong);
+  --color-bf6-border: var(--bf6-border);
+  --color-bf6-border-hover: var(--bf6-border-hover);
+  --color-bf6-search-bg: var(--bf6-search-bg);
+  --color-bf6-bar-bg: var(--bf6-bar-bg);
+}
+
+/* ===== Tailwind Theme Overrides ===== */
+[data-framework="tailwind"] {
+  --bf6-bg: #080b14;
+  --bf6-dark: #0f1629;
+  --bf6-darker: #0a1020;
+  --bf6-accent: #06b6d4;
+  --bf6-card-bg: #111a30;
+  --bf6-text: #cbd5e1;
+  --bf6-text-muted: #64748b;
+  --bf6-text-strong: #f1f5f9;
+  --bf6-border: rgba(6, 182, 212, 0.12);
+  --bf6-border-hover: rgba(6, 182, 212, 0.25);
+  --bf6-card-shadow: rgba(6, 182, 212, 0.08);
+  --bf6-header-bg: linear-gradient(135deg, #0a1020 0%, #0f1629 40%, #111a30 100%);
+  --bf6-card-gradient: linear-gradient(135deg, rgba(15, 22, 41, 0.8), rgba(17, 26, 48, 0.6));
+  --bf6-search-bg: rgba(6, 182, 212, 0.06);
+  --bf6-search-focus-bg: rgba(6, 182, 212, 0.12);
+  --bf6-bar-bg: rgba(6, 182, 212, 0.1);
+  --bf6-season-bg: linear-gradient(135deg, rgba(17, 26, 48, 0.8), rgba(10, 16, 32, 0.6));
+  --bf6-scrollbar-track: #0a1020;
+  --bf6-scrollbar-thumb: #1a2744;
+}
+
+[data-framework="tailwind"][data-bs-theme="light"] {
+  --bf6-bg: #f0f9ff;
+  --bf6-dark: #ffffff;
+  --bf6-darker: #f8fafc;
+  --bf6-accent: #0891b2;
+  --bf6-card-bg: #e0f2fe;
+  --bf6-text: #0f172a;
+  --bf6-text-muted: #64748b;
+  --bf6-text-strong: #000000;
+  --bf6-border: rgba(8, 145, 178, 0.15);
+  --bf6-border-hover: rgba(8, 145, 178, 0.3);
+  --bf6-card-shadow: rgba(8, 145, 178, 0.1);
+  --bf6-header-bg: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 50%, #cffafe 100%);
+  --bf6-card-gradient: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(224, 242, 254, 0.6));
+  --bf6-search-bg: rgba(8, 145, 178, 0.06);
+  --bf6-search-focus-bg: rgba(8, 145, 178, 0.1);
+  --bf6-bar-bg: rgba(8, 145, 178, 0.1);
+  --bf6-season-bg: linear-gradient(135deg, rgba(224, 242, 254, 0.8), rgba(240, 249, 255, 0.6));
+  --bf6-scrollbar-track: #f0f9ff;
+  --bf6-scrollbar-thumb: #bae6fd;
+}
+
+/* ===== Tailwind Glass Card ===== */
+.tw-glass-card {
+  background: var(--bf6-card-gradient);
+  border: 1px solid var(--bf6-border);
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.tw-glass-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px var(--bf6-card-shadow);
+  border-color: var(--bf6-border-hover);
+}
+
+/* ===== Tailwind Accent Glow ===== */
+.tw-accent-glow {
+  text-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+}
+
+.tw-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--bf6-accent), #22d3ee);
+}
+
+/* ===== Tailwind Navbar Light Theme ===== */
+[data-framework="tailwind"][data-bs-theme="light"] nav {
+  background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 50%, #cffafe 100%) !important;
+}
+
+[data-framework="tailwind"][data-bs-theme="light"] nav .stat-highlight {
+  color: var(--bf6-accent) !important;
+}
+
+[data-framework="tailwind"][data-bs-theme="light"] nav select option {
+  background-color: #f0f9ff;
+  color: #0f172a;
+}
+
+[data-framework="tailwind"][data-bs-theme="dark"] select option,
+[data-framework="tailwind"][data-bs-theme="dark"] select {
+  background-color: #0f1629;
+  color: #f1f5f9;
+}
+
+[data-framework="tailwind"] a {
+  text-decoration: none;
+}
 
 /* ===== CSS Variables ===== */
 
