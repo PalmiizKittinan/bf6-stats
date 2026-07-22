@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/PalmiizKittinan/bf6-stats/compare/v1.3.0...v1.3.1) (2026-07-22)
+
+
+### Bug Fixes
+
+* **UI:** Add carousel to ([3a646a1](https://github.com/PalmiizKittinan/bf6-stats/commit/3a646a1e8f82f5ad84715a6f9cda6d87338a94d9))
+
 # [1.3.0](https://github.com/PalmiizKittinan/bf6-stats/compare/v1.2.3...v1.3.0) (2026-07-22)
 
 
