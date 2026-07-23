@@ -7,8 +7,14 @@ import NavbarWrapper from "@/components/NavbarWrapper";
 import FooterWrapper from "@/components/FooterWrapper";
 
 export const metadata: Metadata = {
-  title: "BF6 Stats Dashboard",
+  title: "Palmiiz BF6 Stats Dashboard",
   description: "View your Battlefield 6 multiplayer statistics",
+  icons: {
+    // ใส่ URL เต็มรูปแบบตรงนี้
+    icon: 'https://avatars.githubusercontent.com/u/104422927?v=4&size=64',
+    shortcut: 'https://avatars.githubusercontent.com/u/104422927?v=4&size=64',
+    apple: 'https://avatars.githubusercontent.com/u/104422927?v=4&size=64',
+  },
 };
 
 export default function RootLayout({
