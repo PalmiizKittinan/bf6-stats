@@ -90,19 +90,20 @@ export default function NavbarTW() {
       s.platform === platform
   );
 
-  // Theme-aware nav background uses bf6-navbar class + CSS variables
   return (
     <nav
-      className="w-full px-4 py-3"
+      className="tw-navbar-sticky w-full px-4 py-3"
       style={{
         background: "var(--bf6-header-bg)",
         borderBottom: "1px solid var(--bf6-border)",
       }}
     >
-      <div className="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-2">
+      <div className="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-3">
         {/* Brand */}
-        <span className="font-bold text-lg">
-          <span className="stat-highlight">BF6</span>{" "}
+        <span className="flex items-center gap-2 font-bold text-lg">
+          <span className="tw-accent-glow" style={{ color: "var(--bf6-accent)" }}>
+            BF6
+          </span>{" "}
           <span style={{ color: "var(--bf6-text-strong)" }}>Stats Dashboard</span>
         </span>
 
@@ -110,29 +111,31 @@ export default function NavbarTW() {
           {/* Nav Tabs */}
           <Link
             href="/profile"
-            className="px-3 py-1.5 rounded-md text-sm font-medium border transition-colors"
+            className="px-3 py-1.5 rounded-md text-sm font-medium border transition-all duration-200"
             style={{
               borderColor: pathname === "/profile" || pathname === "/" ? "var(--bf6-accent)" : "var(--bf6-border-hover)",
               color: pathname === "/profile" || pathname === "/" ? "var(--bf6-accent)" : "var(--bf6-text-muted)",
               backgroundColor: pathname === "/profile" || pathname === "/" ? "var(--bf6-search-bg)" : "transparent",
+              boxShadow: pathname === "/profile" || pathname === "/" ? "0 0 12px var(--bf6-card-shadow)" : "none",
             }}
           >
             👤 Profile
           </Link>
           <Link
             href="/stats"
-            className="px-3 py-1.5 rounded-md text-sm font-medium border transition-colors"
+            className="px-3 py-1.5 rounded-md text-sm font-medium border transition-all duration-200"
             style={{
               borderColor: pathname === "/stats" ? "var(--bf6-accent)" : "var(--bf6-border-hover)",
               color: pathname === "/stats" ? "var(--bf6-accent)" : "var(--bf6-text-muted)",
               backgroundColor: pathname === "/stats" ? "var(--bf6-search-bg)" : "transparent",
+              boxShadow: pathname === "/stats" ? "0 0 12px var(--bf6-card-shadow)" : "none",
             }}
           >
             📊 Stats
           </Link>
 
           {/* Divider */}
-          <div className="hidden lg:block w-px h-6 mx-2" style={{ borderColor: "var(--bf6-border)" }} />
+          <div className="tw-divider hidden lg:block mx-1" />
 
           {/* Search Form */}
           <form className="flex items-center gap-2" onSubmit={handleSearch}>
@@ -140,13 +143,8 @@ export default function NavbarTW() {
               id="platform-select-tw"
               value={platform}
               onChange={(e) => setPlatform(e.target.value)}
-              className="px-2 py-1.5 rounded-md text-sm border focus:outline-none"
-              style={{
-                width: "100px",
-                backgroundColor: "var(--bf6-search-bg)",
-                borderColor: "var(--bf6-border-hover)",
-                color: "var(--bf6-text-strong)",
-              }}
+              className="tw-input focus:outline-none"
+              style={{ width: "100px" }}
             >
               <option value="ea">EA</option>
               <option value="pc">PC</option>
@@ -159,35 +157,25 @@ export default function NavbarTW() {
               placeholder="Search player..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="px-3 py-1.5 rounded-md text-sm border focus:outline-none"
-              style={{
-                minWidth: "150px",
-                backgroundColor: "var(--bf6-search-bg)",
-                borderColor: "var(--bf6-border-hover)",
-                color: "var(--bf6-text-strong)",
-              }}
+              className="tw-input focus:outline-none"
+              style={{ minWidth: "150px" }}
             />
             <button
               id="search-button-tw"
               type="submit"
-              className="px-3 py-1.5 rounded-md text-sm font-medium text-white border cursor-pointer transition-colors hover:opacity-85"
-              style={{
-                borderColor: "var(--bf6-accent)",
-                backgroundColor: "var(--bf6-accent)",
-              }}
+              className="tw-btn tw-btn-primary"
             >
-              Search
+              🔍 Search
             </button>
 
             {/* Save button */}
             <button
               id="save-name-button-tw"
               type="button"
-              className="px-2 py-1.5 rounded-md text-sm border cursor-pointer transition-colors"
+              className="tw-btn"
               style={{
-                borderColor: isSaved ? "var(--bf6-warning, #f59e0b)" : "var(--bf6-success, #10b981)",
-                color: isSaved ? "var(--bf6-warning, #f59e0b)" : "var(--bf6-success, #10b981)",
-                backgroundColor: isSaved ? "var(--bf6-search-bg)" : "transparent",
+                borderColor: isSaved ? "var(--bf6-accent)" : "var(--bf6-success, #22c55e)",
+                color: isSaved ? "var(--bf6-accent)" : "var(--bf6-success, #22c55e)",
               }}
               title={isSaved ? "Already saved" : "Save this player name"}
               onClick={saveCurrentName}
@@ -201,19 +189,15 @@ export default function NavbarTW() {
               <button
                 id="saved-names-toggle-tw"
                 type="button"
-                className="px-2 py-1.5 rounded-md text-sm border cursor-pointer transition-colors"
-                style={{
-                  borderColor: "var(--bf6-accent)",
-                  color: "var(--bf6-accent)",
-                  backgroundColor: "transparent",
-                }}
+                className="tw-btn"
+                style={{ borderColor: "var(--bf6-accent)", color: "var(--bf6-accent)" }}
                 title="Saved player names"
                 onClick={() => setShowSavedMenu((prev) => !prev)}
               >
                 📋
                 {savedNames.length > 0 && (
                   <span
-                    className="ml-1 px-1.5 py-0.5 rounded-full text-xs text-white"
+                    className="px-1.5 py-0.5 rounded-full text-xs text-white"
                     style={{ backgroundColor: "var(--bf6-accent)" }}
                   >
                     {savedNames.length}
@@ -223,16 +207,14 @@ export default function NavbarTW() {
 
               {showSavedMenu && (
                 <div
-                  className="absolute right-0 mt-1 z-50 rounded-lg shadow-lg border overflow-y-auto"
+                  className="tw-fade-in tw-glass-card absolute right-0 mt-2 z-50 overflow-y-auto"
                   style={{
                     minWidth: "260px",
                     maxHeight: "300px",
-                    background: "var(--bf6-dark)",
-                    borderColor: "var(--bf6-border)",
                   }}
                 >
                   {savedNames.length === 0 ? (
-                    <span className="block px-4 py-2 text-sm" style={{ color: "var(--bf6-text-muted)" }}>
+                    <span className="block px-4 py-3 text-sm" style={{ color: "var(--bf6-text-muted)" }}>
                       No saved names yet
                     </span>
                   ) : (
@@ -277,7 +259,7 @@ export default function NavbarTW() {
           </form>
 
           {/* Divider */}
-          <div className="hidden lg:block w-px h-6 mx-2" style={{ borderColor: "var(--bf6-border)" }} />
+          <div className="tw-divider hidden lg:block mx-1" />
 
           {/* CSS Framework Toggle */}
           <div className="flex gap-1 rounded-md p-0.5" style={{ border: "1px solid var(--bf6-border-hover)" }}>
