@@ -19,8 +19,17 @@ export default function Footer() {
           style={{ color: "#e94560" }}
         >
           PalmiizKittinan
-        </a>{" "}
-        BF6 StatsTracker{" "}
+        </a>.{" "}
+        <a
+          href="https://github.com/PalmiizKittinan/bf6-stats/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-decoration-none"
+          style={{ color: "#e94560" }}
+        >
+          BF6 StatsTracker
+        </a>
+        .{" "}
         <span className="badge bg-secondary" style={{ fontSize: "0.7rem" }}>
           v{version}
         </span>
