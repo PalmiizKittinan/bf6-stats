@@ -60,28 +60,28 @@ export default function PlayerHeaderTW({ stats }: PlayerHeaderProps) {
                 className="px-2.5 py-1 rounded-md text-xs font-medium capitalize"
                 style={{ backgroundColor: "var(--bf6-search-bg)", color: "var(--bf6-text)" }}
               >
-                🌐 {stats.platform}
+                🌐 Platform: {stats.platform}
               </span>
               {bestClass && (
                 <span
                   className="px-2.5 py-1 rounded-md text-xs font-medium"
                   style={{ backgroundColor: "var(--bf6-search-bg)", color: "var(--bf6-text)" }}
                 >
-                  🎖️ {bestClass.className}
+                🎖️ Best Class: {bestClass.className}
                 </span>
               )}
               <span
                 className="px-2.5 py-1 rounded-md text-xs font-medium"
                 style={{ backgroundColor: "var(--bf6-search-bg)", color: "var(--bf6-text)" }}
               >
-                ⏱️ {stats.timePlayed}
+                ⏱️ Time Played: {stats.timePlayed}
               </span>
               {xp && (
                 <span
                   className="px-2.5 py-1 rounded-md text-xs font-medium"
                   style={{ backgroundColor: "var(--bf6-search-bg)", color: "var(--bf6-text)" }}
                 >
-                  ⚡ {xp.total.toLocaleString()} XP
+                  ✨Total XP: {xp.total.toLocaleString()}
                 </span>
               )}
             </div>
