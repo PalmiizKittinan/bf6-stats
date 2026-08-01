@@ -2,6 +2,7 @@
 
 import { ProfileStat, CompetitiveRank } from "@/types/bf6";
 import { usePlayerStore } from "@/store/usePlayerStore";
+import { StatCard, SectionTitle } from "./TailwindShared";
 
 function getStat(stats: ProfileStat[], name: string): number | undefined {
   const s = stats.find((s) => s.name === name);
@@ -21,33 +22,22 @@ function formatTime(seconds: number | undefined): string {
   return `${m}m`;
 }
 
-function StatCard({ icon, label, value, highlight }: { icon: string; label: string; value: string; highlight?: boolean }) {
-  return (
-    <div className="w-1/2 sm:w-1/3 lg:w-1/6 p-1">
-      <div className="stats-card p-3 text-center h-full">
-        <div className="text-2xl mb-1">{icon}</div>
-        <div className={`stat-value ${highlight ? "stat-highlight" : ""}`} style={{ fontSize: "1.4rem" }}>
-          {value}
-        </div>
-        <div className="stat-label">{label}</div>
-      </div>
-    </div>
-  );
-}
-
 function ClassCard({ name, icon, kills, deaths, revives, score, time }: { name: string; icon: string; kills?: number; deaths?: number; revives?: number; score?: number; time?: number }) {
   const kdr = kills && deaths && deaths > 0 ? (kills / deaths).toFixed(2) : "-";
   return (
-    <div className="w-full sm:w-1/2 lg:w-1/4 p-1">
-      <div className="stats-card p-3 h-full">
-        <h6 className="text-bf6-text-strong font-bold mb-3">{icon} {name}</h6>
-        <div className="grid grid-cols-2 gap-2">
-          <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Kills</div><div className="font-bold text-bf6-text-strong">{formatNumber(kills)}</div></div>
-          <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Deaths</div><div className="font-bold text-bf6-text-strong">{formatNumber(deaths)}</div></div>
-          <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>K/D</div><div className="font-bold stat-highlight">{kdr}</div></div>
-          <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Revives</div><div className="font-bold text-bf6-text-strong">{formatNumber(revives)}</div></div>
-          <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Score</div><div className="font-bold text-bf6-text-strong">{formatNumber(score)}</div></div>
-          <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Time</div><div className="font-bold text-bf6-text-strong">{formatTime(time)}</div></div>
+    <div className="w-full sm:w-1/2 lg:w-1/4 p-1.5">
+      <div className="tw-glass-card p-4 h-full">
+        <div className="flex items-center gap-2 mb-3">
+          <span className="tw-icon-badge tw-icon-badge-sm">{icon}</span>
+          <h6 className="font-bold" style={{ color: "var(--bf6-text-strong)" }}>{name}</h6>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Kills</div><div className="font-bold" style={{ color: "var(--bf6-text-strong)" }}>{formatNumber(kills)}</div></div>
+          <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Deaths</div><div className="font-bold" style={{ color: "var(--bf6-text-strong)" }}>{formatNumber(deaths)}</div></div>
+          <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>K/D</div><div className="font-bold tw-accent-glow" style={{ color: "var(--bf6-accent)" }}>{kdr}</div></div>
+          <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Revives</div><div className="font-bold" style={{ color: "var(--bf6-text-strong)" }}>{formatNumber(revives)}</div></div>
+          <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Score</div><div className="font-bold" style={{ color: "var(--bf6-text-strong)" }}>{formatNumber(score)}</div></div>
+          <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Time</div><div className="font-bold" style={{ color: "var(--bf6-text-strong)" }}>{formatTime(time)}</div></div>
         </div>
       </div>
     </div>
@@ -57,16 +47,21 @@ function ClassCard({ name, icon, kills, deaths, revives, score, time }: { name: 
 function CompRankCard({ rank }: { rank: CompetitiveRank }) {
   const isUnranked = rank.rankName === "Unranked";
   return (
-    <div className="w-full sm:w-1/2 lg:w-1/3 p-1">
-      <div className="stats-card p-3 h-full">
+    <div className="w-full sm:w-1/2 lg:w-1/3 p-1.5">
+      <div className="tw-glass-card p-4 h-full">
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>{rank.modeName}</div>
-            <div className="font-bold" style={{ fontSize: "1.2rem", color: isUnranked ? "var(--bf6-text-muted)" : "var(--bf6-accent)" }}>
+            <div className="text-xs uppercase tracking-wider" style={{ color: "var(--bf6-text-muted)" }}>{rank.modeName}</div>
+            <div className="font-bold text-lg" style={{ color: isUnranked ? "var(--bf6-text-muted)" : "var(--bf6-accent)" }}>
               {rank.rankName}
             </div>
           </div>
-          <span className="px-2 py-0.5 rounded text-xs bg-gray-600 text-gray-300">{rank.type}</span>
+          <span
+            className="px-2.5 py-1 rounded-md text-xs font-medium"
+            style={{ backgroundColor: "var(--bf6-search-bg)", color: "var(--bf6-text-muted)", border: "1px solid var(--bf6-border)" }}
+          >
+            {rank.type}
+          </span>
         </div>
       </div>
     </div>
@@ -80,10 +75,10 @@ export default function ProfileTW() {
 
   if (!playerName) {
     return (
-      <div className="text-center py-20">
-        <div className="stats-card p-10 mx-auto" style={{ maxWidth: 520 }}>
-          <div className="text-6xl mb-3">🎮</div>
-          <h3 className="text-bf6-text-strong font-bold text-2xl mb-3">Welcome to BF6 Stats</h3>
+      <div className="text-center py-24">
+        <div className="tw-glass-card tw-fade-in p-10 mx-auto" style={{ maxWidth: 520 }}>
+          <div className="tw-icon-badge mx-auto mb-4" style={{ width: 64, height: 64, fontSize: "2rem" }}>🎮</div>
+          <h3 className="font-bold text-2xl mb-3" style={{ color: "var(--bf6-text-strong)" }}>Welcome to BF6 Stats</h3>
           <p style={{ color: "var(--bf6-text-muted)" }}>Please enter a player name in the search bar above to start tracking stats.</p>
         </div>
       </div>
@@ -92,19 +87,22 @@ export default function ProfileTW() {
 
   if (profileLoading && !profile) {
     return (
-      <div className="flex flex-col items-center justify-center py-20">
-        <div className="w-12 h-12 border-4 border-bf6-accent border-t-transparent rounded-full animate-spin mb-4" />
-        <h5 className="text-bf6-text-strong">Loading profile for {playerName}...</h5>
+      <div className="flex flex-col items-center justify-center py-24">
+        <div
+          className="w-12 h-12 rounded-full animate-spin mb-4"
+          style={{ border: "4px solid var(--bf6-border)", borderTopColor: "var(--bf6-accent)" }}
+        />
+        <h5 style={{ color: "var(--bf6-text-strong)" }}>Loading profile for {playerName}...</h5>
       </div>
     );
   }
 
   if (profileError || !profile || !profile.playerProfiles?.length) {
     return (
-      <div className="text-center py-20">
-        <div className="stats-card p-8 mx-auto" style={{ maxWidth: 500 }}>
+      <div className="text-center py-24">
+        <div className="tw-glass-card tw-fade-in p-8 mx-auto" style={{ maxWidth: 500 }}>
           <div className="text-6xl mb-3">⚠️</div>
-          <h5 className="text-bf6-text-strong text-xl mb-2">Profile Not Found</h5>
+          <h5 className="text-xl mb-2" style={{ color: "var(--bf6-text-strong)" }}>Profile Not Found</h5>
           <p style={{ color: "var(--bf6-text-muted)" }}>{profileError || "No profile data available."}</p>
         </div>
       </div>
@@ -144,33 +142,48 @@ export default function ProfileTW() {
 
   return (
     <div>
-      <div className="flex justify-end mb-3">
-        <button className="px-3 py-1.5 rounded-md text-sm border border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 cursor-pointer transition-colors" onClick={handleRefresh}>
+      <div className="flex justify-end mb-4">
+        <button className="tw-btn" onClick={handleRefresh}>
           🔄 Refresh
         </button>
       </div>
 
       {profileLoading && profile && (
-        <div className="flex items-center justify-center py-2 mb-3">
-          <div className="w-5 h-5 border-2 border-bf6-accent border-t-transparent rounded-full animate-spin mr-2" />
-          <span className="text-bf6-text-strong">Refreshing data...</span>
+        <div className="flex items-center justify-center py-2 mb-4">
+          <div
+            className="w-5 h-5 rounded-full animate-spin mr-2"
+            style={{ border: "2px solid var(--bf6-border)", borderTopColor: "var(--bf6-accent)" }}
+          />
+          <span style={{ color: "var(--bf6-text-strong)" }}>Refreshing data...</span>
         </div>
       )}
 
       {/* Player Card Header */}
-      <div className="header-section py-4 mb-4">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center gap-4">
+      <div className="tw-glass-card tw-fade-in relative overflow-hidden py-6 mb-6 rounded-2xl">
+        <div
+          className="absolute -top-16 -right-16 w-56 h-56 rounded-full pointer-events-none"
+          style={{ background: "radial-gradient(circle, var(--bf6-accent) 0%, transparent 70%)", opacity: 0.15 }}
+        />
+        <div className="max-w-7xl mx-auto px-6 relative">
+          <div className="flex items-center gap-4 flex-wrap">
             {playerCard.rankImage?.large && (
               <img src={playerCard.rankImage.large} alt={`Rank ${playerCard.rank}`} className="w-20 h-20 object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
             )}
             <div>
-              <h3 className="text-xl font-bold text-bf6-text-strong mb-1">{playerName}</h3>
-              <div className="flex flex-wrap gap-3 text-sm">
-                <span className="text-bf6-text-strong">Rank: <span className="font-bold">{playerCard.rank}</span></span>
-                <span className="text-bf6-text-strong">Title: <span className="font-bold" style={{ color: "var(--bf6-accent)" }}>{rankName}</span></span>
-                <span className="text-bf6-text-strong">Badges: <span className="font-bold">{playerCard.badges}</span></span>
-                <span className="text-bf6-text-strong">Dog Tags: <span className="font-bold">{totalDogTags?.intValue ?? "-"}</span></span>
+              <h3 className="text-xl font-bold mb-2" style={{ color: "var(--bf6-text-strong)" }}>{playerName}</h3>
+              <div className="flex flex-wrap gap-2">
+                <span className="px-2.5 py-1 rounded-md text-xs font-medium" style={{ backgroundColor: "var(--bf6-search-bg)", color: "var(--bf6-text)" }}>
+                  Rank <b style={{ color: "var(--bf6-text-strong)" }}>{playerCard.rank}</b>
+                </span>
+                <span className="px-2.5 py-1 rounded-md text-xs font-medium" style={{ backgroundColor: "var(--bf6-search-bg)" }}>
+                  <b className="tw-accent-glow" style={{ color: "var(--bf6-accent)" }}>{rankName}</b>
+                </span>
+                <span className="px-2.5 py-1 rounded-md text-xs font-medium" style={{ backgroundColor: "var(--bf6-search-bg)", color: "var(--bf6-text)" }}>
+                  Badges <b style={{ color: "var(--bf6-text-strong)" }}>{playerCard.badges}</b>
+                </span>
+                <span className="px-2.5 py-1 rounded-md text-xs font-medium" style={{ backgroundColor: "var(--bf6-search-bg)", color: "var(--bf6-text)" }}>
+                  Dog Tags <b style={{ color: "var(--bf6-text-strong)" }}>{totalDogTags?.intValue ?? "-"}</b>
+                </span>
               </div>
             </div>
           </div>
@@ -179,16 +192,16 @@ export default function ProfileTW() {
 
       {/* Competitive Ranks */}
       {competitiveRanks.length > 0 && (
-        <div className="mb-4">
-          <h5 className="section-title">🏅 Competitive Ranks</h5>
-          <div className="flex flex-wrap -mx-1">{competitiveRanks.map((cr) => <CompRankCard key={cr.type + cr.mode} rank={cr} />)}</div>
+        <div className="mb-6">
+          <SectionTitle icon="🏅" title="Competitive Ranks" />
+          <div className="flex flex-wrap -mx-1.5">{competitiveRanks.map((cr: CompetitiveRank) => <CompRankCard key={cr.type + cr.mode} rank={cr} />)}</div>
         </div>
       )}
 
       {/* Profile Overview */}
-      <div className="mb-4">
-        <h5 className="section-title">📊 Profile Overview</h5>
-        <div className="flex flex-wrap -mx-1">
+      <div className="mb-6">
+        <SectionTitle icon="📊" title="Profile Overview" />
+        <div className="flex flex-wrap -mx-1.5">
           <StatCard icon="⭐" label="Score" value={formatNumber(score)} />
           <StatCard icon="💀" label="Kills" value={formatNumber(kills)} />
           <StatCard icon="☠️" label="Deaths" value={formatNumber(deaths)} />
@@ -201,9 +214,9 @@ export default function ProfileTW() {
       </div>
 
       {/* Combat Stats */}
-      <div className="mb-4">
-        <h5 className="section-title">🔫 Combat Stats</h5>
-        <div className="flex flex-wrap -mx-1">
+      <div className="mb-6">
+        <SectionTitle icon="🔫" title="Combat Stats" />
+        <div className="flex flex-wrap -mx-1.5">
           <StatCard icon="🤝" label="Assists" value={formatNumber(assists)} />
           <StatCard icon="💥" label="Damage Dealt" value={formatNumber(damage)} />
           <StatCard icon="🎯" label="Headshot Kills" value={formatNumber(headshotKills)} />
@@ -216,9 +229,9 @@ export default function ProfileTW() {
       </div>
 
       {/* Support Stats */}
-      <div className="mb-4">
-        <h5 className="section-title">🩹 Support & Teamplay</h5>
-        <div className="flex flex-wrap -mx-1">
+      <div className="mb-6">
+        <SectionTitle icon="🩹" title="Support & Teamplay" />
+        <div className="flex flex-wrap -mx-1.5">
           <StatCard icon="💉" label="Teammate Revives" value={formatNumber(revives)} />
           <StatCard icon="👥" label="Squad Revives" value={formatNumber(squadRevives)} />
           <StatCard icon="❤️" label="Heals" value={formatNumber(heals)} />
@@ -229,9 +242,9 @@ export default function ProfileTW() {
       </div>
 
       {/* Objective Stats */}
-      <div className="mb-4">
-        <h5 className="section-title">🏴 Objective Stats</h5>
-        <div className="flex flex-wrap -mx-1">
+      <div className="mb-6">
+        <SectionTitle icon="🏴" title="Objective Stats" />
+        <div className="flex flex-wrap -mx-1.5">
           <StatCard icon="🚩" label="Captured" value={formatNumber(captured)} />
           <StatCard icon="⚔️" label="Neutralized" value={formatNumber(neutralized)} />
           <StatCard icon="⏰" label="Objective Time" value={formatTime(objTime)} />
@@ -240,9 +253,9 @@ export default function ProfileTW() {
       </div>
 
       {/* Class Stats */}
-      <div className="mb-4">
-        <h5 className="section-title">🎖️ Class Stats</h5>
-        <div className="flex flex-wrap -mx-1">
+      <div className="mb-6">
+        <SectionTitle icon="🎖️" title="Class Stats" />
+        <div className="flex flex-wrap -mx-1.5">
           <ClassCard name="Assault" icon="⚔️" kills={getStat(stats, "kw_kit_assault")} deaths={getStat(stats, "deaths_kit_assault")} revives={getStat(stats, "revives_kit_assault")} score={getStat(stats, "scoreas_kit_assault")} time={getStat(stats, "tp_kit_assault")} />
           <ClassCard name="Engineer" icon="🔧" kills={getStat(stats, "kw_kit_engineer")} deaths={getStat(stats, "deaths_kit_engineer")} revives={getStat(stats, "revives_kit_engineer")} score={getStat(stats, "scoreas_kit_engineer")} time={getStat(stats, "tp_kit_engineer")} />
           <ClassCard name="Support" icon="🩹" kills={getStat(stats, "kw_kit_support")} deaths={getStat(stats, "deaths_kit_support")} revives={getStat(stats, "revives_kit_support")} score={getStat(stats, "scoreas_kit_support")} time={getStat(stats, "tp_kit_support")} />
@@ -251,9 +264,9 @@ export default function ProfileTW() {
       </div>
 
       {/* Weapon Type Kills */}
-      <div className="mb-4">
-        <h5 className="section-title">🔫 Weapon Type Kills</h5>
-        <div className="flex flex-wrap -mx-1">
+      <div className="mb-6">
+        <SectionTitle icon="🔫" title="Weapon Type Kills" />
+        <div className="flex flex-wrap -mx-1.5">
           <StatCard icon="🔫" label="AR" value={formatNumber(getStat(stats, "kills_ar_total"))} />
           <StatCard icon="💪" label="Carbine" value={formatNumber(getStat(stats, "kills_crb_total"))} />
           <StatCard icon="🎯" label="DMR" value={formatNumber(getStat(stats, "kills_dmr_total"))} />
@@ -266,9 +279,9 @@ export default function ProfileTW() {
       </div>
 
       {/* Distance & Travel */}
-      <div className="mb-4">
-        <h5 className="section-title">🚶 Distance & Travel</h5>
-        <div className="flex flex-wrap -mx-1">
+      <div className="mb-6">
+        <SectionTitle icon="🚶" title="Distance & Travel" />
+        <div className="flex flex-wrap -mx-1.5">
           <StatCard icon="🚶" label="On Foot" value={formatNumber(getStat(stats, "distrav_foot_total"))} />
           <StatCard icon="🚗" label="Vehicle" value={formatNumber(getStat(stats, "distrav_veh_total"))} />
           <StatCard icon="🧑‍🤝‍🧑" label="Passenger" value={formatNumber(getStat(stats, "distrav_psgr_total"))} />
