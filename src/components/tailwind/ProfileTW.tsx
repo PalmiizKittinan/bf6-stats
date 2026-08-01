@@ -173,16 +173,16 @@ export default function ProfileTW() {
               <h3 className="text-xl font-bold mb-2" style={{ color: "var(--bf6-text-strong)" }}>{playerName}</h3>
               <div className="flex flex-wrap gap-2">
                 <span className="px-2.5 py-1 rounded-md text-xs font-medium" style={{ backgroundColor: "var(--bf6-search-bg)", color: "var(--bf6-text)" }}>
-                  Rank <b style={{ color: "var(--bf6-text-strong)" }}>{playerCard.rank}</b>
+                  Rank: <b style={{ color: "var(--bf6-text-strong)" }}>{playerCard.rank}</b>
                 </span>
                 <span className="px-2.5 py-1 rounded-md text-xs font-medium" style={{ backgroundColor: "var(--bf6-search-bg)" }}>
                   <b className="tw-accent-glow" style={{ color: "var(--bf6-accent)" }}>{rankName}</b>
                 </span>
                 <span className="px-2.5 py-1 rounded-md text-xs font-medium" style={{ backgroundColor: "var(--bf6-search-bg)", color: "var(--bf6-text)" }}>
-                  Badges <b style={{ color: "var(--bf6-text-strong)" }}>{playerCard.badges}</b>
+                  Badges: <b style={{ color: "var(--bf6-text-strong)" }}>{playerCard.badges}</b>
                 </span>
                 <span className="px-2.5 py-1 rounded-md text-xs font-medium" style={{ backgroundColor: "var(--bf6-search-bg)", color: "var(--bf6-text)" }}>
-                  Dog Tags <b style={{ color: "var(--bf6-text-strong)" }}>{totalDogTags?.intValue ?? "-"}</b>
+                  Dog Tags: <b style={{ color: "var(--bf6-text-strong)" }}>{totalDogTags?.intValue ?? "-"}</b>
                 </span>
               </div>
             </div>
