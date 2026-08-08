@@ -119,6 +119,14 @@ export default function Navbar() {
           >
             📊 Stats
           </Link>
+          <Link
+            href="/multiplayer"
+            className={`btn btn-sm ${
+              pathname === "/multiplayer" ? "btn-outline-danger" : "btn-outline-secondary"
+            }`}
+          >
+            👥 Multi
+          </Link>
 
           <div
             className="vr d-none d-lg-block mx-2"
