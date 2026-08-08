@@ -133,6 +133,18 @@ export default function NavbarTW() {
           >
             📊 Stats
           </Link>
+          <Link
+            href="/multiplayer"
+            className="px-3 py-1.5 rounded-md text-sm font-medium border transition-all duration-200"
+            style={{
+              borderColor: pathname === "/multiplayer" ? "var(--bf6-accent)" : "var(--bf6-border-hover)",
+              color: pathname === "/multiplayer" ? "var(--bf6-accent)" : "var(--bf6-text-muted)",
+              backgroundColor: pathname === "/multiplayer" ? "var(--bf6-search-bg)" : "transparent",
+              boxShadow: pathname === "/multiplayer" ? "0 0 12px var(--bf6-card-shadow)" : "none",
+            }}
+          >
+            👥 Multi
+          </Link>
 
           {/* Divider */}
           <div className="tw-divider hidden lg:block mx-1" />

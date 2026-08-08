@@ -14,7 +14,7 @@ import GameModesTable from "@/components/GameModesTable";
 import GadgetsTable from "@/components/GadgetsTable";
 
 const PLAYER_API = "https://api.gametools.network/bf6/player/";
-const MULTIPLE_API = "https://api.gametools.network/bf6/multiple/";
+const MULTIPLE_PROXY = "/api/multiplayer";
 
 interface PlayerLookupResult {
   username: string;
@@ -66,9 +66,9 @@ async function fetchMultiplayerStats(
     seperation: "false",
     lang: "en-us",
   });
-  const res = await fetch(`${MULTIPLE_API}?${params.toString()}`, {
+  const res = await fetch(`${MULTIPLE_PROXY}?${params.toString()}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", accept: "application/json" },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
     signal,
   });
