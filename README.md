@@ -8,7 +8,7 @@
 [![Zustand](https://img.shields.io/badge/Zustand-5-FF6B00?style=for-the-badge)](https://github.com/pmndrs/zustand)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
-A web application for viewing your **Battlefield 6** multiplayer statistics, built with [Next.js](https://nextjs.org), [Bootstrap 5.3](https://getbootstrap.com/), [Tailwind CSS 4](https://tailwindcss.com/), and [Zustand](https://github.com/pmndrs/zustand) for state management.
+A web application for viewing your **Battlefield 6** multiplayer statistics — player profile, class/weapon/vehicle breakdowns, and full season stats — built with [Next.js](https://nextjs.org), [Bootstrap 5.3](https://getbootstrap.com/), [Tailwind CSS 4](https://tailwindcss.com/), and [Zustand](https://github.com/pmndrs/zustand) for state management.
 
 Data is powered by the [GameTools Network API](https://gametools.network).
 
@@ -88,7 +88,7 @@ Data is powered by the [GameTools Network API](https://gametools.network).
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) 20 or later
+- [Node.js](https://nodejs.org/) 20.9.0 or later (required by Next.js 16)
 - npm
 
 ### Installation
@@ -114,6 +114,12 @@ npm run build
 npm start
 ```
 
+### Linting
+
+```bash
+npm run lint
+```
+
 ---
 
 ## 🐳 Docker
@@ -127,6 +133,8 @@ docker compose up -d
 
 # 3. Access at http://localhost:3022
 ```
+
+The compose setup mounts `src/` and `public/` into the container, so code changes are picked up via hot reload without rebuilding the image.
 
 ---
 
@@ -225,6 +233,14 @@ GET https://api.gametools.network/bf6/profile/?name={playerName}&platform={platf
 | `name`     | Player username   | Any BF6 username          |
 | `platform` | Gaming platform   | `ea`, `pc`, `xbox`, `psn` |
 | `lang`     | Language          | `en-us`, and others       |
+
+No API key or authentication is required — the GameTools Network API is public.
+
+---
+
+## Contributing
+
+This is a personal project, but bug reports and suggestions are welcome via [GitHub Issues](https://github.com/PalmiizKittinan/bf6-stats/issues). Commit messages follow the [Angular convention](https://github.com/angular/angular/blob/main/CONTRIBUTING.md#commit) (`feat:`, `fix:`, `docs:`, etc.) since releases are automated with semantic-release.
 
 ---
 
