@@ -115,6 +115,7 @@ bf6-stats/
     │       ├── FooterTW.tsx        # Tailwind footer
     │       ├── PlayerHeaderTW.tsx  # Tailwind player header with glow effects
     │       ├── StatCardsTW.tsx     # Tailwind glass-morphism stat cards
+    │       ├── TailwindShared.tsx  # Shared Tailwind UI primitives (SectionTitle, StatCard)
     │       ├── ProfileTW.tsx       # Full Tailwind Profile page
     │       └── StatsPageTW.tsx     # Full Tailwind Stats page (reuses shared sub-components)
     │
@@ -136,7 +137,7 @@ bf6-stats/
 | `layout.tsx`      | Root layout | Wraps `<html>` and `<body>`. Imports `globals.css`, Google Sans font. Wraps children with `ThemeProvider` → `CSSFrameworkProvider` → `SearchProvider` → `NavbarWrapper` + `<main>` + `FooterWrapper`. Sets initial `data-bs-theme="dark"` on `<html>`. |
 | `page.tsx`        | Entry page | Server component that redirects `/` to `/profile`. |
 | `profile/page.tsx`| Profile page | Client component. Reads framework from `useCSSFramework()`, renders Bootstrap `<Profile />` or Tailwind `<ProfileTW />`. |
-| `stats/page.tsx`  | Stats page | Client component. Reads framework from `useCSSFramework()`, renders Bootstrap `StatsPageBootstrap` or Tailwind `<StatsPageTW />`. |
+| `stats/page.tsx`  | Stats page | Client component. Reads framework from `useCSSFramework()`, renders Bootstrap `StatsPageBootstrap` (a local function defined in this file, includes the season stats pagination logic) or Tailwind `<StatsPageTW />`. |
 | `globals.css`     | Global styles | Imports Tailwind CSS + Bootstrap CSS. Defines CSS variables for dark/light themes. `[data-framework="tailwind"]` selector overrides variables for Tailwind theme (teal accent, navy background). Glass-morphism card classes. |
 
 ### Components (`src/components/`)
@@ -152,6 +153,7 @@ bf6-stats/
 | `PlayerHeader.tsx`| Client Component | Bootstrap player header. Best class calculated from classes data (excluding "All"). |
 | `StatCards.tsx`    | Client Component | Bootstrap stat cards grid. |
 | `tailwind/NavbarTW.tsx` | Client Component | Tailwind navbar using CSS variables for theme-aware colors. All colors use `var(--bf6-*)` — no hardcoded hex. |
+| `tailwind/TailwindShared.tsx` | Client Component | Shared UI primitives (`SectionTitle`, `StatCard`) reused by `ProfileTW`, `StatCardsTW`, and `StatsPageTW`. |
 | `tailwind/ProfileTW.tsx` | Client Component | Full Tailwind Profile page using glass-morphism cards (`tw-glass-card`). |
 | `tailwind/StatsPageTW.tsx` | Client Component | Tailwind Stats page. Reuses Bootstrap sub-components (DamageBreakdown, ClassesTable, etc.) since they use shared CSS classes. |
 
@@ -387,14 +389,14 @@ Multi-stage build using `node:20-alpine` (Next.js 16 requires Node.js >= 20.9.0)
 ```bash
 # Development
 docker compose up --build
-# Access at http://localhost:3000
+# Access at http://localhost:3022
 ```
 
 ### docker-compose.yaml
 
 - Mounts `src/` and `public/` for live code editing (hot reload)
-- Maps port 3000:3000
-- Sets `NODE_ENV=development`
+- Maps port `3022:3000` (host:container)
+- Sets `NODE_ENV=development` and `NEXT_TELEMETRY_DISABLED=1`
 
 ---
 
