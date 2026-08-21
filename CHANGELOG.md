@@ -1,3 +1,10 @@
+## [1.3.2](https://github.com/PalmiizKittinan/bf6-stats/compare/v1.3.1...v1.3.2) (2026-08-21)
+
+
+### Bug Fixes
+
+* **UI:** Update UI CSS and Class ([b747324](https://github.com/PalmiizKittinan/bf6-stats/commit/b747324c56941bcb4d207d1219c5746466b4ee6b))
+
 ## [1.3.1](https://github.com/PalmiizKittinan/bf6-stats/compare/v1.3.0...v1.3.1) (2026-07-22)
 
 
