@@ -37,23 +37,23 @@ export default function PlayerHeader({ stats }: PlayerHeaderProps) {
             />
           </div>
           <div className="col">
-            <h2 className="mb-1 fw-bold text-danger">
+            <h2 className="mb-1 fw-bold text-light">
               {platformIcon} {stats.userName}
             </h2>
             <div className="d-flex flex-wrap gap-3">
-              <span className="text-danger">
+              <span className="text-light">
                 Platform: <span className="text-capitalize fw-semibold">{stats.platform}</span>
               </span>
               {bestClass && (
-                <span className="text-danger">
+                <span className="text-light">
                   Best Class: <span className="fw-semibold">{bestClass.className}</span>
                 </span>
               )}
-              <span className="text-danger">
+              <span className="text-light">
                 Time Played: <span className="fw-semibold">{stats.timePlayed}</span>
               </span>
               {xp && (
-                <span className="text-danger">
+                <span className="text-light">
                   Total XP: <span className="fw-semibold">{xp.total.toLocaleString()}</span>
                 </span>
               )}

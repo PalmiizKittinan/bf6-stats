@@ -22,51 +22,53 @@
 
 /* ===== Tailwind Theme Overrides ===== */
 [data-framework="tailwind"] {
-  --bf6-bg: #080b14;
-  --bf6-dark: #0f1629;
-  --bf6-darker: #0a1020;
-  --bf6-accent: #0891b2;
+  --bf6-bg: #15336b;
+  --bf6-dark: #1b3e7d;
+  --bf6-darker: #15336b;
+  --bf6-accent: #2f579f;
+  --bf6-accent-2: #204a96;
   --bf6-success: #22c55e;
   --bf6-error: #ef4444;
-  --bf6-card-bg: #111a30;
+  --bf6-card-bg: #1b3e7d;
   --bf6-text: #cbd5e1;
   --bf6-text-muted: #64748b;
   --bf6-text-strong: #f1f5f9;
-  --bf6-border: rgba(8, 145, 178, 0.12);
-  --bf6-border-hover: rgba(8, 145, 178, 0.25);
-  --bf6-card-shadow: rgba(8, 145, 178, 0.08);
-  --bf6-header-bg: linear-gradient(135deg, #0a1020 0%, #0f1629 40%, #111a30 100%);
-  --bf6-card-gradient: linear-gradient(135deg, rgba(15, 22, 41, 0.8), rgba(17, 26, 48, 0.6));
-  --bf6-search-bg: rgba(8, 145, 178, 0.06);
-  --bf6-search-focus-bg: rgba(8, 145, 178, 0.12);
-  --bf6-bar-bg: rgba(8, 145, 178, 0.1);
-  --bf6-season-bg: linear-gradient(135deg, rgba(17, 26, 48, 0.8), rgba(10, 16, 32, 0.6));
-  --bf6-scrollbar-track: #0a1020;
-  --bf6-scrollbar-thumb: #1a2744;
+  --bf6-border: rgba(47, 87, 159, 0.12);
+  --bf6-border-hover: rgba(47, 87, 159, 0.25);
+  --bf6-card-shadow: rgba(47, 87, 159, 0.08);
+  --bf6-header-bg: linear-gradient(135deg, #15336b 0%, #1b3e7d 40%, #204a96 100%);
+  --bf6-card-gradient: linear-gradient(135deg, rgba(27, 62, 125, 0.8), rgba(32, 74, 150, 0.6));
+  --bf6-search-bg: rgba(47, 87, 159, 0.06);
+  --bf6-search-focus-bg: rgba(47, 87, 159, 0.12);
+  --bf6-bar-bg: rgba(47, 87, 159, 0.1);
+  --bf6-season-bg: linear-gradient(135deg, rgba(27, 62, 125, 0.8), rgba(21, 51, 107, 0.6));
+  --bf6-scrollbar-track: #15336b;
+  --bf6-scrollbar-thumb: #204a96;
 }
 
 [data-framework="tailwind"][data-bs-theme="light"] {
-  --bf6-bg: #f0f9ff;
+  --bf6-bg: #eef1f9;
   --bf6-dark: #ffffff;
-  --bf6-darker: #f8fafc;
-  --bf6-accent: #0891b2;
+  --bf6-darker: #f6f8fc;
+  --bf6-accent: #204a96;
+  --bf6-accent-2: #2f579f;
   --bf6-success: #16a34a;
   --bf6-error: #dc2626;
-  --bf6-card-bg: #e0f2fe;
+  --bf6-card-bg: #e2e7f4;
   --bf6-text: #0f172a;
   --bf6-text-muted: #64748b;
   --bf6-text-strong: #000000;
-  --bf6-border: rgba(8, 145, 178, 0.15);
-  --bf6-border-hover: rgba(8, 145, 178, 0.3);
-  --bf6-card-shadow: rgba(8, 145, 178, 0.1);
-  --bf6-header-bg: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 50%, #cffafe 100%);
-  --bf6-card-gradient: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(224, 242, 254, 0.6));
-  --bf6-search-bg: rgba(8, 145, 178, 0.06);
-  --bf6-search-focus-bg: rgba(8, 145, 178, 0.1);
-  --bf6-bar-bg: rgba(8, 145, 178, 0.1);
-  --bf6-season-bg: linear-gradient(135deg, rgba(224, 242, 254, 0.8), rgba(240, 249, 255, 0.6));
-  --bf6-scrollbar-track: #f0f9ff;
-  --bf6-scrollbar-thumb: #bae6fd;
+  --bf6-border: rgba(32, 74, 150, 0.15);
+  --bf6-border-hover: rgba(32, 74, 150, 0.3);
+  --bf6-card-shadow: rgba(32, 74, 150, 0.1);
+  --bf6-header-bg: linear-gradient(135deg, #e2e7f4 0%, #eef1f9 50%, #d8e0f2 100%);
+  --bf6-card-gradient: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(226, 231, 244, 0.6));
+  --bf6-search-bg: rgba(32, 74, 150, 0.06);
+  --bf6-search-focus-bg: rgba(32, 74, 150, 0.1);
+  --bf6-bar-bg: rgba(32, 74, 150, 0.1);
+  --bf6-season-bg: linear-gradient(135deg, rgba(226, 231, 244, 0.8), rgba(238, 241, 249, 0.6));
+  --bf6-scrollbar-track: #eef1f9;
+  --bf6-scrollbar-thumb: #b7c3e2;
 }
 
 /* ===== Tailwind Glass Card ===== */
@@ -86,13 +88,13 @@
 
 /* ===== Tailwind Accent Glow ===== */
 .tw-accent-glow {
-  text-shadow: 0 0 20px rgba(8, 145, 178, 0.4);
+  text-shadow: 0 0 20px rgba(47, 87, 159, 0.4);
 }
 
 .tw-bar-fill {
   height: 100%;
   border-radius: 4px;
-  background: linear-gradient(90deg, var(--bf6-accent), #0891b2);
+  background: linear-gradient(90deg, #45a1e9, var(--bf6-accent-2));
 }
 
 /* ===== Tailwind Section Title ===== */
@@ -131,7 +133,7 @@
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  background: linear-gradient(135deg, rgba(8, 145, 178, 0.18), rgba(8, 145, 178, 0.04));
+  background: linear-gradient(135deg, rgba(47, 87, 159, 0.18), rgba(47, 87, 159, 0.04));
   border: 1px solid var(--bf6-border);
   font-size: 1.3rem;
   transition: transform 0.2s ease, border-color 0.2s ease;
@@ -181,7 +183,7 @@
 
 .tw-btn-primary:hover:not(:disabled) {
   color: #fff;
-  box-shadow: 0 6px 18px rgba(8, 145, 178, 0.35);
+  box-shadow: 0 6px 18px rgba(47, 87, 159, 0.35);
 }
 
 .tw-btn:disabled {
@@ -238,15 +240,134 @@
 @keyframes tw-pulse-glow {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(8, 145, 178, 0.35);
+    box-shadow: 0 0 0 0 rgba(47, 87, 159, 0.35);
   }
   50% {
-    box-shadow: 0 0 0 6px rgba(8, 145, 178, 0);
+    box-shadow: 0 0 0 6px rgba(47, 87, 159, 0);
   }
 }
 
 .tw-glow-ring {
   animation: tw-pulse-glow 2.4s ease-in-out infinite;
+}
+
+/* ===== Tailwind Modern UI Enhancements ===== */
+
+.tw-gradient-text {
+  background: linear-gradient(135deg, #45a1e9, var(--bf6-accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.tw-brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #fff;
+  background: linear-gradient(135deg, #45a1e9, var(--bf6-accent-2));
+  box-shadow: 0 4px 16px var(--bf6-card-shadow);
+}
+
+.tw-mesh {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.35;
+  background:
+    radial-gradient(circle at 12% 15%, var(--bf6-accent) 0%, transparent 38%),
+    radial-gradient(circle at 88% -5%, var(--bf6-accent-2) 0%, transparent 42%);
+}
+
+.tw-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: var(--bf6-search-bg);
+  border: 1px solid var(--bf6-border);
+  color: var(--bf6-text);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.tw-stat-tile {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.tw-stat-tile::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #45a1e9, var(--bf6-accent-2));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.tw-stat-tile:hover::before {
+  transform: scaleX(1);
+}
+
+.tw-segmented {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 10px;
+  background: var(--bf6-search-bg);
+  border: 1px solid var(--bf6-border);
+  gap: 2px;
+}
+
+.tw-segmented-btn {
+  border: none;
+  background: transparent;
+  padding: 5px 11px;
+  border-radius: 7px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--bf6-text-muted);
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  white-space: nowrap;
+}
+
+.tw-segmented-btn:hover:not(.tw-segmented-btn-active) {
+  color: var(--bf6-text-strong);
+}
+
+.tw-segmented-btn-active {
+  background: linear-gradient(135deg, #45a1e9, var(--bf6-accent-2));
+  color: #fff;
+  box-shadow: 0 2px 10px var(--bf6-card-shadow);
+}
+
+.tw-ring-badge {
+  position: relative;
+  border-radius: 16px;
+  background: linear-gradient(160deg, var(--bf6-search-bg), transparent);
+  border: 1px solid var(--bf6-border-hover);
+}
+
+.tw-scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tw-scrollbar-thin::-webkit-scrollbar-thumb {
+  background: var(--bf6-border-hover);
+  border-radius: 3px;
 }
 
 /* ===== Tailwind Sticky Navbar ===== */
@@ -261,7 +382,7 @@
 /* ===== Tailwind Navbar Light Theme ===== */
 
 [data-framework="tailwind"][data-bs-theme="light"] nav {
-  background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 50%, #cffafe 100%) !important;
+  background: linear-gradient(135deg, #e2e7f4 0%, #eef1f9 50%, #d8e0f2 100%) !important;
 }
 
 [data-framework="tailwind"][data-bs-theme="light"] nav .stat-highlight {
@@ -269,13 +390,13 @@
 }
 
 [data-framework="tailwind"][data-bs-theme="light"] nav select option {
-  background-color: #f0f9ff;
+  background-color: #eef1f9;
   color: #0f172a;
 }
 
 [data-framework="tailwind"][data-bs-theme="dark"] select option,
 [data-framework="tailwind"][data-bs-theme="dark"] select {
-  background-color: #0f1629;
+  background-color: #1b3e7d;
   color: #f1f5f9;
 }
 
@@ -292,7 +413,7 @@
   --bf6-bg: #0a0a1a;
   --bf6-dark: #1a1a2e;
   --bf6-darker: #16213e;
-  --bf6-accent: #e94560;
+  --bf6-accent: #6dafdb;
   --bf6-card-bg: #0f3460;
   --bf6-text: #e0e0e0;
   --bf6-text-muted: #a0a0a0;

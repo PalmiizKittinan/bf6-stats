@@ -26,18 +26,18 @@ function ClassCard({ name, icon, kills, deaths, revives, score, time }: { name: 
   const kdr = kills && deaths && deaths > 0 ? (kills / deaths).toFixed(2) : "-";
   return (
     <div className="w-full sm:w-1/2 lg:w-1/4 p-1.5">
-      <div className="tw-glass-card p-4 h-full">
+      <div className="tw-glass-card tw-stat-tile p-4 h-full">
         <div className="flex items-center gap-2 mb-3">
           <span className="tw-icon-badge tw-icon-badge-sm">{icon}</span>
           <h6 className="font-bold" style={{ color: "var(--bf6-text-strong)" }}>{name}</h6>
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Kills</div><div className="font-bold" style={{ color: "var(--bf6-text-strong)" }}>{formatNumber(kills)}</div></div>
-          <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Deaths</div><div className="font-bold" style={{ color: "var(--bf6-text-strong)" }}>{formatNumber(deaths)}</div></div>
-          <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>K/D</div><div className="font-bold tw-accent-glow" style={{ color: "var(--bf6-accent)" }}>{kdr}</div></div>
-          <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Revives</div><div className="font-bold" style={{ color: "var(--bf6-text-strong)" }}>{formatNumber(revives)}</div></div>
-          <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Score</div><div className="font-bold" style={{ color: "var(--bf6-text-strong)" }}>{formatNumber(score)}</div></div>
-          <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Time</div><div className="font-bold" style={{ color: "var(--bf6-text-strong)" }}>{formatTime(time)}</div></div>
+          <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Kills</div><div className="font-bold tabular-nums" style={{ color: "var(--bf6-text-strong)" }}>{formatNumber(kills)}</div></div>
+          <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Deaths</div><div className="font-bold tabular-nums" style={{ color: "var(--bf6-text-strong)" }}>{formatNumber(deaths)}</div></div>
+          <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>K/D</div><div className="font-bold tabular-nums tw-gradient-text">{kdr}</div></div>
+          <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Revives</div><div className="font-bold tabular-nums" style={{ color: "var(--bf6-text-strong)" }}>{formatNumber(revives)}</div></div>
+          <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Score</div><div className="font-bold tabular-nums" style={{ color: "var(--bf6-text-strong)" }}>{formatNumber(score)}</div></div>
+          <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Time</div><div className="font-bold tabular-nums" style={{ color: "var(--bf6-text-strong)" }}>{formatTime(time)}</div></div>
         </div>
       </div>
     </div>
@@ -48,20 +48,15 @@ function CompRankCard({ rank }: { rank: CompetitiveRank }) {
   const isUnranked = rank.rankName === "Unranked";
   return (
     <div className="w-full sm:w-1/2 lg:w-1/3 p-1.5">
-      <div className="tw-glass-card p-4 h-full">
+      <div className="tw-glass-card tw-stat-tile p-4 h-full">
         <div className="flex items-center justify-between">
           <div>
             <div className="text-xs uppercase tracking-wider" style={{ color: "var(--bf6-text-muted)" }}>{rank.modeName}</div>
-            <div className="font-bold text-lg" style={{ color: isUnranked ? "var(--bf6-text-muted)" : "var(--bf6-accent)" }}>
+            <div className={`font-bold text-lg ${isUnranked ? "" : "tw-gradient-text"}`} style={{ color: isUnranked ? "var(--bf6-text-muted)" : undefined }}>
               {rank.rankName}
             </div>
           </div>
-          <span
-            className="px-2.5 py-1 rounded-md text-xs font-medium"
-            style={{ backgroundColor: "var(--bf6-search-bg)", color: "var(--bf6-text-muted)", border: "1px solid var(--bf6-border)" }}
-          >
-            {rank.type}
-          </span>
+          <span className="tw-pill">{rank.type}</span>
         </div>
       </div>
     </div>
@@ -76,10 +71,11 @@ export default function ProfileTW() {
   if (!playerName) {
     return (
       <div className="text-center py-24">
-        <div className="tw-glass-card tw-fade-in p-10 mx-auto" style={{ maxWidth: 520 }}>
-          <div className="tw-icon-badge mx-auto mb-4" style={{ width: 64, height: 64, fontSize: "2rem" }}>🎮</div>
-          <h3 className="font-bold text-2xl mb-3" style={{ color: "var(--bf6-text-strong)" }}>Welcome to BF6 Stats</h3>
-          <p style={{ color: "var(--bf6-text-muted)" }}>Please enter a player name in the search bar above to start tracking stats.</p>
+        <div className="tw-glass-card tw-fade-in relative overflow-hidden p-10 mx-auto" style={{ maxWidth: 520 }}>
+          <div className="tw-mesh" />
+          <div className="tw-icon-badge mx-auto mb-4 relative" style={{ width: 64, height: 64, fontSize: "2rem" }}>🎮</div>
+          <h3 className="font-bold text-2xl mb-3 tw-gradient-text relative">Welcome to BF6 Stats</h3>
+          <p className="relative" style={{ color: "var(--bf6-text-muted)" }}>Please enter a player name in the search bar above to start tracking stats.</p>
         </div>
       </div>
     );
@@ -160,28 +156,25 @@ export default function ProfileTW() {
 
       {/* Player Card Header */}
       <div className="tw-glass-card tw-fade-in relative overflow-hidden py-6 mb-6 rounded-2xl">
-        <div
-          className="absolute -top-16 -right-16 w-56 h-56 rounded-full pointer-events-none"
-          style={{ background: "radial-gradient(circle, var(--bf6-accent) 0%, transparent 70%)", opacity: 0.15 }}
-        />
+        <div className="tw-mesh" />
         <div className="max-w-7xl mx-auto px-6 relative">
           <div className="flex items-center gap-4 flex-wrap">
             {playerCard.rankImage?.large && (
               <img src={playerCard.rankImage.large} alt={`Rank ${playerCard.rank}`} className="w-20 h-20 object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
             )}
             <div>
-              <h3 className="text-xl font-bold mb-2" style={{ color: "var(--bf6-text-strong)" }}>{playerName}</h3>
+              <h3 className="text-xl font-bold mb-2 tw-gradient-text">{playerName}</h3>
               <div className="flex flex-wrap gap-2">
-                <span className="px-2.5 py-1 rounded-md text-xs font-medium" style={{ backgroundColor: "var(--bf6-search-bg)", color: "var(--bf6-text)" }}>
+                <span className="tw-pill">
                   Rank: <b style={{ color: "var(--bf6-text-strong)" }}>{playerCard.rank}</b>
                 </span>
-                <span className="px-2.5 py-1 rounded-md text-xs font-medium" style={{ backgroundColor: "var(--bf6-search-bg)" }}>
-                  <b className="tw-accent-glow" style={{ color: "var(--bf6-accent)" }}>{rankName}</b>
+                <span className="tw-pill">
+                  <b className="tw-gradient-text">{rankName}</b>
                 </span>
-                <span className="px-2.5 py-1 rounded-md text-xs font-medium" style={{ backgroundColor: "var(--bf6-search-bg)", color: "var(--bf6-text)" }}>
+                <span className="tw-pill">
                   Badges: <b style={{ color: "var(--bf6-text-strong)" }}>{playerCard.badges}</b>
                 </span>
-                <span className="px-2.5 py-1 rounded-md text-xs font-medium" style={{ backgroundColor: "var(--bf6-search-bg)", color: "var(--bf6-text)" }}>
+                <span className="tw-pill">
                   Dog Tags: <b style={{ color: "var(--bf6-text-strong)" }}>{totalDogTags?.intValue ?? "-"}</b>
                 </span>
               </div>

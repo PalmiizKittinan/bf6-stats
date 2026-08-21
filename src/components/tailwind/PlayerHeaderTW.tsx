@@ -25,11 +25,8 @@ export default function PlayerHeaderTW({ stats }: PlayerHeaderProps) {
       className="tw-glass-card tw-fade-in relative overflow-hidden py-6 mb-6 rounded-2xl"
       style={{ borderColor: "var(--bf6-border-hover)" }}
     >
-      {/* Decorative glow */}
-      <div
-        className="absolute -top-16 -right-16 w-56 h-56 rounded-full pointer-events-none"
-        style={{ background: "radial-gradient(circle, var(--bf6-accent) 0%, transparent 70%)", opacity: 0.15 }}
-      />
+      {/* Decorative mesh glow */}
+      <div className="tw-mesh" />
 
       <div className="max-w-7xl mx-auto px-6 relative">
         <div className="flex items-center gap-5 flex-wrap">
@@ -52,45 +49,30 @@ export default function PlayerHeaderTW({ stats }: PlayerHeaderProps) {
             </span>
           </div>
           <div className="flex-grow min-w-[200px]">
-            <h2 className="text-2xl font-bold mb-2" style={{ color: "var(--bf6-accent)" }}>
-              <span className="tw-accent-glow">{stats.userName}</span>
+            <h2 className="text-2xl font-bold mb-2 tw-gradient-text">
+              {stats.userName}
             </h2>
             <div className="flex flex-wrap gap-2">
-              <span
-                className="px-2.5 py-1 rounded-md text-xs font-medium capitalize"
-                style={{ backgroundColor: "var(--bf6-search-bg)", color: "var(--bf6-text)" }}
-              >
+              <span className="tw-pill capitalize">
                 🌐 Platform: {stats.platform}
               </span>
               {bestClass && (
-                <span
-                  className="px-2.5 py-1 rounded-md text-xs font-medium"
-                  style={{ backgroundColor: "var(--bf6-search-bg)", color: "var(--bf6-text)" }}
-                >
-                🎖️ Best Class: {bestClass.className}
+                <span className="tw-pill">
+                  🎖️ Best Class: {bestClass.className}
                 </span>
               )}
-              <span
-                className="px-2.5 py-1 rounded-md text-xs font-medium"
-                style={{ backgroundColor: "var(--bf6-search-bg)", color: "var(--bf6-text)" }}
-              >
+              <span className="tw-pill">
                 ⏱️ Time Played: {stats.timePlayed}
               </span>
               {xp && (
-                <span
-                  className="px-2.5 py-1 rounded-md text-xs font-medium"
-                  style={{ backgroundColor: "var(--bf6-search-bg)", color: "var(--bf6-text)" }}
-                >
+                <span className="tw-pill">
                   ✨Total XP: {xp.total.toLocaleString()}
                 </span>
               )}
             </div>
           </div>
-          <div
-            className="text-center px-5 py-3 rounded-xl"
-            style={{ backgroundColor: "var(--bf6-search-bg)", border: "1px solid var(--bf6-border)" }}
-          >
-            <div className="text-2xl font-bold tw-accent-glow" style={{ color: "var(--bf6-accent)" }}>{stats.humanPrecentage}</div>
+          <div className="tw-ring-badge text-center px-5 py-3">
+            <div className="text-2xl font-bold tw-gradient-text">{stats.humanPrecentage}</div>
             <div className="text-xs uppercase tracking-wider mt-1" style={{ color: "var(--bf6-text-muted)" }}>Human %</div>
           </div>
         </div>
