@@ -23,16 +23,15 @@ function SectionTitle({ icon, title, children }: { icon: string; title: string; 
 }
 
 function SeasonTag({ label, variant }: { label: string; variant: "mode" | "win" | "loss" }) {
-  const colors = {
-    mode: { bg: "var(--bf6-accent)", text: "#fff" },
-    win: { bg: "var(--bf6-success, #22c55e)", text: "#fff" },
-    loss: { bg: "var(--bf6-error, #ef4444)", text: "#fff" },
+  const backgrounds = {
+    mode: "linear-gradient(135deg, var(--bf6-accent), var(--bf6-accent-2))",
+    win: "var(--bf6-success, #22c55e)",
+    loss: "var(--bf6-error, #ef4444)",
   };
-  const c = colors[variant];
   return (
     <span
-      className="inline-block px-2 py-0.5 rounded text-xs font-semibold"
-      style={{ backgroundColor: c.bg, color: c.text }}
+      className="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold"
+      style={{ background: backgrounds[variant], color: "#fff" }}
     >
       {label}
     </span>
@@ -56,10 +55,11 @@ export default function StatsPageTW() {
 
       {!playerName && !statsLoading && (
         <div className="text-center py-24">
-          <div className="tw-glass-card tw-fade-in p-10 mx-auto" style={{ maxWidth: 520 }}>
-            <div className="tw-icon-badge mx-auto mb-4" style={{ width: 64, height: 64, fontSize: "2rem" }}>🎮</div>
-            <h3 className="font-bold text-2xl mb-3" style={{ color: "var(--bf6-text-strong)" }}>Welcome to BF6 Stats</h3>
-            <p style={{ color: "var(--bf6-text-muted)" }}>Please enter a player name in the search bar above to start tracking stats.</p>
+          <div className="tw-glass-card tw-fade-in relative overflow-hidden p-10 mx-auto" style={{ maxWidth: 520 }}>
+            <div className="tw-mesh" />
+            <div className="tw-icon-badge mx-auto mb-4 relative" style={{ width: 64, height: 64, fontSize: "2rem" }}>🎮</div>
+            <h3 className="font-bold text-2xl mb-3 tw-gradient-text relative">Welcome to BF6 Stats</h3>
+            <p className="relative" style={{ color: "var(--bf6-text-muted)" }}>Please enter a player name in the search bar above to start tracking stats.</p>
           </div>
         </div>
       )}
@@ -160,8 +160,8 @@ function SeasonStatsSectionTW({ seasons }: { seasons: BF6Stats["seasons"] }) {
       <div className="flex flex-wrap -mx-1.5">
         {pagedSeasons.map((season) => (
           <div key={season.seasonId} className="w-full sm:w-1/2 lg:w-1/3 p-1.5">
-            <div className="tw-glass-card tw-fade-in p-4 h-full">
-              <h6 className="font-bold text-lg mb-3" style={{ color: "var(--bf6-text-strong)" }}>{season.season}</h6>
+            <div className="tw-glass-card tw-fade-in tw-stat-tile p-4 h-full">
+              <h6 className="font-bold text-lg mb-3 tw-gradient-text">{season.season}</h6>
               {season.modes.map((mode) => (
                 <div key={mode.modeId} className="mb-3 pb-3" style={{ borderBottom: "1px solid var(--bf6-border)" }}>
                   <div className="flex flex-wrap gap-1.5 mb-3">
@@ -170,12 +170,12 @@ function SeasonStatsSectionTW({ seasons }: { seasons: BF6Stats["seasons"] }) {
                     <SeasonTag label={`${mode.losses}L`} variant="loss" />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
-                    <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Matches</div><div className="font-bold" style={{ color: "var(--bf6-text-strong)" }}>{mode.matches}</div></div>
-                    <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Win Rate</div><div className="font-bold" style={{ color: "var(--bf6-success, #22c55e)" }}>{mode.matches > 0 ? ((mode.wins / mode.matches) * 100).toFixed(1) : 0}%</div></div>
-                    <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Kills</div><div className="font-bold" style={{ color: "var(--bf6-text-strong)" }}>{mode.kills.toLocaleString()}</div></div>
-                    <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>K/D</div><div className="font-bold tw-accent-glow" style={{ color: "var(--bf6-accent)" }}>{mode.killDeath.toFixed(2)}</div></div>
-                    <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Score</div><div className="font-bold" style={{ color: "var(--bf6-text-strong)" }}>{mode.score.toLocaleString()}</div></div>
-                    <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Time</div><div className="font-bold" style={{ color: "var(--bf6-text-strong)" }}>{mode.timePlayed}</div></div>
+                    <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Matches</div><div className="font-bold tabular-nums" style={{ color: "var(--bf6-text-strong)" }}>{mode.matches}</div></div>
+                    <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Win Rate</div><div className="font-bold tabular-nums" style={{ color: "var(--bf6-success, #22c55e)" }}>{mode.matches > 0 ? ((mode.wins / mode.matches) * 100).toFixed(1) : 0}%</div></div>
+                    <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Kills</div><div className="font-bold tabular-nums" style={{ color: "var(--bf6-text-strong)" }}>{mode.kills.toLocaleString()}</div></div>
+                    <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>K/D</div><div className="font-bold tabular-nums tw-gradient-text">{mode.killDeath.toFixed(2)}</div></div>
+                    <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Score</div><div className="font-bold tabular-nums" style={{ color: "var(--bf6-text-strong)" }}>{mode.score.toLocaleString()}</div></div>
+                    <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Time</div><div className="font-bold tabular-nums" style={{ color: "var(--bf6-text-strong)" }}>{mode.timePlayed}</div></div>
                   </div>
                 </div>
               ))}

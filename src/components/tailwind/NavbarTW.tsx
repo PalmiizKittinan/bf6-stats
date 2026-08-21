@@ -100,35 +100,33 @@ export default function NavbarTW() {
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-3">
         {/* Brand */}
-        <span className="flex items-center gap-2 font-bold text-lg">
-          <span className="tw-accent-glow" style={{ color: "var(--bf6-accent)" }}>
-            BF6
-          </span>{" "}
-          <span style={{ color: "var(--bf6-text-strong)" }}>Stats Dashboard</span>
+        <span className="flex items-center gap-2.5 font-bold text-lg">
+          <span className="tw-brand-mark">B6</span>
+          <span className="tw-gradient-text">Stats Dashboard</span>
         </span>
 
         <div className="flex items-center gap-2 flex-wrap ml-auto">
           {/* Nav Tabs */}
           <Link
             href="/profile"
-            className="px-3 py-1.5 rounded-md text-sm font-medium border transition-all duration-200"
+            className="px-3 py-1.5 rounded-full text-sm font-medium border transition-all duration-200"
             style={{
-              borderColor: pathname === "/profile" || pathname === "/" ? "var(--bf6-accent)" : "var(--bf6-border-hover)",
-              color: pathname === "/profile" || pathname === "/" ? "var(--bf6-accent)" : "var(--bf6-text-muted)",
-              backgroundColor: pathname === "/profile" || pathname === "/" ? "var(--bf6-search-bg)" : "transparent",
-              boxShadow: pathname === "/profile" || pathname === "/" ? "0 0 12px var(--bf6-card-shadow)" : "none",
+              borderColor: pathname === "/profile" || pathname === "/" ? "transparent" : "var(--bf6-border-hover)",
+              color: pathname === "/profile" || pathname === "/" ? "#fff" : "var(--bf6-text-muted)",
+              background: pathname === "/profile" || pathname === "/" ? "linear-gradient(135deg, var(--bf6-accent), var(--bf6-accent-2))" : "transparent",
+              boxShadow: pathname === "/profile" || pathname === "/" ? "0 4px 14px var(--bf6-card-shadow)" : "none",
             }}
           >
             👤 Profile
           </Link>
           <Link
             href="/stats"
-            className="px-3 py-1.5 rounded-md text-sm font-medium border transition-all duration-200"
+            className="px-3 py-1.5 rounded-full text-sm font-medium border transition-all duration-200"
             style={{
-              borderColor: pathname === "/stats" ? "var(--bf6-accent)" : "var(--bf6-border-hover)",
-              color: pathname === "/stats" ? "var(--bf6-accent)" : "var(--bf6-text-muted)",
-              backgroundColor: pathname === "/stats" ? "var(--bf6-search-bg)" : "transparent",
-              boxShadow: pathname === "/stats" ? "0 0 12px var(--bf6-card-shadow)" : "none",
+              borderColor: pathname === "/stats" ? "transparent" : "var(--bf6-border-hover)",
+              color: pathname === "/stats" ? "#fff" : "var(--bf6-text-muted)",
+              background: pathname === "/stats" ? "linear-gradient(135deg, var(--bf6-accent), var(--bf6-accent-2))" : "transparent",
+              boxShadow: pathname === "/stats" ? "0 4px 14px var(--bf6-card-shadow)" : "none",
             }}
           >
             📊 Stats
@@ -207,21 +205,21 @@ export default function NavbarTW() {
 
               {showSavedMenu && (
                 <div
-                  className="tw-fade-in tw-glass-card absolute right-0 mt-2 z-50 overflow-y-auto"
+                  className="tw-fade-in tw-glass-card tw-scrollbar-thin absolute right-0 mt-2 z-50 overflow-y-auto p-1.5"
                   style={{
                     minWidth: "260px",
                     maxHeight: "300px",
                   }}
                 >
                   {savedNames.length === 0 ? (
-                    <span className="block px-4 py-3 text-sm" style={{ color: "var(--bf6-text-muted)" }}>
+                    <span className="block px-3 py-3 text-sm" style={{ color: "var(--bf6-text-muted)" }}>
                       No saved names yet
                     </span>
                   ) : (
                     savedNames.map((saved, index) => (
                       <div
                         key={`${saved.name}-${saved.platform}-${index}`}
-                        className="flex items-center justify-between px-4 py-2 cursor-pointer transition-colors"
+                        className="flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-colors"
                         style={{ backgroundColor: "transparent" }}
                         onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--bf6-search-bg)")}
                         onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
@@ -231,16 +229,13 @@ export default function NavbarTW() {
                           className="flex-grow"
                         >
                           <span className="font-semibold" style={{ color: "var(--bf6-text-strong)" }}>{saved.name}</span>
-                          <span
-                            className="ml-2 px-1.5 py-0.5 rounded text-xs"
-                            style={{ backgroundColor: "var(--bf6-search-bg)", color: "var(--bf6-text-muted)" }}
-                          >
+                          <span className="tw-pill ml-2 py-0 text-[0.65rem]">
                             {saved.platform.toUpperCase()}
                           </span>
                         </span>
                         <button
                           type="button"
-                          className="ml-2 px-1.5 py-0.5 rounded border text-xs cursor-pointer transition-colors hover:opacity-80"
+                          className="ml-2 px-1.5 py-0.5 rounded-md border text-xs cursor-pointer transition-colors hover:opacity-80"
                           style={{ borderColor: "var(--bf6-border-hover)", color: "var(--bf6-text-muted)" }}
                           title="Delete"
                           onClick={(e) => {
@@ -262,26 +257,18 @@ export default function NavbarTW() {
           <div className="tw-divider hidden lg:block mx-1" />
 
           {/* CSS Framework Toggle */}
-          <div className="flex gap-1 rounded-md p-0.5" style={{ border: "1px solid var(--bf6-border-hover)" }}>
+          <div className="tw-segmented">
             <button
               type="button"
               onClick={() => setFramework("bootstrap")}
-              className="px-2 py-1 rounded text-xs font-medium cursor-pointer transition-all"
-              style={{
-                backgroundColor: framework === "bootstrap" ? "var(--bf6-accent)" : "transparent",
-                color: framework === "bootstrap" ? "#fff" : "var(--bf6-text-muted)",
-              }}
+              className={`tw-segmented-btn ${framework === "bootstrap" ? "tw-segmented-btn-active" : ""}`}
             >
               BS
             </button>
             <button
               type="button"
               onClick={() => setFramework("tailwind")}
-              className="px-2 py-1 rounded text-xs font-medium cursor-pointer transition-all"
-              style={{
-                backgroundColor: framework === "tailwind" ? "var(--bf6-accent)" : "transparent",
-                color: framework === "tailwind" ? "#fff" : "var(--bf6-text-muted)",
-              }}
+              className={`tw-segmented-btn ${framework === "tailwind" ? "tw-segmented-btn-active" : ""}`}
             >
               TW
             </button>
