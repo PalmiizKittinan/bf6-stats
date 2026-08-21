@@ -7,18 +7,21 @@ export default function FooterTW() {
 
   return (
     <footer
-      className="text-center py-6 mt-10"
+      className="relative text-center py-6 mt-10 overflow-hidden"
       style={{ borderTop: "1px solid var(--bf6-border)", background: "var(--bf6-card-gradient)" }}
     >
-      <p className="text-sm flex items-center justify-center gap-2 flex-wrap" style={{ color: "var(--bf6-text-muted)" }}>
+      <div
+        className="absolute top-0 left-0 right-0 h-px"
+        style={{ background: "linear-gradient(90deg, transparent, var(--bf6-accent), var(--bf6-accent-2), transparent)" }}
+      />
+      <p className="text-sm flex items-center justify-center gap-2 flex-wrap relative" style={{ color: "var(--bf6-text-muted)" }}>
         <span>Copyright © {year}</span>
         <span className="tw-divider" />
         <a
           href="https://github.com/PalmiizKittinan"
           target="_blank"
           rel="noopener noreferrer"
-          className="hover:underline font-medium transition-colors"
-          style={{ color: "var(--bf6-accent)" }}
+          className="hover:underline font-medium transition-colors tw-gradient-text"
         >
         PalmiizKittinan{" "}
         </a>
@@ -27,17 +30,13 @@ export default function FooterTW() {
           href="https://github.com/PalmiizKittinan/bf6-stats/"
           target="_blank"
           rel="noopener noreferrer"
-          className="hover:underline font-medium transition-colors"
-          style={{ color: "var(--bf6-accent)" }}
+          className="hover:underline font-medium transition-colors tw-gradient-text"
         >
           BF6 StatsTracker
         </a>
         {" "}
         <span className="tw-divider" />
-        <span
-          className="inline-block px-2.5 py-1 rounded-md text-xs font-semibold"
-          style={{ background: "var(--bf6-search-bg)", color: "var(--bf6-text-muted)", border: "1px solid var(--bf6-border)" }}
-        >
+        <span className="tw-pill">
           v{packageJson.version}
         </span>
       </p>
