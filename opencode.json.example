@@ -1,0 +1,34 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "<provider>/<alias>",
+  "provider": {
+    "ollama": {
+      "name": "Ollama (Local)",
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:<port>/v1"
+      },
+      "models": {
+        "<model:tag>": {
+          "name": "<Display name of the model>",
+          "description": "<Short description of the model>",
+          "options": {
+            "reasoningEffort": "<low|medium|high>"
+          },
+          "capabilities": [
+            "Text generation",
+            "Question answering",
+            "Summarization",
+            "Translation",
+            "Code generation"
+          ],
+          "limitations": [
+            "May produce incorrect or nonsensical answers",
+            "Limited knowledge of events after its training cutoff date",
+            "May be sensitive to input phrasing"
+          ]
+        }
+      }
+    }
+  }
+}
