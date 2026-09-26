@@ -21,29 +21,39 @@
 }
 
 /* ===== Tailwind Theme Overrides ===== */
-[data-framework="tailwind"] {
-  --bf6-bg: #15336b;
-  --bf6-dark: #1b3e7d;
-  --bf6-darker: #15336b;
-  --bf6-accent: #2f579f;
+/* Uses [data-framework][data-bs-theme] (specificity 0,2,0) so the Bootstrap
+   :root / [data-bs-theme] defaults declared later in this file cannot override it. */
+[data-framework="tailwind"][data-bs-theme="dark"] {
+  --bf6-bg: #0a0a1a;
+  --bf6-dark: #1a1a2e;
+  --bf6-darker: #16213e;
+  --bf6-accent: #6dafdb;
   --bf6-accent-2: #204a96;
+  --bf6-accent-3: #45a1e9;
+  --bf6-accent-rgb: 109, 175, 219;
   --bf6-success: #22c55e;
   --bf6-error: #ef4444;
-  --bf6-card-bg: #1b3e7d;
-  --bf6-text: #cbd5e1;
-  --bf6-text-muted: #64748b;
-  --bf6-text-strong: #f1f5f9;
-  --bf6-border: rgba(47, 87, 159, 0.12);
-  --bf6-border-hover: rgba(47, 87, 159, 0.25);
-  --bf6-card-shadow: rgba(47, 87, 159, 0.08);
-  --bf6-header-bg: linear-gradient(135deg, #15336b 0%, #1b3e7d 40%, #204a96 100%);
-  --bf6-card-gradient: linear-gradient(135deg, rgba(27, 62, 125, 0.8), rgba(32, 74, 150, 0.6));
-  --bf6-search-bg: rgba(47, 87, 159, 0.06);
-  --bf6-search-focus-bg: rgba(47, 87, 159, 0.12);
-  --bf6-bar-bg: rgba(47, 87, 159, 0.1);
-  --bf6-season-bg: linear-gradient(135deg, rgba(27, 62, 125, 0.8), rgba(21, 51, 107, 0.6));
-  --bf6-scrollbar-track: #15336b;
-  --bf6-scrollbar-thumb: #204a96;
+  --bf6-card-bg: #0f3460;
+  --bf6-text: #e0e0e0;
+  --bf6-text-muted: #a0a0a0;
+  --bf6-text-strong: #ffffff;
+  --bf6-border: rgba(109, 175, 219, 0.12);
+  --bf6-border-hover: rgba(109, 175, 219, 0.32);
+  --bf6-card-shadow: rgba(0, 0, 0, 0.55);
+  --bf6-header-bg: rgba(22, 33, 62, 0.72);
+  --bf6-card-gradient: linear-gradient(160deg, rgba(22, 33, 62, 0.78) 0%, rgba(26, 26, 46, 0.62) 100%);
+  --bf6-search-bg: rgba(109, 175, 219, 0.06);
+  --bf6-search-focus-bg: rgba(109, 175, 219, 0.12);
+  --bf6-bar-bg: rgba(109, 175, 219, 0.1);
+  --bf6-season-bg: linear-gradient(135deg, rgba(15, 52, 96, 0.6), rgba(22, 33, 62, 0.6));
+  --bf6-scrollbar-track: #0a0a1a;
+  --bf6-scrollbar-thumb: #0f3460;
+  --bf6-grad-text: linear-gradient(135deg, #8cc4ea 0%, #45a1e9 100%);
+  --bf6-grad-fill: linear-gradient(135deg, #45a1e9 0%, #204a96 100%);
+  --bf6-inset-highlight: rgba(255, 255, 255, 0.05);
+  --bf6-grid-line: rgba(109, 175, 219, 0.045);
+  --bf6-glow-1: rgba(69, 161, 233, 0.14);
+  --bf6-glow-2: rgba(32, 74, 150, 0.22);
 }
 
 [data-framework="tailwind"][data-bs-theme="light"] {
@@ -52,76 +62,131 @@
   --bf6-darker: #f6f8fc;
   --bf6-accent: #204a96;
   --bf6-accent-2: #2f579f;
+  --bf6-accent-3: #45a1e9;
+  --bf6-accent-rgb: 32, 74, 150;
   --bf6-success: #16a34a;
   --bf6-error: #dc2626;
   --bf6-card-bg: #e2e7f4;
   --bf6-text: #0f172a;
   --bf6-text-muted: #64748b;
   --bf6-text-strong: #000000;
-  --bf6-border: rgba(32, 74, 150, 0.15);
-  --bf6-border-hover: rgba(32, 74, 150, 0.3);
-  --bf6-card-shadow: rgba(32, 74, 150, 0.1);
-  --bf6-header-bg: linear-gradient(135deg, #e2e7f4 0%, #eef1f9 50%, #d8e0f2 100%);
-  --bf6-card-gradient: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(226, 231, 244, 0.6));
-  --bf6-search-bg: rgba(32, 74, 150, 0.06);
-  --bf6-search-focus-bg: rgba(32, 74, 150, 0.1);
+  --bf6-border: rgba(32, 74, 150, 0.1);
+  --bf6-border-hover: rgba(32, 74, 150, 0.28);
+  --bf6-card-shadow: rgba(32, 74, 150, 0.14);
+  --bf6-header-bg: rgba(255, 255, 255, 0.78);
+  --bf6-card-gradient: linear-gradient(160deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.78) 100%);
+  --bf6-search-bg: rgba(32, 74, 150, 0.05);
+  --bf6-search-focus-bg: rgba(32, 74, 150, 0.09);
   --bf6-bar-bg: rgba(32, 74, 150, 0.1);
   --bf6-season-bg: linear-gradient(135deg, rgba(226, 231, 244, 0.8), rgba(238, 241, 249, 0.6));
   --bf6-scrollbar-track: #eef1f9;
   --bf6-scrollbar-thumb: #b7c3e2;
+  --bf6-grad-text: linear-gradient(135deg, #45a1e9 0%, #204a96 100%);
+  --bf6-grad-fill: linear-gradient(135deg, #45a1e9 0%, #204a96 100%);
+  --bf6-inset-highlight: rgba(255, 255, 255, 0.9);
+  --bf6-grid-line: rgba(32, 74, 150, 0.055);
+  --bf6-glow-1: rgba(69, 161, 233, 0.2);
+  --bf6-glow-2: rgba(32, 74, 150, 0.1);
+}
+
+/* ===== Tailwind Page Backdrop (grid + ambient glow) ===== */
+[data-framework="tailwind"] body {
+  background-color: var(--bf6-bg);
+  background-image:
+    radial-gradient(1100px 560px at 8% -8%, var(--bf6-glow-1), transparent 62%),
+    radial-gradient(900px 520px at 100% 0%, var(--bf6-glow-2), transparent 60%),
+    linear-gradient(var(--bf6-grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--bf6-grid-line) 1px, transparent 1px);
+  background-size: auto, auto, 44px 44px, 44px 44px;
+  background-attachment: fixed;
+}
+
+[data-framework="tailwind"] a {
+  text-decoration: none;
 }
 
 /* ===== Tailwind Glass Card ===== */
 .tw-glass-card {
+  position: relative;
   background: var(--bf6-card-gradient);
   border: 1px solid var(--bf6-border);
-  border-radius: 16px;
-  backdrop-filter: blur(12px);
+  border-radius: 20px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow:
+    inset 0 1px 0 var(--bf6-inset-highlight),
+    0 12px 32px -18px var(--bf6-card-shadow);
   transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
 .tw-glass-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 40px var(--bf6-card-shadow);
+  transform: translateY(-2px);
   border-color: var(--bf6-border-hover);
+  box-shadow:
+    inset 0 1px 0 var(--bf6-inset-highlight),
+    0 18px 40px -16px var(--bf6-card-shadow),
+    0 0 0 1px rgba(var(--bf6-accent-rgb), 0.06);
 }
 
-/* ===== Tailwind Accent Glow ===== */
+.tw-glass-static:hover {
+  transform: none;
+}
+
+/* ===== Tailwind Accent / Gradient ===== */
 .tw-accent-glow {
-  text-shadow: 0 0 20px rgba(47, 87, 159, 0.4);
+  text-shadow: 0 0 20px rgba(var(--bf6-accent-rgb), 0.4);
+}
+
+.tw-gradient-text {
+  background: var(--bf6-grad-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.tw-eyebrow {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bf6-accent);
+}
+
+.tw-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--bf6-bar-bg);
+  overflow: hidden;
 }
 
 .tw-bar-fill {
   height: 100%;
-  border-radius: 4px;
-  background: linear-gradient(90deg, #45a1e9, var(--bf6-accent-2));
+  border-radius: 999px;
+  background: var(--bf6-grad-fill);
 }
 
-/* ===== Tailwind Section Title ===== */
-.tw-section-title {
-  font-size: 1.05rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  color: var(--bf6-accent);
-  text-transform: uppercase;
-  margin-bottom: 1rem;
-  padding-bottom: 0.6rem;
-  position: relative;
+/* ===== Tailwind Section Head ===== */
+.tw-section-head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
 }
 
-.tw-section-title::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 100%;
+.tw-section-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--bf6-text-strong);
+  white-space: nowrap;
+}
+
+.tw-section-rule {
+  flex: 1;
   height: 1px;
-  background: linear-gradient(90deg, var(--bf6-accent), transparent 70%);
-  opacity: 0.5;
+  min-width: 1rem;
+  background: linear-gradient(90deg, var(--bf6-border-hover), transparent);
 }
 
 /* ===== Tailwind Icon Badge ===== */
@@ -132,34 +197,111 @@
   flex-shrink: 0;
   width: 44px;
   height: 44px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, rgba(47, 87, 159, 0.18), rgba(47, 87, 159, 0.04));
+  border-radius: 14px;
+  background: rgba(var(--bf6-accent-rgb), 0.1);
   border: 1px solid var(--bf6-border);
   font-size: 1.3rem;
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
 }
 
 .tw-icon-badge-sm {
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   border-radius: 10px;
-  font-size: 1rem;
+  font-size: 0.95rem;
 }
 
 .tw-glass-card:hover .tw-icon-badge {
-  transform: scale(1.08) rotate(-3deg);
+  transform: scale(1.08) rotate(-4deg);
   border-color: var(--bf6-border-hover);
+  background: rgba(var(--bf6-accent-rgb), 0.16);
+}
+
+/* ===== Tailwind Stat Tile ===== */
+.tw-stat-tile {
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Left accent rail — grows in on hover, always on for highlighted tiles */
+.tw-stat-tile::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 18%;
+  bottom: 18%;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--bf6-grad-fill);
+  transform: scaleY(0);
+  transition: transform 0.3s ease;
+}
+
+.tw-stat-tile:hover::before,
+.tw-stat-tile-highlight::before {
+  transform: scaleY(1);
+}
+
+.tw-stat-tile-highlight {
+  background:
+    radial-gradient(120% 90% at 100% 0%, rgba(var(--bf6-accent-rgb), 0.14), transparent 60%),
+    var(--bf6-card-gradient);
+  border-color: var(--bf6-border-hover);
+}
+
+.tw-stat-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bf6-text-muted);
+}
+
+.tw-stat-value {
+  font-size: 1.45rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--bf6-text-strong);
+}
+
+/* Small key/value cell used inside class / season cards */
+.tw-mini-stat {
+  padding: 0.55rem 0.7rem;
+  border-radius: 12px;
+  background: var(--bf6-search-bg);
+  border: 1px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.tw-glass-card:hover .tw-mini-stat {
+  border-color: var(--bf6-border);
+}
+
+.tw-mini-stat-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--bf6-text-muted);
+}
+
+.tw-mini-stat-value {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--bf6-text-strong);
 }
 
 /* ===== Tailwind Buttons ===== */
 .tw-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  padding: 6px 14px;
-  border-radius: 8px;
+  padding: 7px 16px;
+  border-radius: 999px;
   font-size: 0.85rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   border: 1px solid var(--bf6-border-hover);
   color: var(--bf6-text);
@@ -176,14 +318,30 @@
 }
 
 .tw-btn-primary {
-  border-color: var(--bf6-accent);
-  background: var(--bf6-accent);
+  border-color: transparent;
+  background: var(--bf6-grad-fill);
   color: #fff;
+  box-shadow: 0 6px 16px -6px rgba(69, 161, 233, 0.6);
 }
 
 .tw-btn-primary:hover:not(:disabled) {
   color: #fff;
-  box-shadow: 0 6px 18px rgba(47, 87, 159, 0.35);
+  border-color: transparent;
+  background: var(--bf6-grad-fill);
+  box-shadow: 0 10px 24px -8px rgba(69, 161, 233, 0.75);
+}
+
+.tw-btn-icon {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+}
+
+.tw-btn-xs {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  font-size: 0.7rem;
 }
 
 .tw-btn:disabled {
@@ -197,8 +355,8 @@
   background: var(--bf6-search-bg);
   border: 1px solid var(--bf6-border-hover);
   color: var(--bf6-text-strong);
-  border-radius: 8px;
-  padding: 6px 12px;
+  border-radius: 999px;
+  padding: 7px 14px;
   font-size: 0.85rem;
   transition: all 0.2s ease;
 }
@@ -207,11 +365,54 @@
   outline: none;
   background: var(--bf6-search-focus-bg);
   border-color: var(--bf6-accent);
-  box-shadow: 0 0 0 3px var(--bf6-border);
+  box-shadow: 0 0 0 3px rgba(var(--bf6-accent-rgb), 0.15);
 }
 
 .tw-input::placeholder {
   color: var(--bf6-text-muted);
+}
+
+/* Combined search field: [platform | input | button] in one pill */
+.tw-search-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--bf6-search-bg);
+  border: 1px solid var(--bf6-border-hover);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.tw-search-group:focus-within {
+  border-color: var(--bf6-accent);
+  background: var(--bf6-search-focus-bg);
+  box-shadow: 0 0 0 3px rgba(var(--bf6-accent-rgb), 0.15);
+}
+
+.tw-search-group select,
+.tw-search-group input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--bf6-text-strong);
+  font-size: 0.85rem;
+  padding: 5px 10px;
+}
+
+.tw-search-group select {
+  border-right: 1px solid var(--bf6-border-hover);
+  border-radius: 0;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tw-search-group input::placeholder {
+  color: var(--bf6-text-muted);
+}
+
+.tw-search-group .tw-btn {
+  padding: 6px 14px;
 }
 
 /* ===== Tailwind Divider ===== */
@@ -237,13 +438,35 @@
   animation: tw-fade-in 0.18s ease-out;
 }
 
+/* Uses `translate` (not `transform`) so it doesn't block the card hover lift */
+@keyframes tw-rise {
+  from {
+    opacity: 0;
+    translate: 0 10px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+.tw-rise {
+  animation: tw-rise 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes tw-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @keyframes tw-pulse-glow {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(47, 87, 159, 0.35);
+    box-shadow: 0 0 0 0 rgba(var(--bf6-accent-rgb), 0.35);
   }
   50% {
-    box-shadow: 0 0 0 6px rgba(47, 87, 159, 0);
+    box-shadow: 0 0 0 6px rgba(var(--bf6-accent-rgb), 0);
   }
 }
 
@@ -251,38 +474,91 @@
   animation: tw-pulse-glow 2.4s ease-in-out infinite;
 }
 
-/* ===== Tailwind Modern UI Enhancements ===== */
-
-.tw-gradient-text {
-  background: linear-gradient(135deg, #45a1e9, var(--bf6-accent-2));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+@media (prefers-reduced-motion: reduce) {
+  .tw-fade-in,
+  .tw-rise,
+  .tw-glow-ring,
+  .tw-avatar-ring::before {
+    animation: none;
+  }
 }
 
+/* ===== Tailwind Avatar Ring (rotating conic border) ===== */
+.tw-avatar-ring {
+  position: relative;
+  padding: 3px;
+  border-radius: 999px;
+  isolation: isolate;
+}
+
+.tw-avatar-ring::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: conic-gradient(from 0deg, var(--bf6-accent-3), var(--bf6-accent-2), transparent 70%, var(--bf6-accent-3));
+  animation: tw-spin 6s linear infinite;
+}
+
+.tw-avatar-ring img {
+  display: block;
+  border-radius: 999px;
+  background: var(--bf6-dark);
+  border: 3px solid var(--bf6-bg);
+}
+
+/* ===== Tailwind Radial Gauge ===== */
+.tw-gauge {
+  --tw-gauge-value: 0;
+  position: relative;
+  width: 96px;
+  height: 96px;
+  border-radius: 999px;
+  background: conic-gradient(var(--bf6-accent-3) calc(var(--tw-gauge-value) * 1%), var(--bf6-bar-bg) 0);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.tw-gauge::after {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border-radius: inherit;
+  background: var(--bf6-dark);
+}
+
+.tw-gauge > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== Tailwind Modern UI Enhancements ===== */
 .tw-brand-mark {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 34px;
   height: 34px;
-  border-radius: 10px;
-  font-size: 0.85rem;
+  border-radius: 11px;
+  font-size: 0.8rem;
   font-weight: 800;
   letter-spacing: -0.02em;
   color: #fff;
-  background: linear-gradient(135deg, #45a1e9, var(--bf6-accent-2));
-  box-shadow: 0 4px 16px var(--bf6-card-shadow);
+  background: var(--bf6-grad-fill);
+  box-shadow: 0 6px 16px -6px rgba(69, 161, 233, 0.7);
+  transform: rotate(-6deg);
 }
 
 .tw-mesh {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  opacity: 0.35;
+  opacity: 0.5;
   background:
-    radial-gradient(circle at 12% 15%, var(--bf6-accent) 0%, transparent 38%),
-    radial-gradient(circle at 88% -5%, var(--bf6-accent-2) 0%, transparent 42%);
+    radial-gradient(circle at 0% 0%, rgba(var(--bf6-accent-rgb), 0.28) 0%, transparent 40%),
+    radial-gradient(circle at 100% 100%, rgba(69, 161, 233, 0.18) 0%, transparent 45%);
 }
 
 .tw-pill {
@@ -299,44 +575,24 @@
   transition: border-color 0.2s ease, background 0.2s ease;
 }
 
-.tw-stat-tile {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-}
-
-.tw-stat-tile::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, #45a1e9, var(--bf6-accent-2));
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.3s ease;
-}
-
-.tw-stat-tile:hover::before {
-  transform: scaleX(1);
-}
-
 .tw-segmented {
   display: inline-flex;
   padding: 3px;
-  border-radius: 10px;
+  border-radius: 999px;
   background: var(--bf6-search-bg);
   border: 1px solid var(--bf6-border);
   gap: 2px;
 }
 
 .tw-segmented-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   border: none;
   background: transparent;
-  padding: 5px 11px;
-  border-radius: 7px;
-  font-size: 0.75rem;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
   color: var(--bf6-text-muted);
@@ -348,16 +604,17 @@
   color: var(--bf6-text-strong);
 }
 
-.tw-segmented-btn-active {
-  background: linear-gradient(135deg, #45a1e9, var(--bf6-accent-2));
+.tw-segmented-btn-active,
+.tw-segmented-btn-active:hover {
+  background: var(--bf6-grad-fill);
   color: #fff;
-  box-shadow: 0 2px 10px var(--bf6-card-shadow);
+  box-shadow: 0 4px 12px -4px rgba(69, 161, 233, 0.7);
 }
 
 .tw-ring-badge {
   position: relative;
-  border-radius: 16px;
-  background: linear-gradient(160deg, var(--bf6-search-bg), transparent);
+  border-radius: 18px;
+  background: linear-gradient(160deg, rgba(var(--bf6-accent-rgb), 0.12), transparent);
   border: 1px solid var(--bf6-border-hover);
 }
 
@@ -370,38 +627,45 @@
   border-radius: 3px;
 }
 
-/* ===== Tailwind Sticky Navbar ===== */
+/* ===== Tailwind Spinner ===== */
+.tw-spinner {
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  background: conic-gradient(from 0deg, transparent 0%, var(--bf6-accent-3) 70%, var(--bf6-accent-2));
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+  animation: tw-spin 0.9s linear infinite;
+}
+
+.tw-spinner-sm {
+  width: 18px;
+  height: 18px;
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+}
+
+/* ===== Tailwind Floating Navbar ===== */
 [data-framework="tailwind"] .tw-navbar-sticky {
   position: sticky;
   top: 0;
   z-index: 100;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
 }
 
-/* ===== Tailwind Navbar Light Theme ===== */
-
-[data-framework="tailwind"][data-bs-theme="light"] nav {
-  background: linear-gradient(135deg, #e2e7f4 0%, #eef1f9 50%, #d8e0f2 100%) !important;
+.tw-navbar-shell {
+  border-radius: 20px;
+  background: var(--bf6-header-bg);
+  border: 1px solid var(--bf6-border);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  box-shadow:
+    inset 0 1px 0 var(--bf6-inset-highlight),
+    0 14px 36px -20px var(--bf6-card-shadow);
 }
 
-[data-framework="tailwind"][data-bs-theme="light"] nav .stat-highlight {
-  color: var(--bf6-accent) !important;
-}
-
-[data-framework="tailwind"][data-bs-theme="light"] nav select option {
-  background-color: #eef1f9;
-  color: #0f172a;
-}
-
-[data-framework="tailwind"][data-bs-theme="dark"] select option,
-[data-framework="tailwind"][data-bs-theme="dark"] select {
-  background-color: #1b3e7d;
-  color: #f1f5f9;
-}
-
-[data-framework="tailwind"] a {
-  text-decoration: none;
+[data-framework="tailwind"] select option {
+  background-color: var(--bf6-dark);
+  color: var(--bf6-text-strong);
 }
 
 /* ===== CSS Variables ===== */
@@ -706,4 +970,148 @@ body {
 .form-select.search-input option {
   background-color: var(--bf6-dark);
   color: var(--bf6-text);
+}
+
+/* ===== Tailwind Overrides for Shared (Bootstrap-markup) Components ===== */
+/* Prefixed with `html` so they beat the [data-bs-theme="light"] rules above. */
+
+html[data-framework="tailwind"] .section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  color: var(--bf6-text-strong);
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+html[data-framework="tailwind"] .section-title::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--bf6-border-hover), transparent);
+}
+
+html[data-framework="tailwind"] .stats-card {
+  position: relative;
+  background: var(--bf6-card-gradient);
+  border: 1px solid var(--bf6-border);
+  border-radius: 20px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow:
+    inset 0 1px 0 var(--bf6-inset-highlight),
+    0 12px 32px -18px var(--bf6-card-shadow);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+html[data-framework="tailwind"] .stats-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--bf6-border-hover);
+  box-shadow:
+    inset 0 1px 0 var(--bf6-inset-highlight),
+    0 18px 40px -16px var(--bf6-card-shadow);
+}
+
+html[data-framework="tailwind"] .stat-value {
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+html[data-framework="tailwind"] .stat-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+html[data-framework="tailwind"] .weapon-bar {
+  height: 6px;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+html[data-framework="tailwind"] .weapon-bar-fill {
+  border-radius: 999px;
+  background: var(--bf6-grad-fill);
+}
+
+html[data-framework="tailwind"] .season-badge,
+html[data-framework="tailwind"] .vehicle-card {
+  border-radius: 14px;
+  border-color: var(--bf6-border);
+}
+
+html[data-framework="tailwind"] .search-input {
+  border-radius: 999px !important;
+  padding-left: 14px;
+}
+
+html[data-framework="tailwind"] .search-input:focus {
+  box-shadow: 0 0 0 3px rgba(var(--bf6-accent-rgb), 0.15) !important;
+}
+
+/* Tables */
+html[data-framework="tailwind"] .table-dark {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--bf6-text);
+  --bs-table-striped-bg: transparent;
+  --bs-table-hover-bg: rgba(var(--bf6-accent-rgb), 0.07);
+  --bs-table-hover-color: var(--bf6-text-strong);
+  --bs-table-border-color: var(--bf6-border);
+  color: var(--bf6-text);
+}
+
+html[data-framework="tailwind"] .table-dark thead th {
+  background-color: transparent;
+  color: var(--bf6-text-muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--bf6-border-hover);
+}
+
+html[data-framework="tailwind"] .table-dark tbody td {
+  color: var(--bf6-text);
+  border-color: var(--bf6-border);
+}
+
+html[data-framework="tailwind"] .table-dark tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Pagination buttons (DataTable) → pill buttons */
+html[data-framework="tailwind"] .btn-group-sm {
+  gap: 4px;
+}
+
+html[data-framework="tailwind"] .btn-group-sm > .btn {
+  min-width: 32px;
+  border-radius: 999px !important;
+  margin-left: 0 !important;
+  border: 1px solid var(--bf6-border);
+  background: var(--bf6-search-bg);
+  color: var(--bf6-text);
+  font-weight: 600;
+}
+
+html[data-framework="tailwind"] .btn-group-sm > .btn:hover:not(:disabled) {
+  border-color: var(--bf6-accent);
+  color: var(--bf6-accent);
+  background: var(--bf6-search-focus-bg);
+}
+
+html[data-framework="tailwind"] .btn-group-sm > .btn-outline-danger {
+  border-color: transparent;
+  background: var(--bf6-grad-fill);
+  color: #fff;
+}
+
+html[data-framework="tailwind"] .btn-group-sm > .btn-outline-danger:hover:not(:disabled) {
+  border-color: transparent;
+  background: var(--bf6-grad-fill);
+  color: #fff;
 }

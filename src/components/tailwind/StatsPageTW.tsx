@@ -12,25 +12,17 @@ import VehiclesTable from "@/components/VehiclesTable";
 import MapsTable from "@/components/MapsTable";
 import GadgetsTable from "@/components/GadgetsTable";
 import { BF6Stats } from "@/types/bf6";
-
-function SectionTitle({ icon, title, children }: { icon: string; title: string; children?: React.ReactNode }) {
-  return (
-    <h5 className="tw-section-title">
-      <span>{icon} {title}</span>
-      {children}
-    </h5>
-  );
-}
+import { SectionTitle, StatGrid, MiniStat, EmptyState, LoadingState, RefreshingBar, ErrorState } from "./TailwindShared";
 
 function SeasonTag({ label, variant }: { label: string; variant: "mode" | "win" | "loss" }) {
   const backgrounds = {
-    mode: "linear-gradient(135deg, var(--bf6-accent), var(--bf6-accent-2))",
+    mode: "var(--bf6-grad-fill)",
     win: "var(--bf6-success, #22c55e)",
     loss: "var(--bf6-error, #ef4444)",
   };
   return (
     <span
-      className="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold"
+      className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
       style={{ background: backgrounds[variant], color: "#fff" }}
     >
       {label}
@@ -53,48 +45,18 @@ export default function StatsPageTW() {
         </div>
       )}
 
-      {!playerName && !statsLoading && (
-        <div className="text-center py-24">
-          <div className="tw-glass-card tw-fade-in relative overflow-hidden p-10 mx-auto" style={{ maxWidth: 520 }}>
-            <div className="tw-mesh" />
-            <div className="tw-icon-badge mx-auto mb-4 relative" style={{ width: 64, height: 64, fontSize: "2rem" }}>🎮</div>
-            <h3 className="font-bold text-2xl mb-3 tw-gradient-text relative">Welcome to BF6 Stats</h3>
-            <p className="relative" style={{ color: "var(--bf6-text-muted)" }}>Please enter a player name in the search bar above to start tracking stats.</p>
-          </div>
-        </div>
-      )}
+      {!playerName && !statsLoading && <EmptyState />}
 
-      {playerName && statsLoading && !stats && (
-        <div className="flex flex-col items-center justify-center py-24">
-          <div
-            className="w-12 h-12 rounded-full animate-spin mb-4"
-            style={{ border: "4px solid var(--bf6-border)", borderTopColor: "var(--bf6-accent)" }}
-          />
-          <h5 style={{ color: "var(--bf6-text-strong)" }}>Loading stats for {playerName}...</h5>
-        </div>
-      )}
+      {playerName && statsLoading && !stats && <LoadingState message={`Loading stats for ${playerName}...`} />}
 
-      {playerName && statsLoading && stats && (
-        <div className="flex items-center justify-center py-2 mb-4">
-          <div
-            className="w-5 h-5 rounded-full animate-spin mr-2"
-            style={{ border: "2px solid var(--bf6-border)", borderTopColor: "var(--bf6-accent)" }}
-          />
-          <span style={{ color: "var(--bf6-text-strong)" }}>Refreshing data...</span>
-        </div>
-      )}
+      {playerName && statsLoading && stats && <RefreshingBar />}
 
       {statsError && !statsLoading && (
-        <div className="text-center py-24">
-          <div className="tw-glass-card tw-fade-in p-10 mx-auto" style={{ maxWidth: 500 }}>
-            <div className="text-6xl mb-3">⚠️</div>
-            <h4 className="text-xl mb-3" style={{ color: "var(--bf6-text-strong)" }}>Error</h4>
-            <p style={{ color: "var(--bf6-text-muted)" }}>{statsError}</p>
-            <button className="tw-btn tw-btn-primary mt-4" onClick={resetToDefault}>
-              Clear Search
-            </button>
-          </div>
-        </div>
+        <ErrorState title="Error" message={statsError}>
+          <button className="tw-btn tw-btn-primary mt-5" onClick={resetToDefault}>
+            Clear Search
+          </button>
+        </ErrorState>
       )}
 
       {stats && !statsLoading && (
@@ -129,58 +91,59 @@ function SeasonStatsSectionTW({ seasons }: { seasons: BF6Stats["seasons"] }) {
   const pagedSeasons = activeSeasons.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
 
   return (
-    <div className="mb-6">
+    <div className="mb-8">
       <SectionTitle icon="📅" title="Season Stats">
         {totalPages > 1 && (
           <span className="flex items-center gap-2">
             <button
-              className="px-2 py-0.5 rounded text-xs border cursor-pointer transition-colors disabled:opacity-30"
-              style={{ borderColor: "var(--bf6-border-hover)", color: "var(--bf6-text-muted)" }}
+              className="tw-btn tw-btn-xs"
               onClick={() => setPage((p) => Math.max(0, p - 1))}
               disabled={page === 0}
+              aria-label="Previous seasons"
             >
               ◀
             </button>
-            <span className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>
+            <span className="text-xs tabular-nums" style={{ color: "var(--bf6-text-muted)" }}>
               {page + 1}/{totalPages}
             </span>
             <button
-              className="px-2 py-0.5 rounded text-xs border cursor-pointer transition-colors disabled:opacity-30"
-              style={{ borderColor: "var(--bf6-border-hover)", color: "var(--bf6-text-muted)" }}
+              className="tw-btn tw-btn-xs"
               onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
               disabled={page === totalPages - 1}
+              aria-label="Next seasons"
             >
               ▶
             </button>
           </span>
         )}
       </SectionTitle>
-      <div className="flex flex-wrap -mx-1.5">
+      <StatGrid cols="wide3">
         {pagedSeasons.map((season) => (
-          <div key={season.seasonId} className="w-full sm:w-1/2 lg:w-1/3 p-1.5">
-            <div className="tw-glass-card tw-fade-in tw-stat-tile p-4 h-full">
-              <h6 className="font-bold text-lg mb-3 tw-gradient-text">{season.season}</h6>
+          <div key={season.seasonId} className="tw-glass-card tw-stat-tile tw-rise p-4 h-full">
+            <div className="tw-eyebrow mb-1" style={{ fontSize: "0.6rem" }}>Season</div>
+            <h6 className="font-bold text-lg mb-3 tracking-tight" style={{ color: "var(--bf6-text-strong)" }}>{season.season}</h6>
+            <div className="flex flex-col gap-3">
               {season.modes.map((mode) => (
-                <div key={mode.modeId} className="mb-3 pb-3" style={{ borderBottom: "1px solid var(--bf6-border)" }}>
+                <div key={mode.modeId} className="rounded-2xl p-3" style={{ border: "1px solid var(--bf6-border)" }}>
                   <div className="flex flex-wrap gap-1.5 mb-3">
                     <SeasonTag label={mode.mode} variant="mode" />
                     <SeasonTag label={`${mode.wins}W`} variant="win" />
                     <SeasonTag label={`${mode.losses}L`} variant="loss" />
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Matches</div><div className="font-bold tabular-nums" style={{ color: "var(--bf6-text-strong)" }}>{mode.matches}</div></div>
-                    <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Win Rate</div><div className="font-bold tabular-nums" style={{ color: "var(--bf6-success, #22c55e)" }}>{mode.matches > 0 ? ((mode.wins / mode.matches) * 100).toFixed(1) : 0}%</div></div>
-                    <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Kills</div><div className="font-bold tabular-nums" style={{ color: "var(--bf6-text-strong)" }}>{mode.kills.toLocaleString()}</div></div>
-                    <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>K/D</div><div className="font-bold tabular-nums tw-gradient-text">{mode.killDeath.toFixed(2)}</div></div>
-                    <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Score</div><div className="font-bold tabular-nums" style={{ color: "var(--bf6-text-strong)" }}>{mode.score.toLocaleString()}</div></div>
-                    <div><div className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>Time</div><div className="font-bold tabular-nums" style={{ color: "var(--bf6-text-strong)" }}>{mode.timePlayed}</div></div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <MiniStat label="Matches" value={mode.matches} />
+                    <MiniStat label="Win Rate" value={`${mode.matches > 0 ? ((mode.wins / mode.matches) * 100).toFixed(1) : 0}%`} accent="success" />
+                    <MiniStat label="Kills" value={mode.kills.toLocaleString()} />
+                    <MiniStat label="K/D" value={mode.killDeath.toFixed(2)} accent="gradient" />
+                    <MiniStat label="Score" value={mode.score.toLocaleString()} />
+                    <MiniStat label="Time" value={mode.timePlayed} />
                   </div>
                 </div>
               ))}
             </div>
           </div>
         ))}
-      </div>
+      </StatGrid>
     </div>
   );
 }
