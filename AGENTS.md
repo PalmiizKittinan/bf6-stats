@@ -6,6 +6,14 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ---
 
+## Language / ภาษาที่ใช้สื่อสาร
+
+- ตอบและสื่อสารกับผู้ใช้เป็น **ภาษาไทย** เสมอ
+- คำศัพท์เฉพาะทาง (technical terms) เช่น component, state, props, hook, CSS variable, build, commit ให้ใช้ **ภาษาอังกฤษ** ตามเดิม ไม่ต้องแปล
+- ชื่อไฟล์ โค้ด คำสั่ง และ commit message ใช้ภาษาอังกฤษ
+
+---
+
 # BF6 Stats Dashboard — Project Guide
 
 > A web application for viewing **Battlefield 6** multiplayer statistics, built with **Next.js 16 (App Router)**, **TypeScript**, **Bootstrap 5.3**, **Tailwind CSS 4**, and **Zustand** for state management.
@@ -115,7 +123,7 @@ bf6-stats/
     │       ├── FooterTW.tsx        # Tailwind footer
     │       ├── PlayerHeaderTW.tsx  # Tailwind player header with glow effects
     │       ├── StatCardsTW.tsx     # Tailwind glass-morphism stat cards
-    │       ├── TailwindShared.tsx  # Shared Tailwind UI primitives (SectionTitle, StatCard)
+    │       ├── TailwindShared.tsx  # Shared Tailwind UI primitives (SectionTitle, StatGrid, StatCard, MiniStat, Empty/Loading/Error states)
     │       ├── ProfileTW.tsx       # Full Tailwind Profile page
     │       └── StatsPageTW.tsx     # Full Tailwind Stats page (reuses shared sub-components)
     │
@@ -153,7 +161,7 @@ bf6-stats/
 | `PlayerHeader.tsx`| Client Component | Bootstrap player header. Best class calculated from classes data (excluding "All"). |
 | `StatCards.tsx`    | Client Component | Bootstrap stat cards grid. |
 | `tailwind/NavbarTW.tsx` | Client Component | Tailwind navbar using CSS variables for theme-aware colors. All colors use `var(--bf6-*)` — no hardcoded hex. |
-| `tailwind/TailwindShared.tsx` | Client Component | Shared UI primitives (`SectionTitle`, `StatCard`) reused by `ProfileTW`, `StatCardsTW`, and `StatsPageTW`. |
+| `tailwind/TailwindShared.tsx` | Client Component | Shared UI primitives (`SectionTitle`, `StatGrid`, `StatCard`, `MiniStat`, `EmptyState`, `LoadingState`, `RefreshingBar`, `ErrorState`) reused by `ProfileTW`, `StatCardsTW`, and `StatsPageTW`. |
 | `tailwind/ProfileTW.tsx` | Client Component | Full Tailwind Profile page using glass-morphism cards (`tw-glass-card`). |
 | `tailwind/StatsPageTW.tsx` | Client Component | Tailwind Stats page. Reuses Bootstrap sub-components (DamageBreakdown, ClassesTable, etc.) since they use shared CSS classes. |
 
@@ -314,8 +322,9 @@ The app supports both **Bootstrap** and **Tailwind CSS** simultaneously. Users c
 1. **`CSSFrameworkProvider.tsx`** — React Context storing `"bootstrap"` or `"tailwind"`. Persisted to `localStorage` key `bf6-css-framework`. Sets `data-framework` attribute on `<html>`.
 
 2. **`globals.css`** — Contains `[data-framework="tailwind"]` selector that overrides CSS variables for Tailwind theme:
-   - **Dark**: teal accent (#0891b2), navy background (#080b14)
-   - **Light**: Teal accent (#0891b2), sky blue background (#f0f9ff)
+   - **Dark** (`[data-framework="tailwind"][data-bs-theme="dark"]`): near-black background (#0a0a1a), light-blue accent (#6dafdb), gradient #45a1e9 → #204a96
+   - **Light** (`[data-framework="tailwind"][data-bs-theme="light"]`): soft blue background (#eef1f9), navy accent (#204a96)
+   - The dark selector must include `[data-bs-theme="dark"]` (specificity 0,2,0) — otherwise the Bootstrap `:root, [data-bs-theme="dark"]` block later in the file overrides it
 
 3. **Wrapper components** (`NavbarWrapper`, `FooterWrapper`) — Conditionally render Bootstrap or Tailwind components.
 
@@ -327,10 +336,14 @@ The app supports both **Bootstrap** and **Tailwind CSS** simultaneously. Users c
 - Custom CSS classes: `stats-card`, `stat-value`, `stat-highlight`
 
 ### Tailwind Theme
-- teal accent (#0891b2), dark navy gradient background
-- Glass-morphism cards (`tw-glass-card`) with backdrop-filter blur
-- Accent glow effects (`tw-accent-glow`)
-- Tailwind utility classes: `flex`, `rounded-md`, `border`, etc.
+- Look: "floating glass dashboard" — deliberately different from the Bootstrap version
+- Page background: grid pattern + ambient radial glow (`[data-framework="tailwind"] body`)
+- Floating, rounded navbar/footer (`tw-navbar-shell`), segmented tabs, combined search pill (`tw-search-group`)
+- Glass cards (`tw-glass-card`, radius 20px) + left-aligned stat tiles (`tw-stat-tile`, `tw-stat-tile-highlight`, `tw-stat-label`, `tw-stat-value`)
+- Section headers: icon badge + title + trailing rule (`tw-section-head`) instead of Bootstrap's uppercase underline
+- Extra primitives: `tw-mini-stat`, `tw-avatar-ring`, `tw-gauge`, `tw-spinner`, `tw-eyebrow`, `tw-rise`
+- Theme tokens specific to TW: `--bf6-accent-3`, `--bf6-accent-rgb`, `--bf6-grad-text`, `--bf6-grad-fill`, `--bf6-grid-line`, `--bf6-glow-1/2`, `--bf6-inset-highlight`
+- Shared Bootstrap-markup components (DataTable, ClassesTable, …) are restyled in TW mode by `html[data-framework="tailwind"] …` overrides at the end of `globals.css`
 - Uses CSS variables via inline styles for theme-aware colors
 
 ### Shared Components
