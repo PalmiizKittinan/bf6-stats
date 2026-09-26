@@ -109,13 +109,11 @@ function StatsPageBootstrap() {
 
           {stats.classes && <ClassesTable classes={stats.classes} />}
           {stats.gameModes && <GameModesTable gameModes={stats.gameModes} />}
-
           {stats.seasons && <SeasonStatsSection seasons={stats.seasons} />}
-
           {stats.weapons && <WeaponsTable weapons={stats.weapons} />}
           {stats.vehicles && <VehiclesTable vehicles={stats.vehicles} />}
-          {stats.maps && <MapsTable maps={stats.maps} />}
           {stats.gadgets && <GadgetsTable gadgets={stats.gadgets} />}
+          {stats.maps && <MapsTable maps={stats.maps} />}
         </>
       )}
     </div>
