@@ -6,9 +6,12 @@ interface PlayerHeaderProps {
   stats: BF6Stats;
 }
 
+const DEFAULT_AVATAR = "https://eaassets-a.akamaihd.net/battlelog/defaultavatars/default-avatar-36.png";
+
 export default function PlayerHeaderTW({ stats }: PlayerHeaderProps) {
   const platformIcon = stats.platform === "pc" ? "🖥️" : "🎮";
   const xp = stats.XP && stats.XP.length > 0 ? stats.XP[0] : null;
+  const humanPercent = Math.min(100, Math.max(0, parseFloat(stats.humanPrecentage) || 0));
 
   const bestClass =
     stats.classes && stats.classes.length > 0
@@ -21,59 +24,49 @@ export default function PlayerHeaderTW({ stats }: PlayerHeaderProps) {
       : null;
 
   return (
-    <div
-      className="tw-glass-card tw-fade-in relative overflow-hidden py-6 mb-6 rounded-2xl"
-      style={{ borderColor: "var(--bf6-border-hover)" }}
-    >
+    <div className="tw-glass-card tw-glass-static tw-rise relative overflow-hidden mb-8" style={{ borderColor: "var(--bf6-border-hover)" }}>
       {/* Decorative mesh glow */}
       <div className="tw-mesh" />
 
-      <div className="max-w-7xl mx-auto px-6 relative">
-        <div className="flex items-center gap-5 flex-wrap">
-          <div className="relative">
+      <div className="relative p-6 sm:p-8 flex items-center gap-6 flex-wrap">
+        <div className="relative shrink-0">
+          <div className="tw-avatar-ring">
             <img
-              src={stats.avatar || "https://eaassets-a.akamaihd.net/battlelog/defaultavatars/default-avatar-36.png"}
+              src={stats.avatar || DEFAULT_AVATAR}
               alt={stats.userName}
-              className="w-20 h-20 rounded-full border-[3px] tw-glow-ring"
-              style={{ borderColor: "var(--bf6-accent)" }}
+              className="w-24 h-24 object-cover"
               onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = "https://eaassets-a.akamaihd.net/battlelog/defaultavatars/default-avatar-36.png";
+                (e.target as HTMLImageElement).src = DEFAULT_AVATAR;
               }}
             />
-            <span
-              className="absolute -bottom-1 -right-1 flex items-center justify-center w-7 h-7 rounded-full text-sm border-2"
-              style={{ backgroundColor: "var(--bf6-dark)", borderColor: "var(--bf6-accent)" }}
-            >
-              {platformIcon}
-            </span>
           </div>
-          <div className="flex-grow min-w-[200px]">
-            <h2 className="text-2xl font-bold mb-2 tw-gradient-text">
-              {stats.userName}
-            </h2>
-            <div className="flex flex-wrap gap-2">
-              <span className="tw-pill capitalize">
-                🌐 Platform: {stats.platform}
-              </span>
-              {bestClass && (
-                <span className="tw-pill">
-                  🎖️ Best Class: {bestClass.className}
-                </span>
-              )}
-              <span className="tw-pill">
-                ⏱️ Time Played: {stats.timePlayed}
-              </span>
-              {xp && (
-                <span className="tw-pill">
-                  ✨Total XP: {xp.total.toLocaleString()}
-                </span>
-              )}
+          <span
+            className="absolute bottom-0 right-0 flex items-center justify-center w-8 h-8 rounded-full text-sm"
+            style={{ backgroundColor: "var(--bf6-dark)", border: "2px solid var(--bf6-accent)" }}
+          >
+            {platformIcon}
+          </span>
+        </div>
+
+        <div className="flex-grow min-w-[220px]">
+          <div className="tw-eyebrow mb-1">Player Overview</div>
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3" style={{ color: "var(--bf6-text-strong)" }}>
+            {stats.userName}
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            <span className="tw-pill capitalize">🌐 {stats.platform}</span>
+            {bestClass && <span className="tw-pill">🎖️ Best Class: <b style={{ color: "var(--bf6-text-strong)" }}>{bestClass.className}</b></span>}
+            <span className="tw-pill">⏱️ {stats.timePlayed}</span>
+            {xp && <span className="tw-pill">✨ XP <b style={{ color: "var(--bf6-text-strong)" }}>{xp.total.toLocaleString()}</b></span>}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="tw-gauge" style={{ "--tw-gauge-value": humanPercent } as React.CSSProperties}>
+            <div className="text-center leading-tight">
+              <div className="text-lg font-bold tabular-nums tw-gradient-text">{stats.humanPrecentage}</div>
+              <div className="text-[0.6rem] uppercase tracking-widest" style={{ color: "var(--bf6-text-muted)" }}>Human</div>
             </div>
-          </div>
-          <div className="tw-ring-badge text-center px-5 py-3">
-            <div className="text-2xl font-bold tw-gradient-text">{stats.humanPrecentage}</div>
-            <div className="text-xs uppercase tracking-wider mt-1" style={{ color: "var(--bf6-text-muted)" }}>Human %</div>
           </div>
         </div>
       </div>
