@@ -30,8 +30,15 @@ function persistSavedNames(names: SavedName[]) {
 
 export default function NavbarTW() {
   const pathname = usePathname();
-  const { searchInput, setSearchInput, platform, setPlatform, handleSearch } =
-    useSearch();
+  const {
+    searchInput,
+    setSearchInput,
+    platform,
+    setPlatform,
+    separation,
+    setSeparation,
+    handleSearch,
+  } = useSearch();
   const { framework, setFramework } = useCSSFramework();
 
   const [savedNames, setSavedNames] = useState<SavedName[]>([]);
@@ -151,6 +158,23 @@ export default function NavbarTW() {
                 🔍 Search
               </button>
             </div>
+
+            {/* Separate stats per season */}
+            <label
+              htmlFor="separation-checkbox-tw"
+              className="flex items-center gap-1.5 text-sm cursor-pointer select-none"
+              style={{ color: "var(--bf6-text)" }}
+              title="If it also needs to return the stats seperated by gamemode and season"
+            >
+              <input
+                id="separation-checkbox-tw"
+                type="checkbox"
+                checked={separation}
+                onChange={(e) => setSeparation(e.target.checked)}
+                style={{ accentColor: "var(--bf6-accent)" }}
+              />
+              &nbsp;By Season
+            </label>
 
             {/* Save button */}
             <button

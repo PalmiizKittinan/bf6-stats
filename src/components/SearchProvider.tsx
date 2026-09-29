@@ -10,9 +10,11 @@ import { usePlayerStore } from "@/store/usePlayerStore";
 interface SearchContextValue {
   playerName: string;
   platform: string;
+  separation: boolean;
   searchInput: string;
   setSearchInput: (v: string) => void;
   setPlatform: (v: string) => void;
+  setSeparation: (v: boolean) => void;
   handleSearch: (e: React.FormEvent) => void;
   resetToDefault: () => void;
 }
@@ -20,9 +22,11 @@ interface SearchContextValue {
 const SearchContext = createContext<SearchContextValue>({
   playerName: "",
   platform: "ea",
+  separation: false,
   searchInput: "",
   setSearchInput: () => {},
   setPlatform: () => {},
+  setSeparation: () => {},
   handleSearch: () => {},
   resetToDefault: () => {},
 });
@@ -35,9 +39,11 @@ export default function SearchProvider({ children }: { children: ReactNode }) {
   const {
     playerName,
     platform,
+    separation,
     searchInput,
     setSearchInput,
     setPlatform,
+    setSeparation,
     handleSearch,
     resetToDefault,
   } = usePlayerStore();
@@ -47,9 +53,11 @@ export default function SearchProvider({ children }: { children: ReactNode }) {
       value={{
         playerName,
         platform,
+        separation,
         searchInput,
         setSearchInput,
         setPlatform,
+        setSeparation,
         handleSearch,
         resetToDefault,
       }}
