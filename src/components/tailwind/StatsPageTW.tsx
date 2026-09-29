@@ -11,6 +11,7 @@ import WeaponsTable from "@/components/WeaponsTable";
 import VehiclesTable from "@/components/VehiclesTable";
 import MapsTable from "@/components/MapsTable";
 import GadgetsTable from "@/components/GadgetsTable";
+import PerSeasonCarouselTW from "./PerSeasonCarouselTW";
 import { BF6Stats } from "@/types/bf6";
 import { SectionTitle, StatGrid, MiniStat, EmptyState, LoadingState, RefreshingBar, ErrorState } from "./TailwindShared";
 
@@ -67,6 +68,7 @@ export default function StatsPageTW() {
 
           {stats.classes && <ClassesTable classes={stats.classes} />}
           {stats.gameModes && <GameModesTable gameModes={stats.gameModes} />}
+          {stats.perSeason && <PerSeasonCarouselTW perSeason={stats.perSeason} />}
           {stats.seasons && <SeasonStatsSectionTW seasons={stats.seasons} />}
           {stats.weapons && <WeaponsTable weapons={stats.weapons} />}
           {stats.vehicles && <VehiclesTable vehicles={stats.vehicles} />}
