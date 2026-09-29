@@ -30,8 +30,15 @@ function persistSavedNames(names: SavedName[]) {
 
 export default function Navbar() {
   const pathname = usePathname();
-  const { searchInput, setSearchInput, platform, setPlatform, handleSearch } =
-    useSearch();
+  const {
+    searchInput,
+    setSearchInput,
+    platform,
+    setPlatform,
+    separation,
+    setSeparation,
+    handleSearch,
+  } = useSearch();
   const { framework, setFramework } = useCSSFramework();
 
   const [savedNames, setSavedNames] = useState<SavedName[]>([]);
@@ -160,6 +167,23 @@ export default function Navbar() {
             >
               Search
             </button>
+
+            {/* Separate stats per season */}
+            <div className="form-check form-check-inline m-0" title="If it also needs to return the stats seperated by gamemode and season">
+              <input
+                id="separation-checkbox"
+                type="checkbox"
+                className="form-check-input"
+                checked={separation}
+                onChange={(e) => setSeparation(e.target.checked)}
+              />
+              <label
+                htmlFor="separation-checkbox"
+                className="form-check-label small text-light"
+              >
+                &nbsp;By Season
+              </label>
+            </div>
 
             {/* Save / Unsave current name */}
             <button

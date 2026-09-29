@@ -1,4 +1,5 @@
 export interface BF6Stats {
+  perSeason?: PerSeasonStats;
   userId: string;
   avatar: string;
   userName: string;
@@ -162,6 +163,17 @@ export interface BF6Stats {
   battlePickups?: unknown[];
   vehicleArchetypes?: VehicleArchetype[];
 }
+
+/** One game mode's stats within a season (`perSeason[seasonKey][modeKey]`). */
+export interface SeasonModeStats extends Partial<Omit<BF6Stats, "perSeason" | "bestClass">> {
+  gamemodeName: string;
+  image: string;
+  altImage: string;
+  bestClass: string | number;
+}
+
+/** Present when the request is made with `seperation=true`. e.g. `perSeason.Season4.Conquest0` */
+export type PerSeasonStats = Record<string, Record<string, SeasonModeStats>>;
 
 export interface Season {
   seasonId: string;

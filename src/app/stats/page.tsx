@@ -12,6 +12,7 @@ import ClassesTable from "@/components/ClassesTable";
 import MapsTable from "@/components/MapsTable";
 import GameModesTable from "@/components/GameModesTable";
 import GadgetsTable from "@/components/GadgetsTable";
+import PerSeasonCarousel from "@/components/PerSeasonCarousel";
 import StatsPageTW from "@/components/tailwind/StatsPageTW";
 import { BF6Stats } from "@/types/bf6";
 
@@ -109,6 +110,7 @@ function StatsPageBootstrap() {
 
           {stats.classes && <ClassesTable classes={stats.classes} />}
           {stats.gameModes && <GameModesTable gameModes={stats.gameModes} />}
+          {stats.perSeason && <PerSeasonCarousel perSeason={stats.perSeason} />}
           {stats.seasons && <SeasonStatsSection seasons={stats.seasons} />}
           {stats.weapons && <WeaponsTable weapons={stats.weapons} />}
           {stats.vehicles && <VehiclesTable vehicles={stats.vehicles} />}

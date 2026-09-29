@@ -11,8 +11,10 @@ interface PlayerStore {
   searchInput: string;
   playerName: string;
   platform: string;
+  separation: boolean;
   setSearchInput: (v: string) => void;
   setPlatform: (v: string) => void;
+  setSeparation: (v: boolean) => void;
   handleSearch: (e: React.FormEvent) => void;
   resetToDefault: () => void;
 
@@ -40,8 +42,10 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   searchInput: "",
   playerName: "",
   platform: DEFAULT_PLATFORM,
+  separation: false,
   setSearchInput: (v) => set({ searchInput: v }),
   setPlatform: (v) => set({ platform: v }),
+  setSeparation: (v) => set({ separation: v }),
 
   handleSearch: (e) => {
     e.preventDefault();
@@ -61,6 +65,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
       searchInput: "",
       playerName: "",
       platform: DEFAULT_PLATFORM,
+      separation: false,
       stats: null,
       statsError: null,
       statsLoading: false,
@@ -76,7 +81,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   statsError: null,
 
   fetchStats: async () => {
-    const { playerName, platform } = get();
+    const { playerName, platform, separation } = get();
     if (!playerName) return;
 
     statsController?.abort();
@@ -91,7 +96,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
         categories: "multiplayer",
         raw: "false",
         format_values: "true",
-        seperation: "false",
+        seperation: String(separation),
         name: playerName,
         platform: platform,
         skip_battlelog: "true",
