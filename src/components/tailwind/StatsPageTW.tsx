@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { usePlayerStore } from "@/store/usePlayerStore";
+import { usePlayerStore, formatSyncedAt } from "@/store/usePlayerStore";
 import PlayerHeaderTW from "./PlayerHeaderTW";
 import StatCardsTW from "./StatCardsTW";
 import DamageBreakdown from "@/components/DamageBreakdown";
@@ -32,14 +32,19 @@ function SeasonTag({ label, variant }: { label: string; variant: "mode" | "win" 
 }
 
 export default function StatsPageTW() {
-  const { playerName, stats, statsLoading, statsError, fetchStats, resetToDefault } = usePlayerStore();
+  const { playerName, stats, statsLoading, statsError, statsSyncedAt, fetchStats, resetToDefault } = usePlayerStore();
 
   const handleRefresh = () => { if (playerName) fetchStats(); };
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
       {playerName && !statsLoading && (
-        <div className="flex justify-end mb-4">
+        <div className="flex justify-end items-center gap-3 mb-4">
+          {statsSyncedAt && (
+            <span className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>
+              Last Synced : {formatSyncedAt(statsSyncedAt)}
+            </span>
+          )}
           <button className="tw-btn" onClick={handleRefresh}>
             🔄 Refresh
           </button>

@@ -107,7 +107,7 @@ export default function NavbarTW() {
       <div className="tw-navbar-shell max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-3 px-4 py-2.5">
         {/* Brand */}
         <span className="flex items-center gap-2.5 font-bold text-lg">
-          <span className="tw-brand-mark">B6</span>
+          <span className="tw-brand-mark">BF6</span>
           <span className="leading-tight">
             <span className="block tracking-tight" style={{ color: "var(--bf6-text-strong)" }}>Stats Dashboard</span>
             <span className="block tw-eyebrow" style={{ fontSize: "0.58rem" }}>Battlefield 6</span>

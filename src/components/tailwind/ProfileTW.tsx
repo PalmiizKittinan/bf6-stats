@@ -1,7 +1,7 @@
 "use client";
 
 import { ProfileStat, CompetitiveRank } from "@/types/bf6";
-import { usePlayerStore } from "@/store/usePlayerStore";
+import { usePlayerStore, formatSyncedAt } from "@/store/usePlayerStore";
 import { StatCard, StatGrid, SectionTitle, MiniStat, EmptyState, LoadingState, RefreshingBar, ErrorState } from "./TailwindShared";
 
 function getStat(stats: ProfileStat[], name: string): number | undefined {
@@ -68,7 +68,7 @@ function CompRankCard({ rank }: { rank: CompetitiveRank }) {
 }
 
 export default function ProfileTW() {
-  const { playerName, profile, profileLoading, profileError, fetchProfile } = usePlayerStore();
+  const { playerName, profile, profileLoading, profileError, profileSyncedAt, fetchProfile } = usePlayerStore();
 
   const handleRefresh = () => { if (playerName) fetchProfile(); };
 
@@ -113,6 +113,19 @@ export default function ProfileTW() {
 
   return (
     <div>
+      {!profileLoading && (
+        <div className="flex justify-end items-center gap-3 mb-4">
+          {profileSyncedAt && (
+            <span className="text-xs" style={{ color: "var(--bf6-text-muted)" }}>
+              Last Synced : {formatSyncedAt(profileSyncedAt)}
+            </span>
+          )}
+          <button className="tw-btn" onClick={handleRefresh}>
+            🔄 Refresh
+          </button>
+        </div>
+      )}
+
       {/* Player Card Header */}
       <div className="tw-glass-card tw-glass-static tw-rise relative overflow-hidden mb-8" style={{ borderColor: "var(--bf6-border-hover)" }}>
         <div className="tw-mesh" />
@@ -135,9 +148,6 @@ export default function ProfileTW() {
               <div className="tw-stat-label">Rank</div>
               <div className="text-4xl font-extrabold tabular-nums tw-gradient-text leading-none mt-1">{playerCard.rank}</div>
             </div>
-            <button className="tw-btn tw-btn-icon" onClick={handleRefresh} title="Refresh">
-              🔄
-            </button>
           </div>
         </div>
       </div>

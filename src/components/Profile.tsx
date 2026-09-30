@@ -1,7 +1,7 @@
 "use client";
 
 import { ProfileStat, CompetitiveRank } from "@/types/bf6";
-import { usePlayerStore } from "@/store/usePlayerStore";
+import { usePlayerStore, formatSyncedAt } from "@/store/usePlayerStore";
 
 function getStat(stats: ProfileStat[], name: string): number | undefined {
   const s = stats.find((s) => s.name === name);
@@ -27,6 +27,7 @@ export default function Profile() {
     profile,
     profileLoading,
     profileError,
+    profileSyncedAt,
     fetchProfile,
   } = usePlayerStore();
 
@@ -109,7 +110,12 @@ export default function Profile() {
   return (
     <div>
       {/* Refresh Button */}
-      <div className="d-flex justify-content-end mb-3">
+      <div className="d-flex justify-content-end align-items-center gap-3 mb-3">
+        {profileSyncedAt && (
+          <small className="text-muted">
+            Last Synced : {formatSyncedAt(profileSyncedAt)}
+          </small>
+        )}
         <button
           className="btn btn-sm btn-outline-info"
           onClick={handleRefresh}
