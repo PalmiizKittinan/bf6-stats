@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/PalmiizKittinan/bf6-stats/compare/v1.4.0...v1.5.0) (2026-09-30)
+
+
+### Features
+
+* **stats:** cache stats in localStorage and show last synced time ([7330cb3](https://github.com/PalmiizKittinan/bf6-stats/commit/7330cb34743b87247379e3a240008af80d57efc4))
+
 # [1.4.0](https://github.com/PalmiizKittinan/bf6-stats/compare/v1.3.2...v1.4.0) (2026-09-29)
 
 
