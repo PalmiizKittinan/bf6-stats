@@ -9,7 +9,7 @@ export default function FooterTW() {
     <footer className="px-3 pb-4 mt-10">
       <div className="tw-navbar-shell max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-3 px-5 py-4">
         <span className="flex items-center gap-2.5">
-          <span className="tw-brand-mark" style={{ width: 28, height: 28, fontSize: "0.7rem", borderRadius: 9 }}>B6</span>
+          <span className="tw-brand-mark" style={{ width: 28, height: 28, fontSize: "0.7rem", borderRadius: 9 }}>BF6</span>
           <a
             href="https://github.com/PalmiizKittinan/bf6-stats/"
             target="_blank"
