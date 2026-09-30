@@ -5,6 +5,73 @@ const STATS_API = "https://api.gametools.network/bf6/stats/";
 const PROFILE_API = "https://api.gametools.network/bf6/profile/";
 const DEFAULT_PLATFORM = "ea";
 const TIMEOUT_MS = 10_000;
+const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+const CACHE_PREFIX = "bf6-stats-cache";
+const CLASS_TIME_KEYS = [
+  "tp_kit_assault",
+  "tp_kit_engineer",
+  "tp_kit_support",
+  "tp_kit_recon",
+];
+
+interface StatsCacheEntry {
+  stats: BF6Stats;
+  // Total seconds played at the time the stats were cached
+  secondsPlayed: number | null;
+  savedAt: number;
+}
+
+const cacheKey = (name: string, platform: string, separation: boolean) =>
+  `${CACHE_PREFIX}:${platform}:${name.toLowerCase()}:${separation}`;
+
+function readCache(key: string): StatsCacheEntry | null {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const entry = JSON.parse(raw) as StatsCacheEntry;
+    if (
+      typeof entry.savedAt !== "number" ||
+      Date.now() - entry.savedAt > CACHE_TTL_MS
+    ) {
+      localStorage.removeItem(key);
+      return null;
+    }
+    return entry;
+  } catch {
+    return null;
+  }
+}
+
+function writeCache(key: string, entry: Omit<StatsCacheEntry, "savedAt">) {
+  try {
+    localStorage.setItem(key, JSON.stringify({ ...entry, savedAt: Date.now() }));
+  } catch {
+    // Storage full or unavailable — cache is best-effort
+  }
+}
+
+// Total play time from the (lighter) profile endpoint: sum of per-class time
+function profileSecondsPlayed(profile: BF6Profile | null): number | null {
+  const stats = profile?.playerProfiles?.[0]?.stats;
+  if (!stats) return null;
+  let total = 0;
+  let found = false;
+  for (const key of CLASS_TIME_KEYS) {
+    const v = stats.find((s) => s.name === key)?.value;
+    if (typeof v === "number") {
+      total += v;
+      found = true;
+    }
+  }
+  return found ? total : null;
+}
+
+// Local time as "YYYY-MM-DD HH:mm"
+export function formatSyncedAt(ts: number): string {
+  const d = new Date(ts);
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
 
 interface PlayerStore {
   // Search state
@@ -22,13 +89,18 @@ interface PlayerStore {
   stats: BF6Stats | null;
   statsLoading: boolean;
   statsError: string | null;
+  statsSyncedAt: number | null;
   fetchStats: () => Promise<void>;
 
   // Profile state
   profile: BF6Profile | null;
   profileLoading: boolean;
   profileError: string | null;
+  profileSyncedAt: number | null;
   fetchProfile: () => Promise<void>;
+
+  // Fetch profile, then reuse cached stats if secondsPlayed is unchanged
+  loadAll: () => Promise<void>;
 
   // Refresh all
   refreshAll: () => Promise<void>;
@@ -55,8 +127,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     set({ playerName: trimmed, platform });
     // Fetch both stats and profile
     setTimeout(() => {
-      get().fetchStats();
-      get().fetchProfile();
+      get().loadAll();
     }, 0);
   },
 
@@ -68,9 +139,11 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
       separation: false,
       stats: null,
       statsError: null,
+      statsSyncedAt: null,
       statsLoading: false,
       profile: null,
       profileError: null,
+      profileSyncedAt: null,
       profileLoading: false,
     });
   },
@@ -79,6 +152,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   stats: null,
   statsLoading: false,
   statsError: null,
+  statsSyncedAt: null,
 
   fetchStats: async () => {
     const { playerName, platform, separation } = get();
@@ -113,7 +187,16 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
         );
       }
       clearTimeout(timeoutId);
-      set({ stats: data, statsError: null, statsLoading: false });
+      writeCache(cacheKey(playerName, platform, separation), {
+        stats: data,
+        secondsPlayed: profileSecondsPlayed(get().profile),
+      });
+      set({
+        stats: data,
+        statsError: null,
+        statsLoading: false,
+        statsSyncedAt: Date.now(),
+      });
     } catch (err) {
       clearTimeout(timeoutId);
       if (!controller.signal.aborted) {
@@ -138,6 +221,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   profile: null,
   profileLoading: false,
   profileError: null,
+  profileSyncedAt: null,
 
   fetchProfile: async () => {
     const { playerName, platform } = get();
@@ -163,7 +247,12 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
       if (!res.ok) throw new Error(`API error: ${res.status}`);
       const data: BF6Profile = await res.json();
       clearTimeout(timeoutId);
-      set({ profile: data, profileError: null, profileLoading: false });
+      set({
+        profile: data,
+        profileError: null,
+        profileLoading: false,
+        profileSyncedAt: Date.now(),
+      });
     } catch (err) {
       clearTimeout(timeoutId);
       if (!controller.signal.aborted) {
@@ -184,10 +273,36 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     }
   },
 
+  loadAll: async () => {
+    const { playerName, platform, separation } = get();
+    if (!playerName) return;
+
+    await get().fetchProfile();
+    // Ignore if the user searched for someone else meanwhile
+    if (get().playerName !== playerName) return;
+
+    const current = profileSecondsPlayed(get().profile);
+    const cached = readCache(cacheKey(playerName, platform, separation));
+    if (
+      cached &&
+      current !== null &&
+      cached.secondsPlayed === current &&
+      cached.stats.hasResults
+    ) {
+      set({
+        stats: cached.stats,
+        statsError: null,
+        statsLoading: false,
+        statsSyncedAt: cached.savedAt,
+      });
+      return;
+    }
+    await get().fetchStats();
+  },
+
   refreshAll: async () => {
     const { playerName } = get();
     if (!playerName) return;
-    get().fetchStats();
-    get().fetchProfile();
+    get().loadAll();
   },
 }));

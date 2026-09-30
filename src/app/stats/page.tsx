@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useCSSFramework } from "@/components/CSSFrameworkProvider";
-import { usePlayerStore } from "@/store/usePlayerStore";
+import { usePlayerStore, formatSyncedAt } from "@/store/usePlayerStore";
 import PlayerHeader from "@/components/PlayerHeader";
 import StatCards from "@/components/StatCards";
 import WeaponsTable from "@/components/WeaponsTable";
@@ -32,6 +32,7 @@ function StatsPageBootstrap() {
     stats,
     statsLoading,
     statsError,
+    statsSyncedAt,
     fetchStats,
     resetToDefault,
   } = usePlayerStore();
@@ -45,7 +46,12 @@ function StatsPageBootstrap() {
   return (
     <div className="container py-4">
       {playerName && !statsLoading && (
-        <div className="d-flex justify-content-end mb-3">
+        <div className="d-flex justify-content-end align-items-center gap-3 mb-3">
+          {statsSyncedAt && (
+            <small className="text-muted">
+              Last Synced : {formatSyncedAt(statsSyncedAt)}
+            </small>
+          )}
           <button
             className="btn btn-sm btn-outline-info"
             onClick={handleRefresh}
