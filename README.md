@@ -163,11 +163,8 @@ src/
 │   │   └── page.tsx             # /profile route: switches between Bootstrap/Tailwind Profile
 │   ├── stats/
 │   │   └── page.tsx             # /stats route: switches between Bootstrap/Tailwind Stats
-│   ├── multiple/
-│   │   └── page.tsx             # /multiple route: compare several players
-│   └── api/
-│       ├── multiple/route.ts    # POST /api/multiple → GameTools /bf6/multiple/
-│       └── search/route.ts      # GET /api/search?name= → GameTools /bf6/player/
+│   └── multiple/
+│       └── page.tsx             # /multiple route: compare several players
 ├── components/
 │   ├── Navbar.tsx               # Bootstrap navbar with BS/TW toggle
 │   ├── NavbarWrapper.tsx        # Switches between Bootstrap/Tailwind navbar
@@ -217,8 +214,6 @@ src/
 | `/profile`  | Player profile page (default landing)          |
 | `/stats`    | Full stats dashboard                           |
 | `/multiple` | Compare several players stat by stat           |
-| `/api/multiple` | POST proxy to GameTools `/bf6/multiple/`   |
-| `/api/search`   | GET proxy to GameTools `/bf6/player/`      |
 
 ---
 
@@ -260,17 +255,16 @@ GET https://api.gametools.network/bf6/profile/?name={playerName}&platform={platf
 | `platform` | Gaming platform   | `ea`, `pc`, `xbox`, `psn` |
 | `lang`     | Language          | `en-us`, and others       |
 
-### Multiple Endpoint
+### Multiple Players
 
-Used by `/multiple` through local proxies (`/api/search` finds ids, `/api/multiple` fetches stats):
+`/multiple` runs these in the browser, once per name:
 
 ```text
-GET  https://api.gametools.network/bf6/player/?name={name}&limit=10
-POST https://api.gametools.network/bf6/multiple/?categories=multiplayer&raw=false&format_values=true&seperation=false&lang=en-us
-Body: [{ "player_id": 794397421, "user_id": 2800753812, "platform": "pc" }]
+GET https://api.gametools.network/bf6/player/?name={name}&limit=10
+GET https://api.gametools.network/bf6/stats/?categories=multiplayer&raw=false&format_values=true&seperation=false&playerid={personaId}&nucleus_id={nucleusId}&platform={platform}&skip_battlelog=true&lang=en-us
 ```
 
-The multiple endpoint returns the same stats as `/bf6/stats/` for many players in one request (up to 128 upstream; the UI allows 10). It has no `name` parameter and does not return `userName` / `avatar`.
+The batch `POST /bf6/multiple/` endpoint is not used: it is not CORS enabled, and the app is deployed as a static site (GitHub Pages) with no server routes.
 
 No API key or authentication is required — the GameTools Network API is public.
 
