@@ -19,10 +19,11 @@ Data is powered by the [GameTools Network API](https://gametools.network).
 ### 🔍 Search & State
 
 - **Search-on-click** — Data is only fetched when the user clicks Search or selects a saved name
-- **Cross-page persistence** — Data persists in Zustand store when navigating between `/profile` and `/stats`
+- **Cross-page persistence** — Data persists in Zustand store when navigating between `/profile`, `/stats` and `/multiple`
 - **10-second timeout** — API requests abort automatically with an error message if no response within 10 seconds
 - **Saved player names** — Save frequently searched players to localStorage for quick access
 - **Refresh buttons** — Each page has its own refresh button to re-fetch its specific data
+- **Stats cache** — Stats are cached in localStorage for 7 days and reused while the player's play time is unchanged; the last synced time is shown
 
 ### 🎨 Dual CSS Framework (Bootstrap + Tailwind)
 
@@ -42,6 +43,18 @@ Data is powered by the [GameTools Network API](https://gametools.network).
 - 🎖️ **Class Stats** — Assault, Engineer, Support, Recon with kills, deaths, K/D, score, time
 - 🔫 **Weapon Type Kills** — AR, Carbine, DMR, MG, SMG, Sniper, Pistol, Shotgun
 - 🚶 **Distance & Travel** — On Foot, Vehicle, Passenger, Driving/Flying Time
+
+### ⚖️ Multiple Page (`/multiple`)
+
+Compare several players stat by stat. Type names separated by commas (e.g. `playerA, playerB, playerC`, up to 10) and press Search.
+
+- 🏆 **Best value per row** — Deaths and Losses count as lower-is-better
+- 🔢 **Rank** — `#n` per cell when comparing 3+ players
+- ▲▼ **Delta vs reference** — Absolute and % difference against a reference player (click a name to change it); green = better, red = worse
+- 📋 **Grouped stats** — Combat, Damage & Score, Matches, Support
+- 🧾 **Lead count** — How many rows each player leads
+- 👤 **Player details** — Pick a player to see the full stats sections (classes, weapons, vehicles, maps, …)
+- ⚠️ **Not found notice** — Names that cannot be resolved are listed; the others still load
 
 ### 📊 Stats Page (`/stats`)
 
@@ -148,8 +161,13 @@ src/
 │   ├── page.tsx                 # Entry page → redirects to /profile
 │   ├── profile/
 │   │   └── page.tsx             # /profile route: switches between Bootstrap/Tailwind Profile
-│   └── stats/
-│       └── page.tsx             # /stats route: switches between Bootstrap/Tailwind Stats
+│   ├── stats/
+│   │   └── page.tsx             # /stats route: switches between Bootstrap/Tailwind Stats
+│   ├── multiple/
+│   │   └── page.tsx             # /multiple route: compare several players
+│   └── api/
+│       ├── multiple/route.ts    # POST /api/multiple → GameTools /bf6/multiple/
+│       └── search/route.ts      # GET /api/search?name= → GameTools /bf6/player/
 ├── components/
 │   ├── Navbar.tsx               # Bootstrap navbar with BS/TW toggle
 │   ├── NavbarWrapper.tsx        # Switches between Bootstrap/Tailwind navbar
@@ -167,6 +185,8 @@ src/
 │   ├── MapsTable.tsx            # Maps DataTable with thumbnails
 │   ├── GadgetsTable.tsx         # Gadgets DataTable with images
 │   ├── DataTable.tsx            # Generic reusable DataTable (search, sort, pagination)
+│   ├── CompareTable.tsx         # Multi-player comparison table
+│   ├── PerSeasonCarousel.tsx    # Per-season stats carousel
 │   ├── ThemeProvider.tsx        # Context provider for theme (dark/light/system)
 │   ├── ThemeToggle.tsx          # Bootstrap theme toggle buttons
 │   ├── Dashboard.tsx            # Legacy single-page dashboard (unused)
@@ -178,9 +198,11 @@ src/
 │   │   ├── PlayerHeaderTW.tsx   # Tailwind player header with glow effects
 │   │   ├── StatCardsTW.tsx      # Tailwind glass-morphism stat cards
 │   │   ├── ProfileTW.tsx        # Full Tailwind Profile page
-│   │   └── StatsPageTW.tsx      # Full Tailwind Stats page
+│   │   ├── StatsPageTW.tsx      # Full Tailwind Stats page
+│   │   ├── MultiplePageTW.tsx   # Full Tailwind Multiple (compare) page
+│   │   └── PerSeasonCarouselTW.tsx # Tailwind per-season carousel
 ├── store/
-│   └── usePlayerStore.ts        # Zustand store: search, stats, profile, fetching, timeout
+│   └── usePlayerStore.ts        # Zustand store: search, stats, profile, multiple, fetching, timeout, cache
 └── types/
     └── bf6.ts                   # TypeScript interfaces for all API response types
 ```
@@ -194,6 +216,9 @@ src/
 | `/`         | Redirects to `/profile`                        |
 | `/profile`  | Player profile page (default landing)          |
 | `/stats`    | Full stats dashboard                           |
+| `/multiple` | Compare several players stat by stat           |
+| `/api/multiple` | POST proxy to GameTools `/bf6/multiple/`   |
+| `/api/search`   | GET proxy to GameTools `/bf6/player/`      |
 
 ---
 
@@ -204,8 +229,9 @@ The app uses **Zustand** (`src/store/usePlayerStore.ts`) as a centralized store 
 - **Search state**: `searchInput`, `playerName`, `platform`
 - **Stats data**: `stats`, `statsLoading`, `statsError`
 - **Profile data**: `profile`, `profileLoading`, `profileError`
+- **Multiple data**: `multiple` (one `BF6Stats` per compared player), `multipleMissing`, `multipleLoading`, `multipleError`
 - **Fetching**: Uses `AbortController` with 10-second timeout
-- **Cross-page persistence**: Data survives navigation between `/profile` and `/stats`
+- **Cross-page persistence**: Data survives navigation between `/profile`, `/stats` and `/multiple`
 - **Local-only fetch**: Data is only fetched on user action (Search, Refresh) — never on page load
 
 Additional state:
@@ -233,6 +259,18 @@ GET https://api.gametools.network/bf6/profile/?name={playerName}&platform={platf
 | `name`     | Player username   | Any BF6 username          |
 | `platform` | Gaming platform   | `ea`, `pc`, `xbox`, `psn` |
 | `lang`     | Language          | `en-us`, and others       |
+
+### Multiple Endpoint
+
+Used by `/multiple` through local proxies (`/api/search` finds ids, `/api/multiple` fetches stats):
+
+```text
+GET  https://api.gametools.network/bf6/player/?name={name}&limit=10
+POST https://api.gametools.network/bf6/multiple/?categories=multiplayer&raw=false&format_values=true&seperation=false&lang=en-us
+Body: [{ "player_id": 794397421, "user_id": 2800753812, "platform": "pc" }]
+```
+
+The multiple endpoint returns the same stats as `/bf6/stats/` for many players in one request (up to 128 upstream; the UI allows 10). It has no `name` parameter and does not return `userName` / `avatar`.
 
 No API key or authentication is required — the GameTools Network API is public.
 

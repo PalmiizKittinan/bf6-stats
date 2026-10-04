@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/PalmiizKittinan/bf6-stats/compare/v1.5.0...v1.6.0) (2026-10-04)
+
+
+### Features
+
+* **multiple:** add multi-player compare page ([8099449](https://github.com/PalmiizKittinan/bf6-stats/commit/8099449472c3843f66956de11b9f9ce48254c9df))
+
 # [1.5.0](https://github.com/PalmiizKittinan/bf6-stats/compare/v1.4.0...v1.5.0) (2026-09-30)
 
 

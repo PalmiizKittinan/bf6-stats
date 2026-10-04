@@ -93,8 +93,13 @@ bf6-stats/
     │   ├── page.tsx                # Entry page → redirects to /profile
     │   ├── profile/
     │   │   └── page.tsx            # /profile route: switches Bootstrap/Tailwind Profile
-    │   └── stats/
-    │       └── page.tsx            # /stats route: switches Bootstrap/Tailwind Stats
+    │   ├── stats/
+    │   │   └── page.tsx            # /stats route: switches Bootstrap/Tailwind Stats
+    │   ├── multiple/
+    │   │   └── page.tsx            # /multiple route: compare several players (Bootstrap page + switches to TW)
+    │   └── api/
+    │       ├── multiple/route.ts   # POST /api/multiple: proxy to GameTools /bf6/multiple/
+    │       └── search/route.ts     # GET /api/search?name=: proxy to GameTools /bf6/player/
     │
     ├── components/
     │   ├── Navbar.tsx              # Bootstrap navbar with BS/TW toggle
@@ -113,6 +118,8 @@ bf6-stats/
     │   ├── MapsTable.tsx           # Maps DataTable with thumbnails
     │   ├── GadgetsTable.tsx        # Gadgets DataTable with images
     │   ├── DataTable.tsx           # Generic reusable DataTable (search, sort, pagination)
+    │   ├── CompareTable.tsx        # Multi-player stat comparison table (best value, rank, delta vs reference)
+    │   ├── PerSeasonCarousel.tsx   # Per-season stats carousel (data helpers in perSeason.ts)
     │   ├── ThemeProvider.tsx       # Context provider for theme (dark/light/system) using useSyncExternalStore
     │   ├── ThemeToggle.tsx         # Bootstrap theme toggle buttons
     │   ├── Dashboard.tsx           # Legacy single-page dashboard (unused by routing)
@@ -125,10 +132,12 @@ bf6-stats/
     │       ├── StatCardsTW.tsx     # Tailwind glass-morphism stat cards
     │       ├── TailwindShared.tsx  # Shared Tailwind UI primitives (SectionTitle, StatGrid, StatCard, MiniStat, Empty/Loading/Error states)
     │       ├── ProfileTW.tsx       # Full Tailwind Profile page
-    │       └── StatsPageTW.tsx     # Full Tailwind Stats page (reuses shared sub-components)
+    │       ├── StatsPageTW.tsx     # Full Tailwind Stats page (reuses shared sub-components)
+    │       ├── MultiplePageTW.tsx  # Full Tailwind Multiple (compare) page
+    │       └── PerSeasonCarouselTW.tsx # Tailwind per-season carousel
     │
     ├── store/
-    │   └── usePlayerStore.ts       # Zustand store: search state, stats/profile data, fetching, timeout
+    │   └── usePlayerStore.ts       # Zustand store: search state, stats/profile/multiple data, fetching, timeout, stats cache
     │
     └── types/
         └── bf6.ts                  # TypeScript interfaces for all API response types
@@ -146,6 +155,9 @@ bf6-stats/
 | `page.tsx`        | Entry page | Server component that redirects `/` to `/profile`. |
 | `profile/page.tsx`| Profile page | Client component. Reads framework from `useCSSFramework()`, renders Bootstrap `<Profile />` or Tailwind `<ProfileTW />`. |
 | `stats/page.tsx`  | Stats page | Client component. Reads framework from `useCSSFramework()`, renders Bootstrap `StatsPageBootstrap` (a local function defined in this file, includes the season stats pagination logic) or Tailwind `<StatsPageTW />`. |
+| `multiple/page.tsx` | Multiple page | Client component. Sets `multipleActive` in the store while mounted. Renders Bootstrap `MultiplePageBootstrap` (local function) or Tailwind `<MultiplePageTW />`. Shows `CompareTable` plus a "Details" picker that renders the full stats sections for one selected player. |
+| `api/multiple/route.ts` | Route Handler | `POST` proxy to GameTools `/bf6/multiple/`. Body: one `{player_id, platform, user_id}` or an array. Normalizes upstream (flat object for 1 player, `{ data: [...] }` for several). Returns an object for an object body, an array for an array body. Errors: 400 / 404 / 502 / 504. |
+| `api/search/route.ts` | Route Handler | `GET ?name=` proxy to GameTools `/bf6/player/` (returns `{ results: [{ personaId, nucleusId, displayName, platform, ... }] }`). |
 | `globals.css`     | Global styles | Imports Tailwind CSS + Bootstrap CSS. Defines CSS variables for dark/light themes. `[data-framework="tailwind"]` selector overrides variables for Tailwind theme (teal accent, navy background). Glass-morphism card classes. |
 
 ### Components (`src/components/`)
@@ -164,12 +176,14 @@ bf6-stats/
 | `tailwind/TailwindShared.tsx` | Client Component | Shared UI primitives (`SectionTitle`, `StatGrid`, `StatCard`, `MiniStat`, `EmptyState`, `LoadingState`, `RefreshingBar`, `ErrorState`) reused by `ProfileTW`, `StatCardsTW`, and `StatsPageTW`. |
 | `tailwind/ProfileTW.tsx` | Client Component | Full Tailwind Profile page using glass-morphism cards (`tw-glass-card`). |
 | `tailwind/StatsPageTW.tsx` | Client Component | Tailwind Stats page. Reuses Bootstrap sub-components (DamageBreakdown, ClassesTable, etc.) since they use shared CSS classes. |
+| `CompareTable.tsx` | Client Component | Comparison table for 2+ players (renders nothing for fewer). Rows grouped as Combat / Damage & Score / Matches / Support. Per row: 🏆 on the best value (Deaths and Losses are lower-is-better), `#n` rank when 3+ players, ▲/▼ delta vs a reference player (click a header to change it, default first). Header shows how many rows each player leads. Uses shared markup (`stats-card`, `table table-dark`) so it works in both frameworks. |
+| `tailwind/MultiplePageTW.tsx` | Client Component | Tailwind Multiple page. Same data/behavior as the Bootstrap version, TW primitives for states. |
 
 ### Store (`src/store/`)
 
 | File              | Contents |
 | ----------------- | -------- |
-| `usePlayerStore.ts` | Zustand store managing all app state: search (`searchInput`, `playerName`, `platform`), stats data (`stats`, `statsLoading`, `statsError`), profile data (`profile`, `profileLoading`, `profileError`). Handles fetching with AbortController, 10-second timeout, and shared state across pages. |
+| `usePlayerStore.ts` | Zustand store managing all app state: search (`searchInput`, `playerName`, `platform`), stats data (`stats`, `statsLoading`, `statsError`), profile data (`profile`, `profileLoading`, `profileError`), multiple data (`multiple`, `multipleMissing`, `multipleLoading`, `multipleError`, `multipleActive`). Handles fetching with AbortController, 10-second timeout, a 7-day localStorage stats cache, and shared state across pages. Exports `parseNames()` and `formatSyncedAt()`. |
 
 ### Types (`src/types/`)
 
@@ -186,6 +200,9 @@ bf6-stats/
 | `/`         | `page.tsx`     | Redirects to `/profile` |
 | `/profile`  | `profile/page.tsx` | Player profile page (default landing) |
 | `/stats`    | `stats/page.tsx`   | Full stats dashboard |
+| `/multiple` | `multiple/page.tsx` | Compare several players stat by stat |
+| `/api/multiple` | `api/multiple/route.ts` | POST proxy to GameTools `/bf6/multiple/` |
+| `/api/search` | `api/search/route.ts` | GET proxy to GameTools `/bf6/player/` |
 | `/_not-found` | (auto)       | 404 page |
 
 Navigation between pages is handled by `next/link` in the `Navbar` component. Tab state is URL-based (not in React state).
@@ -206,6 +223,20 @@ GET https://api.gametools.network/bf6/stats/?categories=multiplayer&raw=false&fo
 GET https://api.gametools.network/bf6/profile/?name={playerName}&platform={platform}&skip_battlelog=true&lang=en-us
 ```
 
+### Multiple Endpoint (via local proxy)
+
+```text
+POST /api/multiple            -> POST https://api.gametools.network/bf6/multiple/?categories=multiplayer&raw=false&format_values=true&seperation=false&lang=en-us
+Body: [{ "player_id": 794397421, "user_id": 2800753812, "platform": "pc" }, ...]   (max 128 upstream)
+
+GET /api/search?name={name}   -> GET https://api.gametools.network/bf6/player/?name={name}&limit=10
+```
+
+- Same data shape as `/bf6/stats/` (`BF6Stats`) except `userName` and `avatar` are missing — the store fills `userName` from the search result.
+- 1 player → flat object; 2+ players → `{ "data": [...] }` in request order. `/api/multiple` normalizes both.
+- `/multiple` has no `name` param: ids come from `/api/search` (`personaId` → `player_id`, `nucleusId` → `user_id`). If search is empty, the store falls back to `/bf6/stats/` (`id` / `userId`). Platform `ea` is sent as `pc`.
+- The first search hit may be an empty account (e.g. xboxone with 0 kills) — a name can exist on several platforms.
+
 ### Query Parameters
 
 | Parameter         | Value              | Description |
@@ -225,7 +256,7 @@ const timeoutId = setTimeout(() => controller.abort(), 10_000);
 const res = await fetch(url, { signal: controller.signal });
 ```
 
-Data persists in the Zustand store across page navigation (`/profile` ↔ `/stats`). It is only cleared on browser refresh or when the user clicks "Clear Search".
+Data persists in the Zustand store across page navigation (`/profile` ↔ `/stats` ↔ `/multiple`). It is only cleared on browser refresh or when the user clicks "Clear Search".
 
 ---
 
@@ -242,6 +273,9 @@ layout.tsx
   │           ├── <main>
   │           │   └── {children} (page.tsx)
   │           │       ├── /profile → switches Profile.tsx / ProfileTW.tsx
+  │           │       ├── /multiple → switches MultiplePageBootstrap / MultiplePageTW.tsx
+  │           │       │   ├── CompareTable (shared)
+  │           │       │   └── player details: same sections as /stats for the selected player
   │           │       └── /stats → switches StatsPageBootstrap / StatsPageTW.tsx
   │           │           ├── PlayerHeader / PlayerHeaderTW
   │           │           ├── StatCards / StatCardsTW
@@ -257,7 +291,7 @@ layout.tsx
   │               └── Tailwind: FooterTW.tsx
 ```
 
-**Data flow**: The Zustand store (`usePlayerStore`) holds all shared state — search input, player name, platform, stats data, and profile data. When the user clicks Search, both `fetchStats()` and `fetchProfile()` are called. Pages read directly from the store — no prop drilling or page-local fetching.
+**Data flow**: The Zustand store (`usePlayerStore`) holds all shared state — search input, player name, platform, stats data, and profile data. When the user clicks Search, `loadAll()` runs: on `/profile` and `/stats` it calls `fetchProfile()` then `fetchStats()` (cache reused if play time is unchanged); on `/multiple` (`multipleActive` is true) it calls `fetchMultiple()` instead. Pages read directly from the store — no prop drilling or page-local fetching.
 
 ---
 
@@ -272,16 +306,20 @@ State is managed with **Zustand** (`src/store/usePlayerStore.ts`):
 | `platform`         | Selected platform (ea/pc/xbox/psn) |
 | `stats` / `statsLoading` / `statsError` | Stats API data and fetch status |
 | `profile` / `profileLoading` / `profileError` | Profile API data and fetch status |
+| `multiple` / `multipleMissing` / `multipleLoading` / `multipleError` / `multipleSyncedAt` | `BF6Stats[]` for the compared players (request order), names that could not be resolved, fetch status |
+| `multipleActive` | True while `/multiple` is mounted; makes Search call `fetchMultiple()` |
 
 Additional state:
 - **React Context** (`ThemeProvider`) for global theme state using `useSyncExternalStore`
 - **React Context** (`CSSFrameworkProvider`) for Bootstrap/Tailwind selection, persisted to localStorage
 - **React Context** (`SearchProvider`) — thin wrapper delegating to Zustand store
-- **`localStorage`** for theme persistence (`bf6-theme`), CSS framework persistence (`bf6-css-framework`), and saved player names (`bf6-saved-names`)
+- **`localStorage`** for theme persistence (`bf6-theme`), CSS framework persistence (`bf6-css-framework`), saved player names (`bf6-saved-names`), and the stats cache (`bf6-stats-cache:{platform}:{name}:{separation}`, 7-day TTL)
 
 Key behaviors:
 - **Search-on-click**: Data is only fetched when user clicks Search or selects a saved name — no auto-fetch on page load
-- **Cross-page persistence**: Data persists in Zustand when navigating between `/profile` and `/stats`
+- **Cross-page persistence**: Data persists in Zustand when navigating between `/profile`, `/stats` and `/multiple`
+- **Multiple names**: On `/multiple` the search box takes comma-separated names (unique, max 10). Each is resolved in parallel, then sent in one `POST /api/multiple`. Unresolved names show a "Not found" notice; the rest still load
+- **Multiple page no auto-fetch**: opening `/multiple` with an existing name shows a "Load Stats" button instead of fetching
 - **10-second timeout**: API requests are aborted with a timeout error message if no response within 10 seconds
 - **Refresh**: Each page has its own refresh button to re-fetch its specific data
 
