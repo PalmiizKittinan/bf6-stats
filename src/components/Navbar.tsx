@@ -126,6 +126,14 @@ export default function Navbar() {
           >
             📊 Stats
           </Link>
+          <Link
+            href="/multiple"
+            className={`btn btn-sm ${
+              pathname === "/multiple" ? "btn-outline-danger" : "btn-outline-secondary"
+            }`}
+          >
+            📈 Multiple
+          </Link>
 
           <div
             className="vr d-none d-lg-block mx-2"
@@ -150,7 +158,7 @@ export default function Navbar() {
               id="player-search-input"
               type="text"
               className="form-control form-control-sm search-input"
-              placeholder="Search player..."
+              placeholder={pathname === "/multiple" ? "Players, comma separated..." : "Search player..."}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               style={{ minWidth: "150px" }}

@@ -100,6 +100,7 @@ export default function NavbarTW() {
   const navLinks = [
     { href: "/profile", label: "Profile", icon: "👤", active: pathname === "/profile" || pathname === "/" },
     { href: "/stats", label: "Stats", icon: "📊", active: pathname === "/stats" },
+    { href: "/multiple", label: "Multiple", icon: "📈", active: pathname === "/multiple" },
   ];
 
   return (
@@ -145,7 +146,7 @@ export default function NavbarTW() {
               <input
                 id="player-search-input-tw"
                 type="text"
-                placeholder="Search player..."
+                placeholder={pathname === "/multiple" ? "Players, comma separated..." : "Search player..."}
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 style={{ minWidth: "140px", width: "100%" }}
