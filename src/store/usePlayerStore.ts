@@ -3,6 +3,7 @@ import { BF6Stats, BF6Profile } from "@/types/bf6";
 
 const STATS_API = "https://api.gametools.network/bf6/stats/";
 const PROFILE_API = "https://api.gametools.network/bf6/profile/";
+const SEARCH_API = "https://api.gametools.network/bf6/player/";
 const DEFAULT_PLATFORM = "ea";
 const TIMEOUT_MS = 10_000;
 const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
@@ -105,7 +106,7 @@ interface PlayerStore {
   // Refresh all
   refreshAll: () => Promise<void>;
 
-  // Multiple state (/multiple page): resolved via /api/search + /api/multiple
+  // Multiple state (/multiple page): ids from the player search, stats fetched per player
   // One entry per resolved player name (comma separated in the search box)
   multiple: BF6Stats[] | null;
   // Names that could not be resolved
@@ -128,13 +129,6 @@ interface SearchResult {
   platform?: string;
 }
 
-interface ResolvedPlayer {
-  playerId: number;
-  userId: number;
-  platform: string;
-  name: string;
-}
-
 // "a, b, c" -> unique, trimmed names (max 10)
 export function parseNames(input: string): string[] {
   const seen = new Set<string>();
@@ -145,58 +139,68 @@ export function parseNames(input: string): string[] {
     .slice(0, 10);
 }
 
-// /multiple only knows pc / xbox / psn style platforms; "ea" is PC
-const multiplePlatform = (p: string) => (p === "ea" ? "pc" : p);
+// Stats params shared by name and id lookups
+const statsParams = () =>
+  new URLSearchParams({
+    categories: "multiplayer",
+    raw: "false",
+    format_values: "true",
+    seperation: "false",
+    skip_battlelog: "true",
+    lang: "en-us",
+  });
 
-// Find player ids: player search first, then fall back to the stats endpoint
-async function resolvePlayer(
+// Load one player: search for ids, then stats by id; falls back to stats by name.
+// Called straight from the browser (static export has no API routes, and the
+// POST /bf6/multiple/ endpoint is not CORS enabled).
+async function loadPlayer(
   name: string,
   platform: string,
   signal: AbortSignal
-): Promise<ResolvedPlayer | null> {
+): Promise<BF6Stats | null> {
   const lower = name.toLowerCase();
   try {
-    const res = await fetch(`/api/search?name=${encodeURIComponent(name)}`, {
-      signal,
-    });
+    const res = await fetch(
+      `${SEARCH_API}?name=${encodeURIComponent(name)}&limit=10`,
+      { signal }
+    );
     if (res.ok) {
       const { results = [] }: { results?: SearchResult[] } = await res.json();
-      const nameOf = (r: SearchResult) => r.name ?? r.displayName ?? r.username ?? "";
+      const nameOf = (r: SearchResult) =>
+        r.name ?? r.displayName ?? r.username ?? "";
       const hit =
         results.find((r) => nameOf(r).toLowerCase() === lower) ?? results[0];
       if (hit) {
-        return {
-          playerId: Number(hit.personaId),
-          userId: Number(hit.nucleusId),
-          platform: hit.platform ?? multiplePlatform(platform),
-          name: nameOf(hit) || name,
-        };
+        const params = statsParams();
+        params.set("playerid", String(hit.personaId));
+        params.set("nucleus_id", String(hit.nucleusId));
+        params.set("platform", platform);
+        const statsRes = await fetch(`${STATS_API}?${params.toString()}`, {
+          signal,
+        });
+        if (statsRes.ok) {
+          const data: BF6Stats = await statsRes.json();
+          if (data.id) return { ...data, userName: data.userName || nameOf(hit) || name };
+        }
       }
     }
   } catch (err) {
     if (signal.aborted) throw err;
   }
 
-  const params = new URLSearchParams({
-    categories: "multiplayer",
-    raw: "false",
-    format_values: "true",
-    seperation: "false",
-    name,
-    platform,
-    skip_battlelog: "true",
-    lang: "en-us",
-  });
-  const res = await fetch(`${STATS_API}?${params.toString()}`, { signal });
-  if (!res.ok) return null;
-  const data: BF6Stats = await res.json();
-  if (!data.hasResults || !data.id || !data.userId) return null;
-  return {
-    playerId: Number(data.id),
-    userId: Number(data.userId),
-    platform: multiplePlatform(platform),
-    name: data.userName || name,
-  };
+  try {
+    const params = statsParams();
+    params.set("name", name);
+    params.set("platform", platform);
+    const res = await fetch(`${STATS_API}?${params.toString()}`, { signal });
+    if (!res.ok) return null;
+    const data: BF6Stats = await res.json();
+    if (!data.hasResults) return null;
+    return { ...data, userName: data.userName || name };
+  } catch (err) {
+    if (signal.aborted) throw err;
+    return null;
+  }
 }
 
 let statsController: AbortController | null = null;
@@ -433,42 +437,22 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     try {
       const { platform } = get();
       const names = parseNames(playerName);
-      const resolved = await Promise.all(
-        names.map((n) => resolvePlayer(n, platform, controller.signal))
+      const loaded = await Promise.all(
+        names.map((n) => loadPlayer(n, platform, controller.signal))
       );
-      const players = resolved.filter((r): r is ResolvedPlayer => r !== null);
-      const missing = names.filter((_, i) => !resolved[i]);
+      const players = loaded.filter((r): r is BF6Stats => r !== null);
+      const missing = names.filter((_, i) => !loaded[i]);
       if (players.length === 0) {
         throw new Error(
           "Player not found. Please check the username and platform."
         );
       }
 
-      const res = await fetch("/api/multiple", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(
-          players.map((m) => ({
-            player_id: m.playerId,
-            platform: m.platform,
-            user_id: m.userId,
-          }))
-        ),
-        signal: controller.signal,
-      });
-      if (!res.ok) {
-        const body = await res.json().catch(() => null);
-        throw new Error(body?.error || `API error: ${res.status}`);
-      }
-      const data: BF6Stats[] = await res.json();
       clearTimeout(timeoutId);
       // Ignore if the user searched for someone else meanwhile
       if (get().playerName !== playerName) return;
       set({
-        multiple: data.map((d, i) => ({
-          ...d,
-          userName: d.userName || players[i]?.name || "",
-        })),
+        multiple: players,
         multipleMissing: missing,
         multipleError: null,
         multipleLoading: false,

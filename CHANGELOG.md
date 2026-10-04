@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/PalmiizKittinan/bf6-stats/compare/v1.6.0...v1.6.1) (2026-10-04)
+
+
+### Bug Fixes
+
+* **multiple:** call GameTools from the browser, drop API routes ([44d6121](https://github.com/PalmiizKittinan/bf6-stats/commit/44d6121e34e860d0101ed604989b0c6f7f3e1bb4))
+
 # [1.6.0](https://github.com/PalmiizKittinan/bf6-stats/compare/v1.5.0...v1.6.0) (2026-10-04)
 
 
