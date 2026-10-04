@@ -95,11 +95,8 @@ bf6-stats/
     │   │   └── page.tsx            # /profile route: switches Bootstrap/Tailwind Profile
     │   ├── stats/
     │   │   └── page.tsx            # /stats route: switches Bootstrap/Tailwind Stats
-    │   ├── multiple/
-    │   │   └── page.tsx            # /multiple route: compare several players (Bootstrap page + switches to TW)
-    │   └── api/
-    │       ├── multiple/route.ts   # POST /api/multiple: proxy to GameTools /bf6/multiple/
-    │       └── search/route.ts     # GET /api/search?name=: proxy to GameTools /bf6/player/
+    │   └── multiple/
+    │       └── page.tsx            # /multiple route: compare several players (Bootstrap page + switches to TW)
     │
     ├── components/
     │   ├── Navbar.tsx              # Bootstrap navbar with BS/TW toggle
@@ -156,8 +153,6 @@ bf6-stats/
 | `profile/page.tsx`| Profile page | Client component. Reads framework from `useCSSFramework()`, renders Bootstrap `<Profile />` or Tailwind `<ProfileTW />`. |
 | `stats/page.tsx`  | Stats page | Client component. Reads framework from `useCSSFramework()`, renders Bootstrap `StatsPageBootstrap` (a local function defined in this file, includes the season stats pagination logic) or Tailwind `<StatsPageTW />`. |
 | `multiple/page.tsx` | Multiple page | Client component. Sets `multipleActive` in the store while mounted. Renders Bootstrap `MultiplePageBootstrap` (local function) or Tailwind `<MultiplePageTW />`. Shows `CompareTable` plus a "Details" picker that renders the full stats sections for one selected player. |
-| `api/multiple/route.ts` | Route Handler | `POST` proxy to GameTools `/bf6/multiple/`. Body: one `{player_id, platform, user_id}` or an array. Normalizes upstream (flat object for 1 player, `{ data: [...] }` for several). Returns an object for an object body, an array for an array body. Errors: 400 / 404 / 502 / 504. |
-| `api/search/route.ts` | Route Handler | `GET ?name=` proxy to GameTools `/bf6/player/` (returns `{ results: [{ personaId, nucleusId, displayName, platform, ... }] }`). |
 | `globals.css`     | Global styles | Imports Tailwind CSS + Bootstrap CSS. Defines CSS variables for dark/light themes. `[data-framework="tailwind"]` selector overrides variables for Tailwind theme (teal accent, navy background). Glass-morphism card classes. |
 
 ### Components (`src/components/`)
@@ -201,8 +196,6 @@ bf6-stats/
 | `/profile`  | `profile/page.tsx` | Player profile page (default landing) |
 | `/stats`    | `stats/page.tsx`   | Full stats dashboard |
 | `/multiple` | `multiple/page.tsx` | Compare several players stat by stat |
-| `/api/multiple` | `api/multiple/route.ts` | POST proxy to GameTools `/bf6/multiple/` |
-| `/api/search` | `api/search/route.ts` | GET proxy to GameTools `/bf6/player/` |
 | `/_not-found` | (auto)       | 404 page |
 
 Navigation between pages is handled by `next/link` in the `Navbar` component. Tab state is URL-based (not in React state).
@@ -223,19 +216,17 @@ GET https://api.gametools.network/bf6/stats/?categories=multiplayer&raw=false&fo
 GET https://api.gametools.network/bf6/profile/?name={playerName}&platform={platform}&skip_battlelog=true&lang=en-us
 ```
 
-### Multiple Endpoint (via local proxy)
+### Multiple Players (client-side, no API routes)
 
 ```text
-POST /api/multiple            -> POST https://api.gametools.network/bf6/multiple/?categories=multiplayer&raw=false&format_values=true&seperation=false&lang=en-us
-Body: [{ "player_id": 794397421, "user_id": 2800753812, "platform": "pc" }, ...]   (max 128 upstream)
-
-GET /api/search?name={name}   -> GET https://api.gametools.network/bf6/player/?name={name}&limit=10
+GET https://api.gametools.network/bf6/player/?name={name}&limit=10     -> ids (personaId, nucleusId)
+GET https://api.gametools.network/bf6/stats/?...&playerid={personaId}&nucleus_id={nucleusId}&platform={platform}
 ```
 
-- Same data shape as `/bf6/stats/` (`BF6Stats`) except `userName` and `avatar` are missing — the store fills `userName` from the search result.
-- 1 player → flat object; 2+ players → `{ "data": [...] }` in request order. `/api/multiple` normalizes both.
-- `/multiple` has no `name` param: ids come from `/api/search` (`personaId` → `player_id`, `nucleusId` → `user_id`). If search is empty, the store falls back to `/bf6/stats/` (`id` / `userId`). Platform `ea` is sent as `pc`.
-- The first search hit may be an empty account (e.g. xboxone with 0 kills) — a name can exist on several platforms.
+- The release branches deploy to GitHub Pages with `output: "export"` (injected by `actions/configure-pages` in `.github/workflows/nextjs.yml`). **Route Handlers (`src/app/api/*`) break that build** — never add them; call GameTools directly from the browser.
+- `POST /bf6/multiple/` returns the same data but is **not CORS enabled** (preflight answers `allow-methods: GET`), so it cannot be called from the browser. `GET /bf6/stats/` with `playerid` + `nucleus_id` returns identical data, so `/multiple` fires one stats request per player in parallel.
+- Search is by name only; if it finds nothing the store falls back to `/bf6/stats/?name=`. A name can exist on several platforms; the first exact-name hit is used and may be an empty account (0 kills).
+- `userName` / `avatar` can be `null` in the stats response — the store fills `userName` from the search hit.
 
 ### Query Parameters
 
@@ -318,7 +309,7 @@ Additional state:
 Key behaviors:
 - **Search-on-click**: Data is only fetched when user clicks Search or selects a saved name — no auto-fetch on page load
 - **Cross-page persistence**: Data persists in Zustand when navigating between `/profile`, `/stats` and `/multiple`
-- **Multiple names**: On `/multiple` the search box takes comma-separated names (unique, max 10). Each is resolved in parallel, then sent in one `POST /api/multiple`. Unresolved names show a "Not found" notice; the rest still load
+- **Multiple names**: On `/multiple` the search box takes comma-separated names (unique, max 10). Each is resolved in parallel, then loaded with its own stats request. Unresolved names show a "Not found" notice; the rest still load
 - **Multiple page no auto-fetch**: opening `/multiple` with an existing name shows a "Load Stats" button instead of fetching
 - **10-second timeout**: API requests are aborted with a timeout error message if no response within 10 seconds
 - **Refresh**: Each page has its own refresh button to re-fetch its specific data
