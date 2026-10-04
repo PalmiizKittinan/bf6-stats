@@ -104,10 +104,104 @@ interface PlayerStore {
 
   // Refresh all
   refreshAll: () => Promise<void>;
+
+  // Multiple state (/multiple page): resolved via /api/search + /api/multiple
+  // One entry per resolved player name (comma separated in the search box)
+  multiple: BF6Stats[] | null;
+  // Names that could not be resolved
+  multipleMissing: string[];
+  multipleLoading: boolean;
+  multipleError: string | null;
+  multipleSyncedAt: number | null;
+  // While true, searching loads multiple stats instead of stats + profile
+  multipleActive: boolean;
+  setMultipleActive: (v: boolean) => void;
+  fetchMultiple: () => Promise<void>;
+}
+
+interface SearchResult {
+  personaId: number | string;
+  nucleusId: number | string;
+  name?: string;
+  displayName?: string;
+  username?: string;
+  platform?: string;
+}
+
+interface ResolvedPlayer {
+  playerId: number;
+  userId: number;
+  platform: string;
+  name: string;
+}
+
+// "a, b, c" -> unique, trimmed names (max 10)
+export function parseNames(input: string): string[] {
+  const seen = new Set<string>();
+  return input
+    .split(",")
+    .map((n) => n.trim())
+    .filter((n) => n && !seen.has(n.toLowerCase()) && seen.add(n.toLowerCase()))
+    .slice(0, 10);
+}
+
+// /multiple only knows pc / xbox / psn style platforms; "ea" is PC
+const multiplePlatform = (p: string) => (p === "ea" ? "pc" : p);
+
+// Find player ids: player search first, then fall back to the stats endpoint
+async function resolvePlayer(
+  name: string,
+  platform: string,
+  signal: AbortSignal
+): Promise<ResolvedPlayer | null> {
+  const lower = name.toLowerCase();
+  try {
+    const res = await fetch(`/api/search?name=${encodeURIComponent(name)}`, {
+      signal,
+    });
+    if (res.ok) {
+      const { results = [] }: { results?: SearchResult[] } = await res.json();
+      const nameOf = (r: SearchResult) => r.name ?? r.displayName ?? r.username ?? "";
+      const hit =
+        results.find((r) => nameOf(r).toLowerCase() === lower) ?? results[0];
+      if (hit) {
+        return {
+          playerId: Number(hit.personaId),
+          userId: Number(hit.nucleusId),
+          platform: hit.platform ?? multiplePlatform(platform),
+          name: nameOf(hit) || name,
+        };
+      }
+    }
+  } catch (err) {
+    if (signal.aborted) throw err;
+  }
+
+  const params = new URLSearchParams({
+    categories: "multiplayer",
+    raw: "false",
+    format_values: "true",
+    seperation: "false",
+    name,
+    platform,
+    skip_battlelog: "true",
+    lang: "en-us",
+  });
+  const res = await fetch(`${STATS_API}?${params.toString()}`, { signal });
+  if (!res.ok) return null;
+  const data: BF6Stats = await res.json();
+  if (!data.hasResults || !data.id || !data.userId) return null;
+  return {
+    playerId: Number(data.id),
+    userId: Number(data.userId),
+    platform: multiplePlatform(platform),
+    name: data.userName || name,
+  };
 }
 
 let statsController: AbortController | null = null;
 let profileController: AbortController | null = null;
+let multipleController: AbortController | null = null;
 
 export const usePlayerStore = create<PlayerStore>((set, get) => ({
   // Search state
@@ -145,6 +239,11 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
       profileError: null,
       profileSyncedAt: null,
       profileLoading: false,
+      multiple: null,
+      multipleMissing: [],
+      multipleError: null,
+      multipleSyncedAt: null,
+      multipleLoading: false,
     });
   },
 
@@ -277,6 +376,11 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     const { playerName, platform, separation } = get();
     if (!playerName) return;
 
+    if (get().multipleActive) {
+      await get().fetchMultiple();
+      return;
+    }
+
     await get().fetchProfile();
     // Ignore if the user searched for someone else meanwhile
     if (get().playerName !== playerName) return;
@@ -304,5 +408,89 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     const { playerName } = get();
     if (!playerName) return;
     get().loadAll();
+  },
+
+  // Multiple
+  multiple: null,
+  multipleMissing: [],
+  multipleLoading: false,
+  multipleError: null,
+  multipleSyncedAt: null,
+  multipleActive: false,
+  setMultipleActive: (v) => set({ multipleActive: v }),
+
+  fetchMultiple: async () => {
+    const { playerName } = get();
+    if (!playerName) return;
+
+    multipleController?.abort();
+    const controller = new AbortController();
+    multipleController = controller;
+    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS * 2);
+
+    set({ multipleLoading: true, multipleError: null });
+
+    try {
+      const { platform } = get();
+      const names = parseNames(playerName);
+      const resolved = await Promise.all(
+        names.map((n) => resolvePlayer(n, platform, controller.signal))
+      );
+      const players = resolved.filter((r): r is ResolvedPlayer => r !== null);
+      const missing = names.filter((_, i) => !resolved[i]);
+      if (players.length === 0) {
+        throw new Error(
+          "Player not found. Please check the username and platform."
+        );
+      }
+
+      const res = await fetch("/api/multiple", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(
+          players.map((m) => ({
+            player_id: m.playerId,
+            platform: m.platform,
+            user_id: m.userId,
+          }))
+        ),
+        signal: controller.signal,
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.error || `API error: ${res.status}`);
+      }
+      const data: BF6Stats[] = await res.json();
+      clearTimeout(timeoutId);
+      // Ignore if the user searched for someone else meanwhile
+      if (get().playerName !== playerName) return;
+      set({
+        multiple: data.map((d, i) => ({
+          ...d,
+          userName: d.userName || players[i]?.name || "",
+        })),
+        multipleMissing: missing,
+        multipleError: null,
+        multipleLoading: false,
+        multipleSyncedAt: Date.now(),
+      });
+    } catch (err) {
+      clearTimeout(timeoutId);
+      if (!controller.signal.aborted) {
+        set({
+          multipleError:
+            err instanceof Error ? err.message : "Failed to fetch stats",
+          multiple: null,
+          multipleLoading: false,
+        });
+      } else if (multipleController === controller) {
+        set({
+          multipleError:
+            "Request timed out. The server did not respond in time. Please try again.",
+          multiple: null,
+          multipleLoading: false,
+        });
+      }
+    }
   },
 }));
