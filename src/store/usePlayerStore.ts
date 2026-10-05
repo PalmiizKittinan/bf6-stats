@@ -4,6 +4,8 @@ import { BF6Stats, BF6Profile } from "@/types/bf6";
 const STATS_API = "https://api.gametools.network/bf6/stats/";
 const PROFILE_API = "https://api.gametools.network/bf6/profile/";
 const SEARCH_API = "https://api.gametools.network/bf6/player/";
+const NOT_FOUND_MSG =
+  "Player not found. Please check the username and platform.";
 const DEFAULT_PLATFORM = "ea";
 const TIMEOUT_MS = 10_000;
 const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
@@ -86,6 +88,15 @@ interface PlayerStore {
   handleSearch: (e: React.FormEvent) => void;
   resetToDefault: () => void;
 
+  // Accounts found for the searched name when it exists on several platforms;
+  // the user picks one (null = no choice pending)
+  choices: AccountChoice[] | null;
+  choicesLoading: boolean;
+  chooseAccount: (c: AccountChoice) => void;
+  dismissChoices: () => void;
+  // Use a fixed platform for a name (saved names)
+  pinPlatform: (name: string, platform: string) => void;
+
   // Stats state
   stats: BF6Stats | null;
   statsLoading: boolean;
@@ -139,6 +150,64 @@ export function parseNames(input: string): string[] {
     .slice(0, 10);
 }
 
+// One account of a player on one platform
+export interface Account {
+  name: string;
+  // Value accepted by the stats endpoint (ea / steam / xbox / psn)
+  platform: string;
+  personaId?: number | string;
+  nucleusId?: number | string;
+}
+
+export interface AccountChoice extends Account {
+  // null when the stats could not be loaded
+  kills: number | null;
+}
+
+// Platforms tried one by one with a name lookup when the player search finds nothing
+const LOOKUP_PLATFORMS = ["ea", "steam", "xbox", "psn"];
+
+// Search `platform` -> stats `platform`
+function toStatsPlatform(p: string | undefined): string {
+  if (!p) return DEFAULT_PLATFORM;
+  if (p.startsWith("xbox")) return "xbox";
+  if (p.startsWith("ps")) return "psn";
+  return p;
+}
+
+const nameOf = (r: SearchResult) => r.name ?? r.displayName ?? r.username ?? "";
+
+// Exact-name match only (no prefix search). Rapid calls are silently rate
+// limited: the API answers 200 with empty results for ~30 seconds.
+async function searchPlayers(
+  name: string,
+  signal: AbortSignal
+): Promise<SearchResult[]> {
+  const res = await fetch(
+    `${SEARCH_API}?name=${encodeURIComponent(name)}&limit=10`,
+    { signal }
+  );
+  if (!res.ok) return [];
+  const { results = [] }: { results?: SearchResult[] } = await res.json();
+  return results;
+}
+
+// Accounts the user picked (or saved names), by lower-case name
+const pins = new Map<string, Account>();
+
+// Lookup params for the stats/profile endpoints: ids when known, else name
+function playerParams(name: string, platform: string): Record<string, string> {
+  const pin = pins.get(name.toLowerCase());
+  if (pin?.personaId) {
+    return {
+      playerid: String(pin.personaId),
+      nucleus_id: String(pin.nucleusId),
+      platform: pin.platform,
+    };
+  }
+  return { name, platform: pin?.platform ?? platform };
+}
+
 // Stats params shared by name and id lookups
 const statsParams = () =>
   new URLSearchParams({
@@ -150,7 +219,81 @@ const statsParams = () =>
     lang: "en-us",
   });
 
-// Load one player: search for ids, then stats by id; falls back to stats by name.
+async function fetchPlayerStats(
+  lookup: Record<string, string>,
+  signal: AbortSignal
+): Promise<BF6Stats | null> {
+  const params = statsParams();
+  for (const [k, v] of Object.entries(lookup)) params.set(k, v);
+  const res = await fetch(`${STATS_API}?${params.toString()}`, { signal });
+  if (!res.ok) return null;
+  const data: BF6Stats = await res.json();
+  return data.id && data.hasResults !== false ? data : null;
+}
+
+const statsById = (a: Account, signal: AbortSignal) =>
+  fetchPlayerStats(
+    {
+      playerid: String(a.personaId),
+      nucleus_id: String(a.nucleusId),
+      platform: a.platform,
+    },
+    signal
+  );
+
+// Every account with this exact name, with its kills. Uses the player search
+// (one call, all platforms); if that finds nothing (no match or rate limited)
+// tries a stats name lookup on each platform.
+async function findAccounts(
+  name: string,
+  signal: AbortSignal
+): Promise<{ choice: AccountChoice; stats: BF6Stats | null }[]> {
+  const lower = name.toLowerCase();
+  const hits = (await searchPlayers(name, signal)).filter(
+    (r) => nameOf(r).toLowerCase() === lower
+  );
+
+  if (hits.length) {
+    return Promise.all(
+      hits.map(async (r) => {
+        const account: Account = {
+          name: nameOf(r),
+          platform: toStatsPlatform(r.platform),
+          personaId: r.personaId,
+          nucleusId: r.nucleusId,
+        };
+        const stats = await statsById(account, signal).catch(() => null);
+        return { choice: { ...account, kills: stats?.kills ?? null }, stats };
+      })
+    );
+  }
+
+  const found = await Promise.all(
+    LOOKUP_PLATFORMS.map((platform) =>
+      fetchPlayerStats({ name, platform }, signal).catch(() => null)
+    )
+  );
+  const seen = new Set<string>();
+  const out: { choice: AccountChoice; stats: BF6Stats | null }[] = [];
+  found.forEach((stats, i) => {
+    if (!stats || seen.has(String(stats.id))) return;
+    seen.add(String(stats.id));
+    out.push({
+      choice: {
+        name: stats.userName || name,
+        platform: LOOKUP_PLATFORMS[i],
+        personaId: stats.id,
+        nucleusId: stats.userId,
+        kills: stats.kills ?? null,
+      },
+      stats,
+    });
+  });
+  return out;
+}
+
+// Load one player for /multiple: the pinned account, else the account with the
+// most kills (the same name can exist on several platforms, some empty).
 // Called straight from the browser (static export has no API routes, and the
 // POST /bf6/multiple/ endpoint is not CORS enabled).
 async function loadPlayer(
@@ -158,51 +301,28 @@ async function loadPlayer(
   platform: string,
   signal: AbortSignal
 ): Promise<BF6Stats | null> {
-  const lower = name.toLowerCase();
   try {
-    const res = await fetch(
-      `${SEARCH_API}?name=${encodeURIComponent(name)}&limit=10`,
-      { signal }
-    );
-    if (res.ok) {
-      const { results = [] }: { results?: SearchResult[] } = await res.json();
-      const nameOf = (r: SearchResult) =>
-        r.name ?? r.displayName ?? r.username ?? "";
-      const hit =
-        results.find((r) => nameOf(r).toLowerCase() === lower) ?? results[0];
-      if (hit) {
-        const params = statsParams();
-        params.set("playerid", String(hit.personaId));
-        params.set("nucleus_id", String(hit.nucleusId));
-        params.set("platform", platform);
-        const statsRes = await fetch(`${STATS_API}?${params.toString()}`, {
-          signal,
-        });
-        if (statsRes.ok) {
-          const data: BF6Stats = await statsRes.json();
-          if (data.id) return { ...data, userName: data.userName || nameOf(hit) || name };
-        }
-      }
+    let stats: BF6Stats | null = null;
+    let account: Account | undefined = pins.get(name.toLowerCase());
+    if (account) {
+      stats = await fetchPlayerStats(playerParams(name, platform), signal);
+    } else {
+      const found = await findAccounts(name, signal);
+      const best = found.reduce<(typeof found)[number] | null>(
+        (b, f) => (!b || (f.choice.kills ?? -1) > (b.choice.kills ?? -1) ? f : b),
+        null
+      );
+      account = best?.choice;
+      stats = best?.stats ?? null;
     }
-  } catch (err) {
-    if (signal.aborted) throw err;
-  }
-
-  try {
-    const params = statsParams();
-    params.set("name", name);
-    params.set("platform", platform);
-    const res = await fetch(`${STATS_API}?${params.toString()}`, { signal });
-    if (!res.ok) return null;
-    const data: BF6Stats = await res.json();
-    if (!data.hasResults) return null;
-    return { ...data, userName: data.userName || name };
+    return stats ? { ...stats, userName: stats.userName || account?.name || name } : null;
   } catch (err) {
     if (signal.aborted) throw err;
     return null;
   }
 }
 
+let choicesController: AbortController | null = null;
 let statsController: AbortController | null = null;
 let profileController: AbortController | null = null;
 let multipleController: AbortController | null = null;
@@ -217,20 +337,75 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   setPlatform: (v) => set({ platform: v }),
   setSeparation: (v) => set({ separation: v }),
 
+  choices: null,
+  choicesLoading: false,
+
+  pinPlatform: (name, platform) => {
+    pins.set(name.toLowerCase(), { name, platform });
+    set({ searchInput: name, platform });
+  },
+
+  chooseAccount: (c) => {
+    const { playerName } = get();
+    pins.set(playerName.toLowerCase(), c);
+    set({ platform: c.platform, choices: null });
+    get().loadAll();
+  },
+
+  dismissChoices: () => {
+    choicesController?.abort();
+    set({ choices: null, choicesLoading: false });
+  },
+
   handleSearch: (e) => {
     e.preventDefault();
-    const { searchInput, platform } = get();
-    const trimmed = searchInput.trim();
+    const trimmed = get().searchInput.trim();
     if (!trimmed) return;
-    set({ playerName: trimmed, platform });
-    // Fetch both stats and profile
-    setTimeout(() => {
+    get().dismissChoices();
+    set({ playerName: trimmed });
+    setTimeout(async () => {
+      // /multiple resolves each name itself; a pinned name is already known
+      if (get().multipleActive || pins.has(trimmed.toLowerCase())) {
+        get().loadAll();
+        return;
+      }
+      const controller = new AbortController();
+      choicesController = controller;
+      const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
+      set({ choicesLoading: true });
+      let found: Awaited<ReturnType<typeof findAccounts>> = [];
+      try {
+        found = await findAccounts(trimmed, controller.signal);
+      } catch {
+        if (choicesController !== controller) return;
+      } finally {
+        clearTimeout(timeoutId);
+      }
+      if (get().playerName !== trimmed) return;
+      set({ choicesLoading: false });
+      if (found.length === 1) {
+        pins.set(trimmed.toLowerCase(), found[0].choice);
+        set({ platform: found[0].choice.platform });
+      } else if (found.length > 1) {
+        // Same name on several platforms: let the user pick
+        set({
+          choices: found
+            .map((f) => f.choice)
+            .sort((a, b) => (b.kills ?? -1) - (a.kills ?? -1)),
+        });
+        return;
+      }
+      // 0 found: loadAll reports "Player not found"
       get().loadAll();
     }, 0);
   },
 
   resetToDefault: () => {
+    pins.clear();
+    choicesController?.abort();
     set({
+      choices: null,
+      choicesLoading: false,
       searchInput: "",
       playerName: "",
       platform: DEFAULT_PLATFORM,
@@ -274,14 +449,14 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
         raw: "false",
         format_values: "true",
         seperation: String(separation),
-        name: playerName,
-        platform: platform,
+        ...playerParams(playerName, platform),
         skip_battlelog: "true",
         lang: "en-us",
       });
       const res = await fetch(`${STATS_API}?${params.toString()}`, {
         signal: controller.signal,
       });
+      if (res.status === 404) throw new Error(NOT_FOUND_MSG);
       if (!res.ok) throw new Error(`API error: ${res.status}`);
       const data: BF6Stats = await res.json();
       if (!data.hasResults) {
@@ -289,6 +464,8 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
           "Player not found. Please check the username and platform."
         );
       }
+      // Id lookups return userName: null
+      data.userName ||= playerName;
       clearTimeout(timeoutId);
       writeCache(cacheKey(playerName, platform, separation), {
         stats: data,
@@ -339,14 +516,14 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
 
     try {
       const params = new URLSearchParams({
-        name: playerName,
-        platform: platform,
+        ...playerParams(playerName, platform),
         skip_battlelog: "true",
         lang: "en-us",
       });
       const res = await fetch(`${PROFILE_API}?${params.toString()}`, {
         signal: controller.signal,
       });
+      if (res.status === 404) throw new Error(NOT_FOUND_MSG);
       if (!res.ok) throw new Error(`API error: ${res.status}`);
       const data: BF6Profile = await res.json();
       clearTimeout(timeoutId);

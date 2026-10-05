@@ -6,6 +6,8 @@ import Link from "next/link";
 import ThemeToggleTW from "./ThemeToggleTW";
 import { useSearch } from "@/components/SearchProvider";
 import { useCSSFramework } from "@/components/CSSFrameworkProvider";
+import { usePlayerStore } from "@/store/usePlayerStore";
+import { useAccountChoices, PLATFORM_LABELS, formatKills } from "@/components/useAccountChoices";
 
 interface SavedName {
   name: string;
@@ -34,12 +36,13 @@ export default function NavbarTW() {
     searchInput,
     setSearchInput,
     platform,
-    setPlatform,
     separation,
     setSeparation,
     handleSearch,
   } = useSearch();
   const { framework, setFramework } = useCSSFramework();
+  const { wrapperRef: accountsRef, ...accounts } = useAccountChoices();
+  const pinPlatform = usePlayerStore((st) => st.pinPlatform);
 
   const [savedNames, setSavedNames] = useState<SavedName[]>([]);
   const [showSavedMenu, setShowSavedMenu] = useState(false);
@@ -84,11 +87,10 @@ export default function NavbarTW() {
 
   const selectSavedName = useCallback(
     (saved: SavedName) => {
-      setSearchInput(saved.name);
-      setPlatform(saved.platform);
+      pinPlatform(saved.name, saved.platform);
       setShowSavedMenu(false);
     },
-    [setSearchInput, setPlatform]
+    [pinPlatform]
   );
 
   const isSaved = savedNames.some(
@@ -130,27 +132,60 @@ export default function NavbarTW() {
 
         <div className="flex items-center gap-2 flex-wrap ml-auto">
           {/* Search Form: platform | input | button in one pill */}
-          <form className="flex items-center gap-2" onSubmit={handleSearch}>
+          <form className="flex items-center gap-2" onSubmit={(e) => {
+            accounts.dismiss();
+            handleSearch(e);
+          }}>
             <div className="tw-search-group">
-              <select
-                id="platform-select-tw"
-                value={platform}
-                onChange={(e) => setPlatform(e.target.value)}
-                aria-label="Platform"
-              >
-                <option value="ea">EA</option>
-                <option value="pc">PC</option>
-                <option value="xbox">Xbox</option>
-                <option value="psn">PlayStation</option>
-              </select>
-              <input
-                id="player-search-input-tw"
-                type="text"
-                placeholder={pathname === "/multiple" ? "Players, comma separated..." : "Search player..."}
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                style={{ minWidth: "140px", width: "100%" }}
-              />
+              <div className="relative flex-1" ref={accountsRef}>
+                <input
+                  id="player-search-input-tw"
+                  type="text"
+                  placeholder={pathname === "/multiple" ? "Players, comma separated..." : "Search player..."}
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Escape" && accounts.dismiss()}
+                  style={{ minWidth: "160px", width: "100%" }}
+                />
+                {(accounts.loading || accounts.choices) && (
+                  <div
+                    className="tw-fade-in tw-glass-card tw-glass-static tw-scrollbar-thin absolute left-0 mt-3 z-50 overflow-y-auto p-1.5"
+                    // Inline position: .tw-glass-card sets position: relative, which beats the `absolute` utility
+                    style={{ position: "absolute", top: "100%", minWidth: "280px", maxHeight: "300px", background: "var(--bf6-dark)" }}
+                  >
+                    {accounts.loading ? (
+                      <span className="block px-3 py-2 text-sm" style={{ color: "var(--bf6-text-muted)" }}>
+                        Finding accounts...
+                      </span>
+                    ) : (
+                      <>
+                        <div className="tw-eyebrow px-3 pt-2 pb-1">Found on several platforms, pick one</div>
+                        {accounts.choices?.map((c) => (
+                          <button
+                            key={`${c.platform}-${c.personaId}`}
+                            type="button"
+                            className="flex w-full items-center justify-between px-3 py-2 rounded-xl cursor-pointer transition-colors text-left"
+                            style={{ backgroundColor: "transparent" }}
+                            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--bf6-search-bg)")}
+                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                            onClick={() => accounts.choose(c)}
+                          >
+                            <span>
+                              <span className="font-semibold" style={{ color: "var(--bf6-text-strong)" }}>{c.name}</span>
+                              <span className="tw-pill ml-2 py-0 text-[0.65rem]">
+                                {PLATFORM_LABELS[c.platform] ?? c.platform.toUpperCase()}
+                              </span>
+                            </span>
+                            <span className="ml-3 text-xs" style={{ color: "var(--bf6-text-muted)" }}>
+                              {formatKills(c.kills)}
+                            </span>
+                          </button>
+                        ))}
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
               <button
                 id="search-button-tw"
                 type="submit"
@@ -218,6 +253,8 @@ export default function NavbarTW() {
                 <div
                   className="tw-fade-in tw-glass-card tw-glass-static tw-scrollbar-thin absolute right-0 mt-2 z-50 overflow-y-auto p-1.5"
                   style={{
+                    position: "absolute",
+                    top: "100%",
                     minWidth: "260px",
                     maxHeight: "300px",
                     background: "var(--bf6-dark)",
