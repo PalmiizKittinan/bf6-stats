@@ -1,3 +1,15 @@
+# [1.7.0](https://github.com/PalmiizKittinan/bf6-stats/compare/v1.6.1...v1.7.0) (2026-10-05)
+
+
+### Bug Fixes
+
+* **search:** resolve the account per platform on search ([b6fab26](https://github.com/PalmiizKittinan/bf6-stats/commit/b6fab266eb68143c98ece42e07ee8c3635968761))
+
+
+### Features
+
+* **navbar:** replace platform select with an account picker ([9ff64af](https://github.com/PalmiizKittinan/bf6-stats/commit/9ff64afe3420859be31681d6eefec05f49423fe0))
+
 ## [1.6.1](https://github.com/PalmiizKittinan/bf6-stats/compare/v1.6.0...v1.6.1) (2026-10-04)
 
 
