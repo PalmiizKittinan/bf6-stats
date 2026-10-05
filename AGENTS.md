@@ -225,7 +225,11 @@ GET https://api.gametools.network/bf6/stats/?...&playerid={personaId}&nucleus_id
 
 - The release branches deploy to GitHub Pages with `output: "export"` (injected by `actions/configure-pages` in `.github/workflows/nextjs.yml`). **Route Handlers (`src/app/api/*`) break that build** — never add them; call GameTools directly from the browser.
 - `POST /bf6/multiple/` returns the same data but is **not CORS enabled** (preflight answers `allow-methods: GET`), so it cannot be called from the browser. `GET /bf6/stats/` with `playerid` + `nucleus_id` returns identical data, so `/multiple` fires one stats request per player in parallel.
-- Search is by name only; if it finds nothing the store falls back to `/bf6/stats/?name=`. A name can exist on several platforms; the first exact-name hit is used and may be an empty account (0 kills).
+- There is **no platform selector** and no autocomplete. On Search, `findAccounts()` calls `GET /bf6/player/?name=` (exact name only, one call covers all platforms) and loads stats by id for each hit. If the search finds nothing it tries `/bf6/stats/?name=` on `ea`, `steam`, `xbox`, `psn`. One account -> load it; several -> the navbar shows a picker (`useAccountChoices`: platform + kills); none -> "Player not found".
+- The chosen account is pinned per name (`pins`); `fetchStats` / `fetchProfile` then use `playerid` + `nucleus_id` (name lookup misses some accounts, e.g. Xbox). Saved names pin their platform only.
+- `/multiple` does not ask: per name it uses the pinned account, else the one with the most kills.
+- `/bf6/player/` is silently rate limited: ~10 calls within a few seconds -> `200 {"results":[]}` for ~30 s, indistinguishable from "no match". Do not call it per keystroke. Responses are Cloudflare-cached for 10 min.
+- With `playerid` + `nucleus_id` the `platform` param has no effect. Search returns `platform` values like `ea`, `steam`, `xboxone` (mapped to `ea` / `steam` / `xbox` / `psn` by `toStatsPlatform`).
 - `userName` / `avatar` can be `null` in the stats response — the store fills `userName` from the search hit.
 
 ### Query Parameters
