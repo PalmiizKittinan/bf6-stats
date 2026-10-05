@@ -6,6 +6,8 @@ import Link from "next/link";
 import ThemeToggle from "./ThemeToggle";
 import { useSearch } from "./SearchProvider";
 import { useCSSFramework } from "./CSSFrameworkProvider";
+import { usePlayerStore } from "@/store/usePlayerStore";
+import { useAccountChoices, PLATFORM_LABELS, formatKills } from "./useAccountChoices";
 
 interface SavedName {
   name: string;
@@ -34,12 +36,13 @@ export default function Navbar() {
     searchInput,
     setSearchInput,
     platform,
-    setPlatform,
     separation,
     setSeparation,
     handleSearch,
   } = useSearch();
   const { framework, setFramework } = useCSSFramework();
+  const { wrapperRef: accountsRef, ...accounts } = useAccountChoices();
+  const pinPlatform = usePlayerStore((st) => st.pinPlatform);
 
   const [savedNames, setSavedNames] = useState<SavedName[]>([]);
   const [showSavedMenu, setShowSavedMenu] = useState(false);
@@ -87,11 +90,10 @@ export default function Navbar() {
 
   const selectSavedName = useCallback(
     (saved: SavedName) => {
-      setSearchInput(saved.name);
-      setPlatform(saved.platform);
+      pinPlatform(saved.name, saved.platform);
       setShowSavedMenu(false);
     },
-    [setSearchInput, setPlatform]
+    [pinPlatform]
   );
 
   const isSaved = savedNames.some(
@@ -141,28 +143,54 @@ export default function Navbar() {
           />
 
           {/* Search */}
-          <form className="d-flex gap-2 align-items-center" onSubmit={handleSearch}>
-            <select
-              id="platform-select"
-              className="form-select form-select-sm search-input"
-              style={{ width: "100px" }}
-              value={platform}
-              onChange={(e) => setPlatform(e.target.value)}
-            >
-              <option value="ea">EA</option>
-              <option value="pc">PC</option>
-              <option value="xbox">Xbox</option>
-              <option value="psn">PlayStation</option>
-            </select>
-            <input
-              id="player-search-input"
-              type="text"
-              className="form-control form-control-sm search-input"
-              placeholder={pathname === "/multiple" ? "Players, comma separated..." : "Search player..."}
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              style={{ minWidth: "150px" }}
-            />
+          <form className="d-flex gap-2 align-items-center" onSubmit={(e) => {
+            accounts.dismiss();
+            handleSearch(e);
+          }}>
+            <div className="position-relative" ref={accountsRef}>
+              <input
+                id="player-search-input"
+                type="text"
+                className="form-control form-control-sm search-input"
+                placeholder={pathname === "/multiple" ? "Players, comma separated..." : "Search player..."}
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Escape" && accounts.dismiss()}
+                style={{ minWidth: "180px" }}
+              />
+              {(accounts.loading || accounts.choices) && (
+                <div
+                  className="dropdown-menu show mt-1"
+                  style={{ position: "absolute", left: 0, zIndex: 1050, minWidth: "280px" }}
+                >
+                  {accounts.loading ? (
+                    <span className="dropdown-item-text text-muted small">Finding accounts...</span>
+                  ) : (
+                    <>
+                      <span className="dropdown-item-text text-muted small">
+                        Found on several platforms, pick one:
+                      </span>
+                      {accounts.choices?.map((c) => (
+                        <button
+                          key={`${c.platform}-${c.personaId}`}
+                          type="button"
+                          className="dropdown-item d-flex justify-content-between align-items-center"
+                          onClick={() => accounts.choose(c)}
+                        >
+                          <span>
+                            <span className="fw-semibold">{c.name}</span>
+                            <span className="badge bg-secondary ms-2" style={{ fontSize: "0.65rem" }}>
+                              {PLATFORM_LABELS[c.platform] ?? c.platform.toUpperCase()}
+                            </span>
+                          </span>
+                          <small className="text-muted ms-3">{formatKills(c.kills)}</small>
+                        </button>
+                      ))}
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
             <button
               id="search-button"
               className="btn btn-sm"
