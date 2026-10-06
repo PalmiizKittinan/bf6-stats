@@ -14,6 +14,8 @@ import MapsTable from "@/components/MapsTable";
 import GadgetsTable from "@/components/GadgetsTable";
 import { EmptyState, LoadingState, RefreshingBar, ErrorState } from "./TailwindShared";
 
+const COMPARE_HINT = "To compare players, separate names with a comma (,) in the search box.";
+
 export default function MultiplePageTW() {
   const {
     playerName,
@@ -43,7 +45,7 @@ export default function MultiplePageTW() {
         </div>
       )}
 
-      {!playerName && !multipleLoading && <EmptyState />}
+      {!playerName && !multipleLoading && <EmptyState hint={COMPARE_HINT} />}
 
       {playerName && !multiple && !multipleLoading && !multipleError && (
         <div className="text-center py-20">
@@ -52,6 +54,9 @@ export default function MultiplePageTW() {
             <h4 className="text-xl font-bold mb-2" style={{ color: "var(--bf6-text-strong)" }}>
               Compare stats for {playerName}
             </h4>
+            <p className="text-sm mb-0" style={{ color: "var(--bf6-text-muted)" }}>
+              ℹ️ {COMPARE_HINT}
+            </p>
             <button className="tw-btn tw-btn-primary mt-4" onClick={fetchMultiple}>
               Load Stats
             </button>

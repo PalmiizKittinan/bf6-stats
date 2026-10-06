@@ -55,7 +55,7 @@ export function MiniStat({ label, value, accent }: { label: string; value: React
   );
 }
 
-export function EmptyState() {
+export function EmptyState({ hint }: { hint?: string }) {
   return (
     <div className="text-center py-20">
       <div className="tw-glass-card tw-glass-static tw-rise relative overflow-hidden px-8 py-12 mx-auto" style={{ maxWidth: 560 }}>
@@ -67,6 +67,11 @@ export function EmptyState() {
           <p className="mb-0" style={{ color: "var(--bf6-text-muted)" }}>
             Please enter a player name in the search bar above to start tracking stats.
           </p>
+          {hint && (
+            <p className="mt-3 mb-0 text-sm" style={{ color: "var(--bf6-text-muted)" }}>
+              ℹ️ {hint}
+            </p>
+          )}
         </div>
       </div>
     </div>
