@@ -104,11 +104,11 @@ export default function Navbar() {
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bf6-navbar">
-      <div className="container">
-        <span className="navbar-brand fw-bold">
+      <div className="container-fluid px-lg-4 justify-content-center gap-3">
+        <span className="navbar-brand fw-bold m-0">
           <span className="stat-highlight">BF6</span> Stats Dashboard
         </span>
-        <div className="d-flex align-items-center gap-2 ms-auto flex-wrap">
+        <div className="d-flex align-items-center justify-content-center gap-2 flex-wrap flex-xl-nowrap">
           {/* Nav Tabs - Left */}
           <Link
             href="/profile"
