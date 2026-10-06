@@ -15,6 +15,8 @@ import GadgetsTable from "@/components/GadgetsTable";
 import CompareTable from "@/components/CompareTable";
 import MultiplePageTW from "@/components/tailwind/MultiplePageTW";
 
+const COMPARE_HINT = "To compare players, separate names with a comma (,) in the search box.";
+
 export default function MultiplePage() {
   const { framework } = useCSSFramework();
   const setMultipleActive = usePlayerStore((s) => s.setMultipleActive);
@@ -69,6 +71,7 @@ function MultiplePageBootstrap() {
             <p className="text-muted mb-0">
               Please enter a player name in the search bar above to start tracking stats.
             </p>
+            <p className="text-muted small mt-3 mb-0">ℹ️ {COMPARE_HINT}</p>
           </div>
         </div>
       )}
@@ -77,7 +80,8 @@ function MultiplePageBootstrap() {
         <div className="text-center py-5">
           <div className="stats-card p-5 mx-auto" style={{ maxWidth: 520 }}>
             <div className="fs-1 mb-3">📈</div>
-            <h4 className="text-white fw-bold mb-3">Compare stats for {playerName}</h4>
+            <h4 className="text-white fw-bold mb-2">Compare stats for {playerName}</h4>
+            <p className="text-muted small mb-3">ℹ️ {COMPARE_HINT}</p>
             <button
               className="btn btn-sm"
               style={{ backgroundColor: "#e94560", color: "white", borderColor: "#e94560" }}
