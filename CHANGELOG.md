@@ -1,3 +1,16 @@
+# [1.8.0](https://github.com/PalmiizKittinan/bf6-stats/compare/v1.7.0...v1.8.0) (2026-10-06)
+
+
+### Bug Fixes
+
+* **footer:** make footer sticky and full width in tailwind ([cc41977](https://github.com/PalmiizKittinan/bf6-stats/commit/cc4197716999bc94cbe5cbaa241d1b9384d7f4e2))
+* **navbar:** widen and center bootstrap topbar ([aa825a6](https://github.com/PalmiizKittinan/bf6-stats/commit/aa825a647f73a3fb77be16a4bae1bc251da420d0))
+
+
+### Features
+
+* **multiple:** hint to separate names with comma ([e80e7d8](https://github.com/PalmiizKittinan/bf6-stats/commit/e80e7d85dd355bac002bd7592a6e6623a00b1ec2))
+
 # [1.7.0](https://github.com/PalmiizKittinan/bf6-stats/compare/v1.6.1...v1.7.0) (2026-10-05)
 
 
