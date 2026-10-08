@@ -407,6 +407,15 @@
   cursor: pointer;
 }
 
+/* Browser autofill (picking from native suggestions) paints its own bg; keep the pill's */
+.tw-search-group input:-webkit-autofill,
+.tw-search-group input:-webkit-autofill:hover,
+.tw-search-group input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--bf6-text-strong);
+  caret-color: var(--bf6-text-strong);
+  transition: background-color 600000s 0s, color 600000s 0s;
+}
+
 .tw-search-group input::placeholder {
   color: var(--bf6-text-muted);
 }

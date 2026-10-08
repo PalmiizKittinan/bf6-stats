@@ -1,3 +1,10 @@
+## [1.8.1](https://github.com/PalmiizKittinan/bf6-stats/compare/v1.8.0...v1.8.1) (2026-10-08)
+
+
+### Bug Fixes
+
+* **navbar:** keep tailwind search input bg on browser autofill ([13b31ed](https://github.com/PalmiizKittinan/bf6-stats/commit/13b31ed1e9430a683c0ea98a150c7257c789b833))
+
 # [1.8.0](https://github.com/PalmiizKittinan/bf6-stats/compare/v1.7.0...v1.8.0) (2026-10-06)
 
 
