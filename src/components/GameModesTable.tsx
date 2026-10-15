@@ -1,12 +1,18 @@
 "use client";
 
+import { useState } from "react";
 import { GameModeDetail } from "@/types/bf6";
+import { useSlideHeight } from "./useSlideHeight";
+
+const PAGE_SIZE = 6;
 
 interface GameModesTableProps {
   gameModes: GameModeDetail[];
 }
 
 export default function GameModesTable({ gameModes }: GameModesTableProps) {
+  const [index, setIndex] = useState(0);
+  const { height, setRef } = useSlideHeight(index);
   if (!gameModes || gameModes.length === 0) return null;
 
   // Filter out "Official" and "All" type entries
@@ -16,11 +22,51 @@ export default function GameModesTable({ gameModes }: GameModesTableProps) {
 
   if (filtered.length === 0) return null;
 
+  const sorted = [...filtered].sort((a, b) => b.matches - a.matches);
+  const pages: GameModeDetail[][] = [];
+  for (let i = 0; i < sorted.length; i += PAGE_SIZE) pages.push(sorted.slice(i, i + PAGE_SIZE));
+  const last = pages.length - 1;
+  const go = (i: number) => setIndex(Math.min(last, Math.max(0, i)));
+
   return (
     <div className="mb-4">
-      <h5 className="section-title">🎮 Game Modes</h5>
-      <div className="row g-3">
-        {filtered.map((gm) => (
+      <h5 className="section-title">
+        🎮 Game Modes
+        {pages.length > 1 && (
+          <span className="float-end d-flex align-items-center gap-2">
+            <button
+              className="btn btn-sm btn-outline-secondary"
+              onClick={() => go(index - 1)}
+              disabled={index === 0}
+              aria-label="Previous page"
+              style={{ padding: "2px 8px", fontSize: "0.75rem" }}
+            >
+              ◀
+            </button>
+            <span className="text-muted small" style={{ fontSize: "0.75rem" }}>
+              {index + 1}/{pages.length}
+            </span>
+            <button
+              className="btn btn-sm btn-outline-secondary"
+              onClick={() => go(index + 1)}
+              disabled={index === last}
+              aria-label="Next page"
+              style={{ padding: "2px 8px", fontSize: "0.75rem" }}
+            >
+              ▶
+            </button>
+          </span>
+        )}
+      </h5>
+      <div style={{ overflow: "hidden", height, transition: "height 0.35s ease" }}>
+        <div
+          className="d-flex align-items-start"
+          style={{ transform: `translateX(-${index * 100}%)`, transition: "transform 0.35s ease" }}
+        >
+          {pages.map((page, pi) => (
+            <div key={pi} ref={setRef(pi)} className="flex-shrink-0 w-100" aria-hidden={pi !== index}>
+              <div className="row g-3">
+        {page.map((gm) => (
           <div key={gm.id} className="col-12 col-md-6">
             <div className="stats-card p-3 h-100">
               <div className="d-flex align-items-center mb-3">
@@ -99,7 +145,26 @@ export default function GameModesTable({ gameModes }: GameModesTableProps) {
             </div>
           </div>
         ))}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
+
+      {pages.length > 1 && (
+        <div className="d-flex justify-content-center gap-2 mt-3">
+          {pages.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              aria-label={`Page ${i + 1}`}
+              onClick={() => go(i)}
+              className="border-0 rounded-circle p-0"
+              style={{ width: 8, height: 8, background: i === index ? "#e94560" : "rgba(255,255,255,0.3)" }}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
