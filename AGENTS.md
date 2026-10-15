@@ -109,7 +109,7 @@ bf6-stats/
     │   ├── StatCards.tsx            # Bootstrap stat cards grid
     │   ├── DamageBreakdown.tsx     # Damage & assists breakdown with progress bars
     │   ├── ClassesTable.tsx        # Class cards (Assault, Engineer, Support, Recon)
-    │   ├── GameModesTable.tsx      # Game mode cards (Conquest, Breakthrough)
+    │   ├── GameModesTable.tsx      # Game mode cards in a carousel (6 per page, sorted by Matches)
     │   ├── WeaponsTable.tsx        # Weapons DataTable with images
     │   ├── VehiclesTable.tsx       # Vehicles DataTable with images
     │   ├── MapsTable.tsx           # Maps DataTable with thumbnails
@@ -117,6 +117,7 @@ bf6-stats/
     │   ├── DataTable.tsx           # Generic reusable DataTable (search, sort, pagination)
     │   ├── CompareTable.tsx        # Multi-player stat comparison table (best value, rank, delta vs reference)
     │   ├── PerSeasonCarousel.tsx   # Per-season stats carousel (data helpers in perSeason.ts)
+    │   ├── useSlideHeight.ts       # Hook: height of the active carousel slide (dynamic carousel height)
     │   ├── ThemeProvider.tsx       # Context provider for theme (dark/light/system) using useSyncExternalStore
     │   ├── ThemeToggle.tsx         # Bootstrap theme toggle buttons
     │   ├── Dashboard.tsx           # Legacy single-page dashboard (unused by routing)
@@ -450,8 +451,8 @@ docker compose up --build
 
 ### GitHub Actions
 
-- **`ci.yml`**: Runs `npm ci` → `npm run lint` → `npm run build` on push/PR to `master`
-- **`release.yml`**: Runs build, lint, then `npx semantic-release` on push to `master` (skips `[skip ci]` commits)
+- **`ci.yml`**: Build & lint on push/PR to `master`; on push to `master` (not `[skip ci]`) also runs `npx semantic-release`
+- **`nextjs.yml`**: Builds and deploys to GitHub Pages on push to `release/*`
 
 ### Semantic Release (`.releaserc.json`)
 
@@ -461,6 +462,22 @@ docker compose up --build
   - `fix:`, `perf:`, `refactor:` → patch release
   - `docs:`, `chore:`, `ci:`, `test:`, `style:`, `build:` → no release
 - Plugins: commit-analyzer, release-notes-generator, changelog, npm (no publish), git (commits package.json + CHANGELOG.md), github (creates GitHub Release)
+
+### Release Flow
+
+`develop` → `master` (CI + semantic-release) → `release/v<major>.x` (GitHub Pages deploy via `nextjs.yml`).
+
+When the user asks to "release" / "ทำ release flow", run these steps in order (pushing is authorized by that request):
+
+1. **develop**: commit with Conventional Commits (`fix:` / `feat:` …), then `git push origin develop`.
+2. **master**: `git checkout master && git pull --ff-only origin master`, then `git merge --no-ff develop -m "Merge branch 'develop'"` and `git push origin master`.
+3. **Wait for semantic-release**: CI (`ci.yml`) builds, then semantic-release pushes a `chore(release): X.Y.Z [skip ci]` commit (bumps `package.json` + `CHANGELOG.md`) to `master`. Poll `git fetch origin master` until `origin/master` moves past the merge commit, then `git pull --ff-only origin master`.
+4. **release/v<major>.x**: `git checkout release/v1.x && git pull --ff-only origin release/v1.x`, then `git merge --no-ff master -m "Merge branch 'master' into release/v1.x"` and `git push origin release/v1.x`. This push triggers the GitHub Pages deploy. Use the branch matching the current major version (`v1.x` while `package.json` is 1.x.x; create `release/v2.x` when a major bump ships).
+5. **Sync back**: `git checkout develop && git merge --ff-only master` so `develop` carries the release commit (version + changelog). Do not push unless needed — pushing `develop` is safe and keeps it level with `master`.
+
+Notes:
+- Only `docs/chore/ci/test/style/build` commits produce no release — step 3 would never see a new commit, so skip the wait and steps 4–5 unless the user still wants to deploy.
+- Never force-push `master` or `release/*`. Never skip hooks.
 
 ---
 
