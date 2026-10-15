@@ -4,13 +4,25 @@
  * Shared Tailwind UI primitives used across ProfileTW, StatCardsTW, and StatsPageTW.
  */
 
-export function SectionTitle({ icon, title, children }: { icon: string; title: string; children?: React.ReactNode }) {
+export function SectionTitle({
+  icon,
+  title,
+  children,
+  controlsFirst = false,
+}: {
+  icon: string;
+  title: string;
+  children?: React.ReactNode;
+  /** Place children right after the title (before the rule) instead of at the far end. */
+  controlsFirst?: boolean;
+}) {
   return (
     <div className="tw-section-head">
       <span className="tw-icon-badge tw-icon-badge-sm">{icon}</span>
       <h5 className="tw-section-title">{title}</h5>
+      {controlsFirst && children}
       <span className="tw-section-rule" />
-      {children}
+      {!controlsFirst && children}
     </div>
   );
 }

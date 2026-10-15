@@ -20,11 +20,11 @@ export default function PerSeasonCarousel({ perSeason }: { perSeason: PerSeasonS
         📅 Stats by Season
         <span className="float-end d-flex align-items-center gap-2">
           <button
-            className="btn btn-sm btn-outline-secondary"
+            className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center justify-content-center"
             onClick={() => go(index - 1)}
             disabled={index === 0}
             aria-label="Newer season"
-            style={{ padding: "2px 8px", fontSize: "0.75rem" }}
+            style={{ width: 28, height: 28, padding: 0, fontSize: "0.7rem", borderRadius: "50%" }}
           >
             ◀
           </button>
@@ -32,11 +32,11 @@ export default function PerSeasonCarousel({ perSeason }: { perSeason: PerSeasonS
             {index + 1}/{pages.length}
           </span>
           <button
-            className="btn btn-sm btn-outline-secondary"
+            className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center justify-content-center"
             onClick={() => go(index + 1)}
             disabled={index === last}
             aria-label="Older season"
-            style={{ padding: "2px 8px", fontSize: "0.75rem" }}
+            style={{ width: 28, height: 28, padding: 0, fontSize: "0.7rem", borderRadius: "50%" }}
           >
             ▶
           </button>
@@ -98,7 +98,7 @@ export default function PerSeasonCarousel({ perSeason }: { perSeason: PerSeasonS
             aria-label={s.label}
             onClick={() => go(i)}
             className="border-0 rounded-circle p-0"
-            style={{ width: 8, height: 8, background: i === index ? "#e94560" : "rgba(255,255,255,0.3)" }}
+            style={{ width: 8, height: 8, minWidth: 8, padding: 0, border: 0, borderRadius: "50%", flexShrink: 0, appearance: "none", background: i === index ? "#e94560" : "rgba(255,255,255,0.3)" }}
           />
         ))}
       </div>
