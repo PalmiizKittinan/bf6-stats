@@ -1,3 +1,10 @@
+## [1.8.3](https://github.com/PalmiizKittinan/bf6-stats/compare/v1.8.2...v1.8.3) (2026-10-15)
+
+
+### Bug Fixes
+
+* **stats:** unify carousel navigation between seasons and game modes ([7f34a45](https://github.com/PalmiizKittinan/bf6-stats/commit/7f34a45c09e48c088c5625ac4a81ccd04f3cce81))
+
 ## [1.8.2](https://github.com/PalmiizKittinan/bf6-stats/compare/v1.8.1...v1.8.2) (2026-10-15)
 
 
