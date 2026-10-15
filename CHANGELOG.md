@@ -1,3 +1,11 @@
+## [1.8.2](https://github.com/PalmiizKittinan/bf6-stats/compare/v1.8.1...v1.8.2) (2026-10-15)
+
+
+### Bug Fixes
+
+* **stats:** fit season carousel height to the active slide ([4c2bef8](https://github.com/PalmiizKittinan/bf6-stats/commit/4c2bef88c7af9aa361124b35e20c4567d7e68bdd))
+* **stats:** show game modes as a 6-card carousel sorted by matches ([bb3033c](https://github.com/PalmiizKittinan/bf6-stats/commit/bb3033ced64365bcd65aab8177c668b053ec7b69))
+
 ## [1.8.1](https://github.com/PalmiizKittinan/bf6-stats/compare/v1.8.0...v1.8.1) (2026-10-08)
 
 
