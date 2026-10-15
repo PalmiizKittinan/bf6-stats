@@ -3,11 +3,13 @@
 import { useState } from "react";
 import { PerSeasonStats } from "@/types/bf6";
 import { buildSeasonPages } from "@/components/perSeason";
+import { useSlideHeight } from "@/components/useSlideHeight";
 import { SectionTitle, MiniStat } from "./TailwindShared";
 
 export default function PerSeasonCarouselTW({ perSeason }: { perSeason: PerSeasonStats }) {
   const pages = buildSeasonPages(perSeason);
   const [index, setIndex] = useState(0);
+  const { height, setRef } = useSlideHeight(index);
   if (pages.length === 0) return null;
 
   const last = pages.length - 1;
@@ -29,13 +31,13 @@ export default function PerSeasonCarouselTW({ perSeason }: { perSeason: PerSeaso
         </span>
       </SectionTitle>
 
-      <div className="overflow-hidden">
+      <div className="overflow-hidden" style={{ height, transition: "height 0.35s ease" }}>
         <div
-          className="flex"
+          className="flex items-start"
           style={{ transform: `translateX(-${index * 100}%)`, transition: "transform 0.35s ease" }}
         >
           {pages.map((season, i) => (
-            <div key={season.key} className="w-full shrink-0 px-1" aria-hidden={i !== index}>
+            <div key={season.key} ref={setRef(i)} className="w-full shrink-0 px-1" aria-hidden={i !== index}>
               <div className="flex items-center gap-2 mb-3">
                 <h6 className="font-bold text-xl tracking-tight m-0" style={{ color: "var(--bf6-text-strong)" }}>
                   {season.label}
