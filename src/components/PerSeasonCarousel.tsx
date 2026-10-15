@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { PerSeasonStats } from "@/types/bf6";
 import { buildSeasonPages } from "./perSeason";
+import { useSlideHeight } from "./useSlideHeight";
 
 export default function PerSeasonCarousel({ perSeason }: { perSeason: PerSeasonStats }) {
   const pages = buildSeasonPages(perSeason);
   const [index, setIndex] = useState(0);
+  const { height, setRef } = useSlideHeight(index);
   if (pages.length === 0) return null;
 
   const last = pages.length - 1;
@@ -41,13 +43,13 @@ export default function PerSeasonCarousel({ perSeason }: { perSeason: PerSeasonS
         </span>
       </h5>
 
-      <div style={{ overflow: "hidden" }}>
+      <div style={{ overflow: "hidden", height, transition: "height 0.35s ease" }}>
         <div
-          className="d-flex"
+          className="d-flex align-items-start"
           style={{ transform: `translateX(-${index * 100}%)`, transition: "transform 0.35s ease" }}
         >
           {pages.map((season, i) => (
-            <div key={season.key} className="flex-shrink-0 w-100 px-1" aria-hidden={i !== index}>
+            <div key={season.key} ref={setRef(i)} className="flex-shrink-0 w-100 px-1" aria-hidden={i !== index}>
               <h6 className="text-white fw-bold mb-3">
                 {season.label}
                 {i === 0 && <span className="badge bg-danger ms-2">Latest</span>}
