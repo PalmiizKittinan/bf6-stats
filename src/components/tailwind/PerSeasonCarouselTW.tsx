@@ -17,7 +17,7 @@ export default function PerSeasonCarouselTW({ perSeason }: { perSeason: PerSeaso
 
   return (
     <div className="mb-8">
-      <SectionTitle icon="📅" title="Stats by Season">
+      <SectionTitle icon="📅" title="Stats by Season" controlsFirst>
         <span className="flex items-center gap-2">
           <button className="tw-btn tw-btn-xs" onClick={() => go(index - 1)} disabled={index === 0} aria-label="Newer season">
             ◀
@@ -92,8 +92,8 @@ export default function PerSeasonCarouselTW({ perSeason }: { perSeason: PerSeaso
             type="button"
             aria-label={s.label}
             onClick={() => go(i)}
-            className="rounded-full"
-            style={{ width: 8, height: 8, background: i === index ? "var(--bf6-accent)" : "var(--bf6-border)" }}
+            className="rounded-full border-0 p-0"
+            style={{ width: 8, height: 8, minWidth: 8, padding: 0, border: 0, borderRadius: "50%", flexShrink: 0, appearance: "none", background: i === index ? "var(--bf6-accent)" : "var(--bf6-border)" }}
           />
         ))}
       </div>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { GameModeDetail } from "@/types/bf6";
 import { useSlideHeight } from "./useSlideHeight";
+import { useCSSFramework } from "./CSSFrameworkProvider";
 
 const PAGE_SIZE = 6;
 
@@ -13,6 +14,7 @@ interface GameModesTableProps {
 export default function GameModesTable({ gameModes }: GameModesTableProps) {
   const [index, setIndex] = useState(0);
   const { height, setRef } = useSlideHeight(index);
+  const tw = useCSSFramework().framework === "tailwind";
   if (!gameModes || gameModes.length === 0) return null;
 
   // Filter out "Official" and "All" type entries
@@ -35,23 +37,26 @@ export default function GameModesTable({ gameModes }: GameModesTableProps) {
         {pages.length > 1 && (
           <span className="float-end d-flex align-items-center gap-2">
             <button
-              className="btn btn-sm btn-outline-secondary"
+              className={tw ? "tw-btn tw-btn-xs" : "btn btn-sm btn-outline-secondary d-inline-flex align-items-center justify-content-center"}
               onClick={() => go(index - 1)}
               disabled={index === 0}
               aria-label="Previous page"
-              style={{ padding: "2px 8px", fontSize: "0.75rem" }}
+              style={tw ? undefined : { width: 28, height: 28, padding: 0, fontSize: "0.7rem", borderRadius: "50%" }}
             >
               ◀
             </button>
-            <span className="text-muted small" style={{ fontSize: "0.75rem" }}>
+            <span
+              className={tw ? "text-xs tabular-nums" : "text-muted small"}
+              style={tw ? { color: "var(--bf6-text-muted)" } : { fontSize: "0.75rem" }}
+            >
               {index + 1}/{pages.length}
             </span>
             <button
-              className="btn btn-sm btn-outline-secondary"
+              className={tw ? "tw-btn tw-btn-xs" : "btn btn-sm btn-outline-secondary d-inline-flex align-items-center justify-content-center"}
               onClick={() => go(index + 1)}
               disabled={index === last}
               aria-label="Next page"
-              style={{ padding: "2px 8px", fontSize: "0.75rem" }}
+              style={tw ? undefined : { width: 28, height: 28, padding: 0, fontSize: "0.7rem", borderRadius: "50%" }}
             >
               ▶
             </button>
@@ -64,11 +69,11 @@ export default function GameModesTable({ gameModes }: GameModesTableProps) {
           style={{ transform: `translateX(-${index * 100}%)`, transition: "transform 0.35s ease" }}
         >
           {pages.map((page, pi) => (
-            <div key={pi} ref={setRef(pi)} className="flex-shrink-0 w-100" aria-hidden={pi !== index}>
+            <div key={pi} ref={setRef(pi)} className="flex-shrink-0 w-100 px-1" aria-hidden={pi !== index}>
               <div className="row g-3">
         {page.map((gm) => (
-          <div key={gm.id} className="col-12 col-md-6">
-            <div className="stats-card p-3 h-100">
+          <div key={gm.id} className="col-12 col-md-6 col-lg-4">
+            <div className="season-badge p-3 h-100">
               <div className="d-flex align-items-center mb-3">
                 {gm.image && (
                   <img
@@ -152,7 +157,7 @@ export default function GameModesTable({ gameModes }: GameModesTableProps) {
       </div>
 
       {pages.length > 1 && (
-        <div className="d-flex justify-content-center gap-2 mt-3">
+        <div className={tw ? "d-flex justify-content-center gap-2 mt-4" : "d-flex justify-content-center gap-2 mt-3"}>
           {pages.map((_, i) => (
             <button
               key={i}
@@ -160,7 +165,19 @@ export default function GameModesTable({ gameModes }: GameModesTableProps) {
               aria-label={`Page ${i + 1}`}
               onClick={() => go(i)}
               className="border-0 rounded-circle p-0"
-              style={{ width: 8, height: 8, background: i === index ? "#e94560" : "rgba(255,255,255,0.3)" }}
+              style={{
+                width: 8,
+                height: 8,
+                minWidth: 8,
+                padding: 0,
+                border: 0,
+                borderRadius: "50%",
+                flexShrink: 0,
+                appearance: "none",
+                background: tw
+                  ? i === index ? "var(--bf6-accent)" : "var(--bf6-border)"
+                  : i === index ? "#e94560" : "rgba(255,255,255,0.3)",
+              }}
             />
           ))}
         </div>
