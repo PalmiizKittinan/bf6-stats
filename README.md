@@ -173,7 +173,9 @@ Notes:
 - **Only pushes to `release/*` deploy.** Pushing to `develop` or `master` never touches the live site; `nextjs.yml` can also be started manually (`workflow_dispatch`).
 - `docs:` / `chore:` / `ci:` / `test:` / `style:` / `build:` commits do not trigger a release, so `master` gets no release commit.
 - Use the `release/v<major>.x` branch matching `package.json` (`release/v1.x` while the version is `1.x.x`).
-- Merge into `release/*` with `--no-ff` so each deploy leaves a merge commit; never force-push `master` or `release/*`.
+- **Why `--no-ff` for `release/*`:** `release/*` already carries merge commits that `master` does not have, so it is no longer an ancestor of `master` and `--ff-only` would be rejected. `--no-ff` always works, and each deploy leaves one merge commit that marks when it happened. `release/*` is only a deploy trigger — nobody commits on it.
+- **Why `--ff-only` for `master` → `develop`:** `develop` only ever falls behind `master` (the release commit), so it can always fast-forward. If it fails, `develop` has diverged — stop and investigate.
+- Never force-push `master` or `release/*`.
 - GitHub Pages must be set to **Source: GitHub Actions** in the repository settings.
 
 ---
@@ -181,6 +183,9 @@ Notes:
 ## Project Structure
 
 ```text
+.github/workflows/
+├── ci.yml                       # Build & lint on push/PR to master; semantic-release on push to master
+└── nextjs.yml                   # Build & deploy to GitHub Pages on push to release/*
 src/
 ├── app/
 │   ├── globals.css              # Global styles, Bootstrap + Tailwind, CSS variables, dark/light themes
@@ -203,7 +208,7 @@ src/
 │   ├── StatCards.tsx            # Bootstrap stat cards grid
 │   ├── DamageBreakdown.tsx      # Damage & assists breakdown with progress bars
 │   ├── ClassesTable.tsx         # Class cards (Assault, Engineer, Support, Recon)
-│   ├── GameModesTable.tsx       # Game mode cards (Conquest, Breakthrough)
+│   ├── GameModesTable.tsx       # Game mode cards in a carousel (6 per page, sorted by Matches)
 │   ├── WeaponsTable.tsx         # Weapons DataTable with images
 │   ├── VehiclesTable.tsx        # Vehicles DataTable with images
 │   ├── MapsTable.tsx            # Maps DataTable with thumbnails
@@ -211,6 +216,9 @@ src/
 │   ├── DataTable.tsx            # Generic reusable DataTable (search, sort, pagination)
 │   ├── CompareTable.tsx         # Multi-player comparison table
 │   ├── PerSeasonCarousel.tsx    # Per-season stats carousel
+│   ├── perSeason.ts             # Data helpers for the per-season carousels
+│   ├── useSlideHeight.ts        # Hook: height of the active carousel slide
+│   ├── useAccountChoices.ts     # Hook: account picker choices (platform + kills) for the navbar
 │   ├── ThemeProvider.tsx        # Context provider for theme (dark/light/system)
 │   ├── ThemeToggle.tsx          # Bootstrap theme toggle buttons
 │   ├── Dashboard.tsx            # Legacy single-page dashboard (unused)
@@ -221,6 +229,7 @@ src/
 │   │   ├── FooterTW.tsx         # Tailwind footer
 │   │   ├── PlayerHeaderTW.tsx   # Tailwind player header with glow effects
 │   │   ├── StatCardsTW.tsx      # Tailwind glass-morphism stat cards
+│   │   ├── TailwindShared.tsx   # Shared Tailwind UI primitives (SectionTitle, StatGrid, StatCard, states)
 │   │   ├── ProfileTW.tsx        # Full Tailwind Profile page
 │   │   ├── StatsPageTW.tsx      # Full Tailwind Stats page
 │   │   ├── MultiplePageTW.tsx   # Full Tailwind Multiple (compare) page

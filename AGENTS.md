@@ -116,8 +116,10 @@ bf6-stats/
     │   ├── GadgetsTable.tsx        # Gadgets DataTable with images
     │   ├── DataTable.tsx           # Generic reusable DataTable (search, sort, pagination)
     │   ├── CompareTable.tsx        # Multi-player stat comparison table (best value, rank, delta vs reference)
-    │   ├── PerSeasonCarousel.tsx   # Per-season stats carousel (data helpers in perSeason.ts)
+    │   ├── PerSeasonCarousel.tsx   # Per-season stats carousel
+    │   ├── perSeason.ts            # Data helpers for the per-season carousels
     │   ├── useSlideHeight.ts       # Hook: height of the active carousel slide (dynamic carousel height)
+    │   ├── useAccountChoices.ts    # Hook: account picker choices (platform + kills) for the navbar
     │   ├── ThemeProvider.tsx       # Context provider for theme (dark/light/system) using useSyncExternalStore
     │   ├── ThemeToggle.tsx         # Bootstrap theme toggle buttons
     │   ├── Dashboard.tsx           # Legacy single-page dashboard (unused by routing)
@@ -480,6 +482,10 @@ When the user asks to "release" / "ทำ release flow", run these steps in orde
 3. **Wait for semantic-release**: CI (`ci.yml`) builds, then semantic-release pushes a `chore(release): X.Y.Z [skip ci]` commit (bumps `package.json` + `CHANGELOG.md`) to `master`. Poll `git fetch origin master` until `origin/master` moves past the merge commit, then `git pull --ff-only origin master`.
 4. **release/v<major>.x**: `git checkout release/v1.x && git pull --ff-only origin release/v1.x`, then `git merge --no-ff master -m "Merge branch 'master' into release/v1.x"` and `git push origin release/v1.x`. This push triggers the GitHub Pages deploy. Use the branch matching the current major version (`v1.x` while `package.json` is 1.x.x; create `release/v2.x` when a major bump ships).
 5. **Sync back**: `git checkout develop && git merge --ff-only master` so `develop` carries the release commit (version + changelog). Do not push unless needed — pushing `develop` is safe and keeps it level with `master`.
+
+Why these merge strategies:
+- `release/*` → `--no-ff`: it already carries merge commits that `master` lacks, so it is not an ancestor of `master` and `--ff-only` is rejected. `--no-ff` always works and each deploy leaves one merge commit. `release/*` is only a deploy trigger — never commit on it.
+- `master` → `develop` → `--ff-only`: `develop` only falls behind `master` (the release commit), so it can always fast-forward. If it fails, `develop` has diverged — stop and report.
 
 Notes:
 - Only `docs/chore/ci/test/style/build` commits produce no release — step 3 would never see a new commit, so skip the wait and steps 4–5 unless the user still wants to deploy.
