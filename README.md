@@ -151,6 +151,33 @@ The compose setup mounts `src/` and `public/` into the container, so code change
 
 ---
 
+## 🚀 Deployment (GitHub Pages)
+
+The site is a static export hosted on GitHub Pages. Deployment is driven entirely by branches:
+
+```text
+develop → master (--no-ff) → [semantic-release] → release/* (--ff-only)
+                                  ↓
+                        master → develop (plain merge)
+```
+
+| Step | Branch move | Workflow | What happens |
+| ---- | ----------- | -------- | ------------ |
+| 1 | commit on `develop` | — | Use Conventional Commits (`feat:`, `fix:`, …) |
+| 2 | `develop` → `master` (`--no-ff`) | `ci.yml` | Build & Lint, then `semantic-release` bumps `package.json` + `CHANGELOG.md`, pushes a `chore(release): X.Y.Z [skip ci]` commit to `master` and creates a GitHub Release |
+| 3 | `master` → `release/v<major>.x` (`--ff-only`) | `nextjs.yml` | `next build` (static export to `./out`) and deploy to GitHub Pages |
+| 4 | `master` → `develop` (plain merge) | — | `develop` picks up the release commit (version + changelog) |
+
+Notes:
+
+- **Only pushes to `release/*` deploy.** Pushing to `develop` or `master` never touches the live site; `nextjs.yml` can also be started manually (`workflow_dispatch`).
+- `docs:` / `chore:` / `ci:` / `test:` / `style:` / `build:` commits do not trigger a release, so `master` gets no release commit.
+- Use the `release/v<major>.x` branch matching `package.json` (`release/v1.x` while the version is `1.x.x`).
+- Use `--ff-only` for `release/*` so it stays a strict fast-forward of `master`; never force-push `master` or `release/*`.
+- GitHub Pages must be set to **Source: GitHub Actions** in the repository settings.
+
+---
+
 ## Project Structure
 
 ```text
