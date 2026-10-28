@@ -81,8 +81,8 @@ bf6-stats/
 │
 ├── .github/
 │   └── workflows/
-│       ├── ci.yml                  # CI: build & lint on push/PR to master
-│       └── release.yml             # Release: semantic-release on push to master
+│       ├── ci.yml                  # CI: build & lint on push/PR to master, then semantic-release on push to master
+│       └── nextjs.yml              # Deploy: build & publish to GitHub Pages on push to release/*
 │
 ├── public/                         # Static assets
 │
@@ -465,15 +465,21 @@ docker compose up --build
 
 ### Release Flow
 
-`develop` → `master` (CI + semantic-release) → `release/v<major>.x` (GitHub Pages deploy via `nextjs.yml`).
+```text
+develop → master (--no-ff) → [semantic-release] → release/* (--ff-only)
+                                  ↓
+                        master → develop (plain merge)
+```
+
+`develop` → `master` (CI + semantic-release) → `release/v<major>.x` (GitHub Pages deploy via `nextjs.yml`), then `master` is merged back into `develop`.
 
 When the user asks to "release" / "ทำ release flow", run these steps in order (pushing is authorized by that request):
 
 1. **develop**: commit with Conventional Commits (`fix:` / `feat:` …), then `git push origin develop`.
 2. **master**: `git checkout master && git pull --ff-only origin master`, then `git merge --no-ff develop -m "Merge branch 'develop'"` and `git push origin master`.
 3. **Wait for semantic-release**: CI (`ci.yml`) builds, then semantic-release pushes a `chore(release): X.Y.Z [skip ci]` commit (bumps `package.json` + `CHANGELOG.md`) to `master`. Poll `git fetch origin master` until `origin/master` moves past the merge commit, then `git pull --ff-only origin master`.
-4. **release/v<major>.x**: `git checkout release/v1.x && git pull --ff-only origin release/v1.x`, then `git merge --no-ff master -m "Merge branch 'master' into release/v1.x"` and `git push origin release/v1.x`. This push triggers the GitHub Pages deploy. Use the branch matching the current major version (`v1.x` while `package.json` is 1.x.x; create `release/v2.x` when a major bump ships).
-5. **Sync back**: `git checkout develop && git merge --ff-only master` so `develop` carries the release commit (version + changelog). Do not push unless needed — pushing `develop` is safe and keeps it level with `master`.
+4. **release/v<major>.x**: `git checkout release/v1.x && git pull --ff-only origin release/v1.x`, then `git merge --ff-only master` (release must stay a strict fast-forward of `master`; if it fails, stop and report — never force) and `git push origin release/v1.x`. This push triggers the GitHub Pages deploy. Use the branch matching the current major version (`v1.x` while `package.json` is 1.x.x; create `release/v2.x` when a major bump ships).
+5. **Sync back**: `git checkout develop && git merge master` (plain merge) so `develop` carries the release commit (version + changelog). Do not push unless needed — pushing `develop` is safe and keeps it level with `master`.
 
 Notes:
 - Only `docs/chore/ci/test/style/build` commits produce no release — step 3 would never see a new commit, so skip the wait and steps 4–5 unless the user still wants to deploy.
