@@ -81,8 +81,8 @@ bf6-stats/
 │
 ├── .github/
 │   └── workflows/
-│       ├── ci.yml                  # CI: build & lint on push/PR to master
-│       └── release.yml             # Release: semantic-release on push to master
+│       ├── ci.yml                  # CI: build & lint on push/PR to master, then semantic-release on push to master
+│       └── nextjs.yml              # Deploy: build & publish to GitHub Pages on push to release/*
 │
 ├── public/                         # Static assets
 │
@@ -465,7 +465,13 @@ docker compose up --build
 
 ### Release Flow
 
-`develop` → `master` (CI + semantic-release) → `release/v<major>.x` (GitHub Pages deploy via `nextjs.yml`).
+```text
+develop → master (--no-ff) → [semantic-release] → release/* (--no-ff)
+                                  ↓
+                        master → develop (--ff-only)
+```
+
+`develop` → `master` (CI + semantic-release) → `release/v<major>.x` (GitHub Pages deploy via `nextjs.yml`), then `master` is merged back into `develop`.
 
 When the user asks to "release" / "ทำ release flow", run these steps in order (pushing is authorized by that request):
 
