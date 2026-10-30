@@ -13,7 +13,7 @@ import MapsTable from "@/components/MapsTable";
 import GadgetsTable from "@/components/GadgetsTable";
 import PerSeasonCarouselTW from "./PerSeasonCarouselTW";
 import { BF6Stats } from "@/types/bf6";
-import { SectionTitle, StatGrid, MiniStat, EmptyState, LoadingState, RefreshingBar, ErrorState } from "./TailwindShared";
+import { SectionTitle, StatGrid, MiniStat, EmptyState, LoadingState, RefreshingBar, ErrorState, WarningBar } from "./TailwindShared";
 
 function SeasonTag({ label, variant }: { label: string; variant: "mode" | "win" | "loss" }) {
   const backgrounds = {
@@ -32,7 +32,7 @@ function SeasonTag({ label, variant }: { label: string; variant: "mode" | "win" 
 }
 
 export default function StatsPageTW() {
-  const { playerName, stats, statsLoading, statsError, statsSyncedAt, fetchStats, resetToDefault } = usePlayerStore();
+  const { playerName, stats, statsLoading, statsError, statsSyncedAt, statsWarning, fetchStats, resetToDefault } = usePlayerStore();
 
   const handleRefresh = () => { if (playerName) fetchStats(); };
 
@@ -56,6 +56,8 @@ export default function StatsPageTW() {
       {playerName && statsLoading && !stats && <LoadingState message={`Loading stats for ${playerName}...`} />}
 
       {playerName && statsLoading && stats && <RefreshingBar />}
+
+      {statsWarning && !statsLoading && <WarningBar message={statsWarning} />}
 
       {statsError && !statsLoading && (
         <ErrorState title="Error" message={statsError}>

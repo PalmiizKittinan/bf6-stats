@@ -22,6 +22,8 @@ Data is powered by the [GameTools Network API](https://gametools.network).
 - **Cross-page persistence** — Data persists in Zustand store when navigating between `/profile`, `/stats` and `/multiple`
 - **10-second timeout** — API requests abort automatically with an error message if no response within 10 seconds
 - **Saved player names** — Save frequently searched players to localStorage for quick access
+- **Auto-load on open** — Tick the checkbox next to a saved name (one at a time) to show that player's last fetched profile and stats as soon as the site opens, with no API call until you press Refresh or Search
+- **Last-fetch fallback** — The last profile and stats that loaded successfully are kept in localStorage. If a later fetch fails (server error, timeout), that data stays on screen with a warning instead of an error page
 - **Refresh buttons** — Each page has its own refresh button to re-fetch its specific data
 - **Stats cache** — Stats are cached in localStorage for 7 days and reused while the player's play time is unchanged; the last synced time is shown
 
@@ -235,7 +237,8 @@ src/
 │   │   ├── MultiplePageTW.tsx   # Full Tailwind Multiple (compare) page
 │   │   └── PerSeasonCarouselTW.tsx # Tailwind per-season carousel
 ├── store/
-│   └── usePlayerStore.ts        # Zustand store: search, stats, profile, multiple, fetching, timeout, cache
+│   ├── usePlayerStore.ts        # Zustand store: search, stats, profile, multiple, fetching, timeout, cache, last-fetch snapshots
+│   └── savedNames.ts            # Saved player names + auto-load flag (localStorage)
 └── types/
     └── bf6.ts                   # TypeScript interfaces for all API response types
 ```
@@ -258,12 +261,13 @@ src/
 The app uses **Zustand** (`src/store/usePlayerStore.ts`) as a centralized store for all application state:
 
 - **Search state**: `searchInput`, `playerName`, `platform`
-- **Stats data**: `stats`, `statsLoading`, `statsError`
-- **Profile data**: `profile`, `profileLoading`, `profileError`
+- **Stats data**: `stats`, `statsLoading`, `statsError`, `statsWarning`
+- **Profile data**: `profile`, `profileLoading`, `profileError`, `profileWarning`
 - **Multiple data**: `multiple` (one `BF6Stats` per compared player), `multipleMissing`, `multipleLoading`, `multipleError`
 - **Fetching**: Uses `AbortController` with 10-second timeout
 - **Cross-page persistence**: Data survives navigation between `/profile`, `/stats` and `/multiple`
 - **Local-only fetch**: Data is only fetched on user action (Search, Refresh) — never on page load
+- **Last-fetch snapshots**: Each successful profile/stats fetch is saved per player (`bf6-last-fetch:{name}`, no expiry; the newest 10 plus every saved name are kept). A failed fetch falls back to it and sets `profileWarning` / `statsWarning`. The auto-load saved name is restored from its snapshot on page load without fetching
 
 Additional state:
 - **CSSFrameworkProvider** — Manages Bootstrap/Tailwind selection, persisted to localStorage

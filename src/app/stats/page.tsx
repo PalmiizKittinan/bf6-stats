@@ -33,6 +33,7 @@ function StatsPageBootstrap() {
     statsLoading,
     statsError,
     statsSyncedAt,
+    statsWarning,
     fetchStats,
     resetToDefault,
   } = usePlayerStore();
@@ -105,6 +106,12 @@ function StatsPageBootstrap() {
               Clear Search
             </button>
           </div>
+        </div>
+      )}
+
+      {statsWarning && !statsLoading && (
+        <div className="alert alert-warning py-2 small mb-3" role="alert">
+          ⚠️ {statsWarning}
         </div>
       )}
 

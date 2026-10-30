@@ -7,28 +7,8 @@ import ThemeToggleTW from "./ThemeToggleTW";
 import { useSearch } from "@/components/SearchProvider";
 import { useCSSFramework } from "@/components/CSSFrameworkProvider";
 import { usePlayerStore } from "@/store/usePlayerStore";
+import { loadSavedNames, persistSavedNames, toggleAutoLoad, type SavedName } from "@/store/savedNames";
 import { useAccountChoices, PLATFORM_LABELS, formatKills } from "@/components/useAccountChoices";
-
-interface SavedName {
-  name: string;
-  platform: string;
-}
-
-const STORAGE_KEY = "bf6-saved-names";
-
-function loadSavedNames(): SavedName[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-}
-
-function persistSavedNames(names: SavedName[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(names));
-}
 
 export default function NavbarTW() {
   const pathname = usePathname();
@@ -80,6 +60,14 @@ export default function NavbarTW() {
   const deleteSavedName = useCallback((index: number) => {
     setSavedNames((prev) => {
       const updated = prev.filter((_, i) => i !== index);
+      persistSavedNames(updated);
+      return updated;
+    });
+  }, []);
+
+  const toggleSavedAutoLoad = useCallback((index: number) => {
+    setSavedNames((prev) => {
+      const updated = toggleAutoLoad(prev, index);
       persistSavedNames(updated);
       return updated;
     });
@@ -283,6 +271,16 @@ export default function NavbarTW() {
                             {saved.platform.toUpperCase()}
                           </span>
                         </span>
+                        <input
+                          type="checkbox"
+                          className="cursor-pointer"
+                          title="Show this player's last fetched profile and stats when the site opens"
+                          checked={!!saved.autoLoad}
+                          onChange={() => toggleSavedAutoLoad(index)}
+                          onClick={(e) => e.stopPropagation()}
+                          // Inline margin: Bootstrap reboot's `input { margin: 0 }` beats the ml-/mr- utilities
+                          style={{ accentColor: "var(--bf6-accent)", margin: "0 12px 0 8px" }}
+                        />
                         <button
                           type="button"
                           className="tw-btn tw-btn-xs ml-2"
