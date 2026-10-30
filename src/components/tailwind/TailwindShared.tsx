@@ -108,6 +108,19 @@ export function RefreshingBar() {
   );
 }
 
+export function WarningBar({ message }: { message: string }) {
+  return (
+    <div
+      className="tw-glass-card tw-glass-static flex items-center gap-2 px-4 py-2.5 mb-4 text-sm"
+      style={{ borderColor: "rgba(245, 158, 11, 0.45)", background: "rgba(245, 158, 11, 0.1)", color: "var(--bf6-text-strong)" }}
+      role="alert"
+    >
+      <span>⚠️</span>
+      <span>{message}</span>
+    </div>
+  );
+}
+
 export function ErrorState({ title, message, children }: { title: string; message: string; children?: React.ReactNode }) {
   return (
     <div className="text-center py-20">

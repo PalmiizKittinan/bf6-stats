@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { BF6Stats, BF6Profile } from "@/types/bf6";
+import { loadSavedNames } from "./savedNames";
 
 const STATS_API = "https://api.gametools.network/bf6/stats/";
 const PROFILE_API = "https://api.gametools.network/bf6/profile/";
@@ -8,6 +9,8 @@ const NOT_FOUND_MSG =
   "Player not found. Please check the username and platform.";
 const DEFAULT_PLATFORM = "ea";
 const TIMEOUT_MS = 10_000;
+const TIMEOUT_MSG =
+  "Request timed out. The server did not respond within 10 seconds. Please try again.";
 const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const CACHE_PREFIX = "bf6-stats-cache";
 const CLASS_TIME_KEYS = [
@@ -52,6 +55,74 @@ function writeCache(key: string, entry: Omit<StatsCacheEntry, "savedAt">) {
     // Storage full or unavailable — cache is best-effort
   }
 }
+
+// Last successfully fetched profile + stats per player, kept without expiry so the
+// page can fall back to it when the API fails (and show it on startup)
+const SNAPSHOT_PREFIX = "bf6-last-fetch";
+const SNAPSHOT_INDEX_KEY = "bf6-last-fetch-index";
+const MAX_SNAPSHOTS = 10;
+
+export interface PlayerSnapshot {
+  name: string;
+  platform: string;
+  account?: Account;
+  profile?: BF6Profile;
+  profileSyncedAt?: number;
+  stats?: BF6Stats;
+  statsSyncedAt?: number;
+  // `separation` the stats were fetched with
+  statsSeparation?: boolean;
+}
+
+const snapshotKey = (name: string) =>
+  `${SNAPSHOT_PREFIX}:${name.toLowerCase()}`;
+
+export function readSnapshot(name: string): PlayerSnapshot | null {
+  try {
+    const raw = localStorage.getItem(snapshotKey(name));
+    return raw ? (JSON.parse(raw) as PlayerSnapshot) : null;
+  } catch {
+    return null;
+  }
+}
+
+function updateSnapshot(
+  name: string,
+  patch: Omit<Partial<PlayerSnapshot>, "name" | "account">
+) {
+  const lower = name.toLowerCase();
+  try {
+    const prev = readSnapshot(name);
+    const snap: PlayerSnapshot = {
+      ...prev,
+      ...patch,
+      name,
+      platform: patch.platform ?? prev?.platform ?? DEFAULT_PLATFORM,
+      account: pins.get(lower) ?? prev?.account,
+    };
+    localStorage.setItem(snapshotKey(name), JSON.stringify(snap));
+
+    // Keep the most recent snapshots, never dropping a saved name
+    const saved = new Set(loadSavedNames().map((s) => s.name.toLowerCase()));
+    const index: string[] = JSON.parse(
+      localStorage.getItem(SNAPSHOT_INDEX_KEY) ?? "[]"
+    );
+    const next = [lower, ...index.filter((n) => n !== lower)];
+    const kept: string[] = [];
+    for (const n of next) {
+      if (kept.length < MAX_SNAPSHOTS || saved.has(n)) kept.push(n);
+      else localStorage.removeItem(snapshotKey(n));
+    }
+    localStorage.setItem(SNAPSHOT_INDEX_KEY, JSON.stringify(kept));
+  } catch {
+    // Storage full or unavailable — snapshot is best-effort
+  }
+}
+
+const staleWarning = (reason: string, syncedAt?: number) =>
+  `No new data received from the server (${reason}). Showing the last fetched data${
+    syncedAt ? ` from ${formatSyncedAt(syncedAt)}` : ""
+  }.`;
 
 // Total play time from the (lighter) profile endpoint: sum of per-class time
 function profileSecondsPlayed(profile: BF6Profile | null): number | null {
@@ -102,6 +173,8 @@ interface PlayerStore {
   statsLoading: boolean;
   statsError: string | null;
   statsSyncedAt: number | null;
+  // Set when a fetch failed and the last fetched stats are shown instead
+  statsWarning: string | null;
   fetchStats: () => Promise<void>;
 
   // Profile state
@@ -109,6 +182,7 @@ interface PlayerStore {
   profileLoading: boolean;
   profileError: string | null;
   profileSyncedAt: number | null;
+  profileWarning: string | null;
   fetchProfile: () => Promise<void>;
 
   // Fetch profile, then reuse cached stats if secondsPlayed is unchanged
@@ -116,6 +190,9 @@ interface PlayerStore {
 
   // Refresh all
   refreshAll: () => Promise<void>;
+
+  // Show a player's last fetched profile + stats without calling the API
+  restoreSnapshot: (name: string) => boolean;
 
   // Multiple state (/multiple page): ids from the player search, stats fetched per player
   // One entry per resolved player name (comma separated in the search box)
@@ -413,10 +490,12 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
       stats: null,
       statsError: null,
       statsSyncedAt: null,
+      statsWarning: null,
       statsLoading: false,
       profile: null,
       profileError: null,
       profileSyncedAt: null,
+      profileWarning: null,
       profileLoading: false,
       multiple: null,
       multipleMissing: [],
@@ -431,6 +510,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   statsLoading: false,
   statsError: null,
   statsSyncedAt: null,
+  statsWarning: null,
 
   fetchStats: async () => {
     const { playerName, platform, separation } = get();
@@ -471,25 +551,42 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
         stats: data,
         secondsPlayed: profileSecondsPlayed(get().profile),
       });
+      const syncedAt = Date.now();
+      updateSnapshot(playerName, {
+        platform,
+        stats: data,
+        statsSyncedAt: syncedAt,
+        statsSeparation: separation,
+      });
       set({
         stats: data,
         statsError: null,
+        statsWarning: null,
         statsLoading: false,
-        statsSyncedAt: Date.now(),
+        statsSyncedAt: syncedAt,
       });
     } catch (err) {
       clearTimeout(timeoutId);
-      if (!controller.signal.aborted) {
+      // Aborted by a newer request
+      if (controller.signal.aborted && statsController !== controller) return;
+      const message = controller.signal.aborted
+        ? TIMEOUT_MSG
+        : err instanceof Error
+          ? err.message
+          : "Failed to fetch stats";
+      const snap = readSnapshot(playerName);
+      if (snap?.stats && snap.statsSeparation === separation) {
         set({
-          statsError:
-            err instanceof Error ? err.message : "Failed to fetch stats",
-          stats: null,
+          stats: snap.stats,
+          statsSyncedAt: snap.statsSyncedAt ?? null,
+          statsError: null,
+          statsWarning: staleWarning(message, snap.statsSyncedAt),
           statsLoading: false,
         });
-      } else if (statsController === controller) {
-        // Timeout or manual abort on current controller
+      } else {
         set({
-          statsError: "Request timed out. The server did not respond within 10 seconds. Please try again.",
+          statsError: message,
+          statsWarning: null,
           stats: null,
           statsLoading: false,
         });
@@ -502,6 +599,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   profileLoading: false,
   profileError: null,
   profileSyncedAt: null,
+  profileWarning: null,
 
   fetchProfile: async () => {
     const { playerName, platform } = get();
@@ -527,25 +625,41 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
       if (!res.ok) throw new Error(`API error: ${res.status}`);
       const data: BF6Profile = await res.json();
       clearTimeout(timeoutId);
+      const syncedAt = Date.now();
+      updateSnapshot(playerName, {
+        platform,
+        profile: data,
+        profileSyncedAt: syncedAt,
+      });
       set({
         profile: data,
         profileError: null,
+        profileWarning: null,
         profileLoading: false,
-        profileSyncedAt: Date.now(),
+        profileSyncedAt: syncedAt,
       });
     } catch (err) {
       clearTimeout(timeoutId);
-      if (!controller.signal.aborted) {
+      // Aborted by a newer request
+      if (controller.signal.aborted && profileController !== controller) return;
+      const message = controller.signal.aborted
+        ? TIMEOUT_MSG
+        : err instanceof Error
+          ? err.message
+          : "Failed to fetch profile";
+      const snap = readSnapshot(playerName);
+      if (snap?.profile) {
         set({
-          profileError:
-            err instanceof Error ? err.message : "Failed to fetch profile",
-          profile: null,
+          profile: snap.profile,
+          profileSyncedAt: snap.profileSyncedAt ?? null,
+          profileError: null,
+          profileWarning: staleWarning(message, snap.profileSyncedAt),
           profileLoading: false,
         });
-      } else if (profileController === controller) {
-        // Timeout or manual abort on current controller
+      } else {
         set({
-          profileError: "Request timed out. The server did not respond within 10 seconds. Please try again.",
+          profileError: message,
+          profileWarning: null,
           profile: null,
           profileLoading: false,
         });
@@ -574,9 +688,16 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
       cached.secondsPlayed === current &&
       cached.stats.hasResults
     ) {
+      updateSnapshot(playerName, {
+        platform,
+        stats: cached.stats,
+        statsSyncedAt: cached.savedAt,
+        statsSeparation: separation,
+      });
       set({
         stats: cached.stats,
         statsError: null,
+        statsWarning: null,
         statsLoading: false,
         statsSyncedAt: cached.savedAt,
       });
@@ -589,6 +710,27 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     const { playerName } = get();
     if (!playerName) return;
     get().loadAll();
+  },
+
+  restoreSnapshot: (name) => {
+    const snap = readSnapshot(name);
+    if (!snap) return false;
+    if (snap.account) pins.set(name.toLowerCase(), snap.account);
+    set({
+      searchInput: snap.name,
+      playerName: snap.name,
+      platform: snap.platform,
+      separation: snap.statsSeparation ?? false,
+      profile: snap.profile ?? null,
+      profileSyncedAt: snap.profileSyncedAt ?? null,
+      profileError: null,
+      profileWarning: null,
+      stats: snap.stats ?? null,
+      statsSyncedAt: snap.statsSyncedAt ?? null,
+      statsError: null,
+      statsWarning: null,
+    });
+    return true;
   },
 
   // Multiple

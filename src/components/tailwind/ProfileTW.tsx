@@ -2,7 +2,7 @@
 
 import { ProfileStat, CompetitiveRank } from "@/types/bf6";
 import { usePlayerStore, formatSyncedAt } from "@/store/usePlayerStore";
-import { StatCard, StatGrid, SectionTitle, MiniStat, EmptyState, LoadingState, RefreshingBar, ErrorState } from "./TailwindShared";
+import { StatCard, StatGrid, SectionTitle, MiniStat, EmptyState, LoadingState, RefreshingBar, ErrorState, WarningBar } from "./TailwindShared";
 
 function getStat(stats: ProfileStat[], name: string): number | undefined {
   const s = stats.find((s) => s.name === name);
@@ -68,7 +68,7 @@ function CompRankCard({ rank }: { rank: CompetitiveRank }) {
 }
 
 export default function ProfileTW() {
-  const { playerName, profile, profileLoading, profileError, profileSyncedAt, fetchProfile } = usePlayerStore();
+  const { playerName, profile, profileLoading, profileError, profileSyncedAt, profileWarning, fetchProfile } = usePlayerStore();
 
   const handleRefresh = () => { if (playerName) fetchProfile(); };
 
@@ -153,6 +153,8 @@ export default function ProfileTW() {
       </div>
 
       {profileLoading && profile && <RefreshingBar />}
+
+      {profileWarning && !profileLoading && <WarningBar message={profileWarning} />}
 
       {/* Competitive Ranks */}
       {competitiveRanks.length > 0 && (
