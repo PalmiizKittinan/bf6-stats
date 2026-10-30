@@ -1,3 +1,10 @@
+# [1.9.0](https://github.com/PalmiizKittinan/bf6-stats/compare/v1.8.3...v1.9.0) (2026-10-30)
+
+
+### Features
+
+* keep last fetched profile and stats, auto-load a saved player ([11987f9](https://github.com/PalmiizKittinan/bf6-stats/commit/11987f9a716482f6ef9a4890adcb6f39a6fc703d))
+
 ## [1.8.3](https://github.com/PalmiizKittinan/bf6-stats/compare/v1.8.2...v1.8.3) (2026-10-15)
 
 
