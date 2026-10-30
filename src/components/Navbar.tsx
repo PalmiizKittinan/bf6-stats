@@ -7,28 +7,8 @@ import ThemeToggle from "./ThemeToggle";
 import { useSearch } from "./SearchProvider";
 import { useCSSFramework } from "./CSSFrameworkProvider";
 import { usePlayerStore } from "@/store/usePlayerStore";
+import { loadSavedNames, persistSavedNames, toggleAutoLoad, type SavedName } from "@/store/savedNames";
 import { useAccountChoices, PLATFORM_LABELS, formatKills } from "./useAccountChoices";
-
-interface SavedName {
-  name: string;
-  platform: string;
-}
-
-const STORAGE_KEY = "bf6-saved-names";
-
-function loadSavedNames(): SavedName[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-}
-
-function persistSavedNames(names: SavedName[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(names));
-}
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -83,6 +63,14 @@ export default function Navbar() {
   const deleteSavedName = useCallback((index: number) => {
     setSavedNames((prev) => {
       const updated = prev.filter((_, i) => i !== index);
+      persistSavedNames(updated);
+      return updated;
+    });
+  }, []);
+
+  const toggleSavedAutoLoad = useCallback((index: number) => {
+    setSavedNames((prev) => {
+      const updated = toggleAutoLoad(prev, index);
       persistSavedNames(updated);
       return updated;
     });
@@ -281,6 +269,14 @@ export default function Navbar() {
                             {saved.platform.toUpperCase()}
                           </span>
                         </span>
+                        <input
+                          type="checkbox"
+                          className="form-check-input ms-2 me-2 mt-0"
+                          title="Show this player's last fetched profile and stats when the site opens"
+                          checked={!!saved.autoLoad}
+                          onChange={() => toggleSavedAutoLoad(index)}
+                          onClick={(e) => e.stopPropagation()}
+                        />
                         <button
                           type="button"
                           className="btn btn-sm btn-outline-danger ms-2 py-0 px-1"

@@ -137,7 +137,8 @@ bf6-stats/
     │       └── PerSeasonCarouselTW.tsx # Tailwind per-season carousel
     │
     ├── store/
-    │   └── usePlayerStore.ts       # Zustand store: search state, stats/profile/multiple data, fetching, timeout, stats cache
+    │   ├── usePlayerStore.ts       # Zustand store: search state, stats/profile/multiple data, fetching, timeout, stats cache, last-fetch snapshots
+    │   └── savedNames.ts           # Saved player names (localStorage) + auto-load flag, shared by both navbars and SearchProvider
     │
     └── types/
         └── bf6.ts                  # TypeScript interfaces for all API response types
@@ -181,7 +182,8 @@ bf6-stats/
 
 | File              | Contents |
 | ----------------- | -------- |
-| `usePlayerStore.ts` | Zustand store managing all app state: search (`searchInput`, `playerName`, `platform`), stats data (`stats`, `statsLoading`, `statsError`), profile data (`profile`, `profileLoading`, `profileError`), multiple data (`multiple`, `multipleMissing`, `multipleLoading`, `multipleError`, `multipleActive`). Handles fetching with AbortController, 10-second timeout, a 7-day localStorage stats cache, and shared state across pages. Exports `parseNames()` and `formatSyncedAt()`. |
+| `usePlayerStore.ts` | Zustand store managing all app state: search (`searchInput`, `playerName`, `platform`), stats data (`stats`, `statsLoading`, `statsError`), profile data (`profile`, `profileLoading`, `profileError`), multiple data (`multiple`, `multipleMissing`, `multipleLoading`, `multipleError`, `multipleActive`). Handles fetching with AbortController, 10-second timeout, a 7-day localStorage stats cache, last-fetch snapshots (`profileWarning` / `statsWarning` when a fetch fails and the snapshot is shown), and shared state across pages. Exports `parseNames()`, `formatSyncedAt()`, `readSnapshot()`. |
+| `savedNames.ts` | `SavedName` (`name`, `platform`, `autoLoad`), `loadSavedNames()`, `persistSavedNames()`, `toggleAutoLoad()` (only one name can auto-load). |
 
 ### Types (`src/types/`)
 
@@ -311,7 +313,7 @@ Additional state:
 - **React Context** (`ThemeProvider`) for global theme state using `useSyncExternalStore`
 - **React Context** (`CSSFrameworkProvider`) for Bootstrap/Tailwind selection, persisted to localStorage
 - **React Context** (`SearchProvider`) — thin wrapper delegating to Zustand store
-- **`localStorage`** for theme persistence (`bf6-theme`), CSS framework persistence (`bf6-css-framework`), saved player names (`bf6-saved-names`), and the stats cache (`bf6-stats-cache:{platform}:{name}:{separation}`, 7-day TTL)
+- **`localStorage`** for theme persistence (`bf6-theme`), CSS framework persistence (`bf6-css-framework`), saved player names (`bf6-saved-names`), the stats cache (`bf6-stats-cache:{platform}:{name}:{separation}`, 7-day TTL), and last-fetch snapshots (`bf6-last-fetch:{name}` + index `bf6-last-fetch-index`, no TTL, newest 10 kept plus every saved name)
 
 Key behaviors:
 - **Search-on-click**: Data is only fetched when user clicks Search or selects a saved name — no auto-fetch on page load
@@ -319,6 +321,8 @@ Key behaviors:
 - **Multiple names**: On `/multiple` the search box takes comma-separated names (unique, max 10). Each is resolved in parallel, then loaded with its own stats request. Unresolved names show a "Not found" notice; the rest still load
 - **Multiple page no auto-fetch**: opening `/multiple` with an existing name shows a "Load Stats" button instead of fetching
 - **10-second timeout**: API requests are aborted with a timeout error message if no response within 10 seconds
+- **Last-fetch fallback**: every successful profile/stats fetch is saved as a snapshot for that name. If a later fetch fails (error, timeout) and a snapshot exists, the snapshot stays on screen with a warning banner instead of the error state. Stats fall back only when `separation` matches
+- **Auto-load saved name**: each saved name has a checkbox (one at a time). On site open, `SearchProvider` shows that name's snapshot with no API call; Refresh/Search fetches again
 - **Refresh**: Each page has its own refresh button to re-fetch its specific data
 
 ---

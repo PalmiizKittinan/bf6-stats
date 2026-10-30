@@ -28,6 +28,7 @@ export default function Profile() {
     profileLoading,
     profileError,
     profileSyncedAt,
+    profileWarning,
     fetchProfile,
   } = usePlayerStore();
 
@@ -123,6 +124,12 @@ export default function Profile() {
           🔄 Refresh
         </button>
       </div>
+
+      {profileWarning && !profileLoading && (
+        <div className="alert alert-warning py-2 small mb-3" role="alert">
+          ⚠️ {profileWarning}
+        </div>
+      )}
 
       {/* Refreshing indicator */}
       {profileLoading && profile && (

@@ -3,9 +3,11 @@
 import {
   createContext,
   useContext,
+  useEffect,
   type ReactNode,
 } from "react";
 import { usePlayerStore } from "@/store/usePlayerStore";
+import { loadSavedNames } from "@/store/savedNames";
 
 interface SearchContextValue {
   playerName: string;
@@ -47,6 +49,14 @@ export default function SearchProvider({ children }: { children: ReactNode }) {
     handleSearch,
     resetToDefault,
   } = usePlayerStore();
+
+  // Show the auto-load saved player from its last fetch (no API call)
+  useEffect(() => {
+    const auto = loadSavedNames().find((s) => s.autoLoad);
+    if (!auto) return;
+    const store = usePlayerStore.getState();
+    if (!store.restoreSnapshot(auto.name)) store.pinPlatform(auto.name, auto.platform);
+  }, []);
 
   return (
     <SearchContext.Provider
